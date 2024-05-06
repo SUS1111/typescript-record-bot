@@ -1,0 +1,18 @@
+{
+  "name": "dcbot",
+  "version": "1.0.0",
+  "description": "Demo",
+  "main": "index.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "SUS1111",
+  "license": "MIT",
+  "dependencies": {
+    "discord.js": "^14.15.1",
+    "dotenv": "^16.4.5",
+    "moment-timezone": "^0.5.45",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.5"
+  }
+}
