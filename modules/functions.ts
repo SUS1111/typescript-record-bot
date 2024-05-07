@@ -1,9 +1,9 @@
 interface permLevels { level: number, name: string, check: (member: any) => boolean }[]
 
-import Discord, { Client, GuildMember, Message, User } from 'discord.js';
+import Discord, { Client, GuildMember, Message, APIInteractionGuildMember, SlashCommandBuilder, SlashCommandAttachmentOption, SlashCommandBooleanOption, SlashCommandChannelOption, SlashCommandIntegerOption, SlashCommandMentionableOption, SlashCommandNumberOption, SlashCommandRoleOption, SlashCommandStringOption, SlashCommandUserOption, SlashCommandOptionsOnlyBuilder, ChatInputApplicationCommandData, ChatInputCommandInteraction } from 'discord.js';
 import config from '../config';
 
-const permlevel = (member: GuildMember| null) => {
+const permlevel = (member: GuildMember| APIInteractionGuildMember | null) => {
     let permlvl:number = 0;
     const permOrder:permLevels[] = config.permLevels.slice(0).sort((p, c) => (p.level < c.level ? 1 : -1));
     while (permOrder.length) {
@@ -38,4 +38,37 @@ const clean = async (client: Client, text: string) => {
     return value;
 };
 
-export { permlevel, targetGet, clean };
+const addOption = (type: string, slashCmd: SlashCommandBuilder, option: { required: boolean, description: string, name: string }):SlashCommandOptionsOnlyBuilder | SlashCommandBuilder => {
+    // return Symbol(`add${type.charAt(0).toUpperCase() + type.slice(1)}Option`);
+    const { name, description, required } = option;
+    switch (type.toLocaleLowerCase()) {
+        case 'string':
+            return slashCmd.addStringOption((option: any) => option.setName(name).setDescription(description).setRequired(required));
+        case 'channel':
+            return slashCmd.addChannelOption((option: any) => option.setName(name).setDescription(description).setRequired(required));
+        case 'boolean':
+            return slashCmd.addBooleanOption((option: any) => option.setName(name).setDescription(description).setRequired(required));
+        case 'integer':
+            return slashCmd.addIntegerOption((option: any) => option.setName(name).setDescription(description).setRequired(required));
+        case 'number':
+            return slashCmd.addNumberOption((option: any) => option.setName(name).setDescription(description).setRequired(required));
+        case 'user':
+            return slashCmd.addUserOption((option: any) => option.setName(name).setDescription(description).setRequired(required));
+        case 'role':
+            return slashCmd.addRoleOption((option: any) => option.setName(name).setDescription(description).setRequired(required));
+        case 'mentionable':
+            return slashCmd.addMentionableOption((option: any) => option.setName(name).setDescription(description).setRequired(required));
+        case 'attachment':
+            return slashCmd.addAttachmentOption((option: any) => option.setName(name).setDescription(description).setRequired(required));
+        default:
+            return slashCmd;
+    }
+};
+
+const optionToArray = (interaction:ChatInputCommandInteraction, options: Map<string, { required: boolean, description: string, type: string }>):any[] => {
+    const optionName = [...options.keys()];
+    const result = optionName.map(name => interaction.options.get(name)?.value);
+    return result;
+};
+
+export { permlevel, targetGet, clean, addOption, optionToArray };

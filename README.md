@@ -8,6 +8,9 @@
 * NPM v10.5.0+
 
 ## Config
+
+`config.ts`
+
 ```ts
 interface config {
     settings: {
@@ -50,6 +53,8 @@ const config:config = {
 
 export default config;
 ```
+
+`.env`
 
 ```.env
 token=你的token
