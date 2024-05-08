@@ -32,7 +32,7 @@ const config:config = {
             check: member => member.id === '785496543141560371'
         }
     ],
-    commandPaths: ['./commands/ping', './commands/eval'], // 可繼續接下去 以,分割
+    commandPaths: ['./commands/ping', './commands/eval', './commands/joinChannel', './commands/leaveChannel'], // 可繼續接下去 以,分割
     eventPaths: new Map([
         // ['name', 'path']
         ['ready', './events/ready'],

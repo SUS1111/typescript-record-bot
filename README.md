@@ -66,4 +66,8 @@ token=你的token
 * `config.ts` 可設定機器人前綴與其活動狀態、權限設定
 * 下載之後請運行 `npm install` ，安裝所需要的套件
 * 若要運行， 請在命令行輸入`ts-node .`
+* 最後對訊息的作者回傳的訊息請使用
+```js
+return { content: 'your content', embed: [e] } // 也可以再加其他的比如attachment 總之就是把message.reply或是interaction.followUp裏面的東西拆除來就對了
+```
 * 想要部署在replit或其他地方請自己想辦法

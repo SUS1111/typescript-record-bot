@@ -9,6 +9,7 @@
   "author": "SUS1111",
   "license": "MIT",
   "dependencies": {
+    "@discordjs/voice": "^0.17.0",
     "discord.js": "^14.15.1",
     "dotenv": "^16.4.5",
     "moment-timezone": "^0.5.45",

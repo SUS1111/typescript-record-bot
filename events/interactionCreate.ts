@@ -10,6 +10,7 @@ import logger from "../modules/logger";
 export default async(client: Client, interaction: BaseInteraction) => {
     // 當不是指令則忽略
     if(!interaction.isChatInputCommand()) return;
+    if(!interaction.guildId) return;
     try {
         // 得到使用者的權限等級
         const permlevelGet:number = permlevel(interaction.member);
