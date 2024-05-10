@@ -18,8 +18,7 @@ export const run = (client: Client, message: Message | ChatInputCommandInteracti
     if(!connection) return reply(message, { content: '機器人尚未加入語音頻道' });
     const encoder: OpusEncoder = new OpusEncoder(48000, 2);
     const subsription: AudioReceiveStream = connection.receiver.subscribe(user.id);
-    const recordFileStream = createWriteStream(`${path.join(config.settings.filePath, fileName)}.pcm`, { encoding: 'binary', flags: 'a' });
-    subsription.on('data', chunk => writeFileStream(`${path.join(config.settings.filePath, fileName)}.pcm`, false, encoder.decode(chunk)));
+    subsription.on('data', chunk => writeFileStream(`${path.join(config.settings.dicPath, fileName)}.pcm`, false, encoder.decode(chunk)));
     return reply(message, { content: '開發中' });
 }
 
