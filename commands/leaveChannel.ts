@@ -2,13 +2,14 @@ interface conf { name: string; permLevel: string; aliases: string[], category: s
 
 import { Client, Message, ChatInputCommandInteraction, } from "discord.js";
 import { VoiceConnection, getVoiceConnection } from '@discordjs/voice';
+import { reply } from "../modules/functions";
 
 export const run = (client: Client, message: Message | ChatInputCommandInteraction, args: string[]) => {
-    if(!message.guildId) return { content: '請在伺服器進行此操作' };
-    const connection: VoiceConnection | undefined = getVoiceConnection(message.guildId);
-    if(!connection) return { content: '機器人根本沒有加入語音頻道' };
+    if(!message.guildId || !client.user) return;
+    const connection: VoiceConnection | undefined = getVoiceConnection(message.guildId, client.user.id);
+    if(!connection) return reply(message, { content: '機器人根本沒有加入語音頻道' });
     connection.destroy();
-    return { content: '成功離開頻道' };
+    reply(message, { content: '成功離開頻道' });
 };
 
 export const conf: conf = {

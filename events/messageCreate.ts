@@ -34,8 +34,8 @@ export default async (client:Client, message:Message) => {
             const result = await cmd.run(client, message, args);
             // 記錄日誌
             logger(`${config.permLevels.find((l) => l.level === permlevelGet)?.name} ${message.author.tag} 執行了 ${cmd.conf.name}`, 'cmd');
-            // 回傳結果
-            return message.reply(result);
+            // 回傳結果(雖然沒必要)
+            return result;
         } catch (err:any) {
             // 如果出現錯誤，就回覆錯誤訊息
             message.channel.send({ content: `出現了些錯誤\n\`\`\`${err.message}\`\`\`` });

@@ -2,7 +2,8 @@ interface config {
     settings: {
         prefix: string,
         activity: string,
-        clientId: string
+        clientId: string,
+        filePath: string
     };
     permLevels: { level: number, name: string, check: (member: any) => boolean }[];
     commandPaths: string[];
@@ -13,7 +14,8 @@ const config:config = {
     settings: {
         prefix: 's!',
         activity: '簡單試下機器人',
-        clientId: '1236596820755349505'
+        clientId: '1236596820755349505',
+        filePath: '../../音樂/' // 文件夾名稱即可
     },
     permLevels: [
         {
@@ -32,7 +34,7 @@ const config:config = {
             check: member => member.id === '785496543141560371'
         }
     ],
-    commandPaths: ['./commands/ping', './commands/eval', './commands/joinChannel', './commands/leaveChannel'], // 可繼續接下去 以,分割
+    commandPaths: ['./commands/ping', './commands/eval', './commands/joinChannel', './commands/leaveChannel', './commands/record', './commands/stop'], // 可繼續接下去 以,分割
     eventPaths: new Map([
         // ['name', 'path']
         ['ready', './events/ready'],

@@ -26,11 +26,11 @@ export default async(client: Client, interaction: BaseInteraction) => {
         const result = await cmd.run(client, interaction, optionToArray(interaction, cmd.conf.args));
         // 記錄日誌
         logger(`${config.permLevels.find((l) => l.level === permlevelGet)?.name} ${interaction.user.tag} 執行了 ${cmd.conf.name}`, 'cmd');
-        // 回傳結果
-        return interaction.followUp(result);
+        // 回傳結果(雖然沒必要)
+        return result;
     } catch (e: any) {
         // 回報錯誤
         logger(e, 'error');
-        return interaction.followUp({ content: `出現了些錯誤\n\`\`\`${e.message}\`\`\`` });
+        return interaction.reply({ content: `出現了些錯誤\n\`\`\`${e.message}\`\`\``, fetchReply: true });
     }
 }

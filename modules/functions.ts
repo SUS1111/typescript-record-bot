@@ -1,9 +1,12 @@
 interface permLevels { level: number, name: string, check: (member: any) => boolean }[]
 
-import Discord, { Client, GuildMember, Message, APIInteractionGuildMember, SlashCommandBuilder, SlashCommandAttachmentOption, SlashCommandBooleanOption, SlashCommandChannelOption, SlashCommandIntegerOption, SlashCommandMentionableOption, SlashCommandNumberOption, SlashCommandRoleOption, SlashCommandStringOption, SlashCommandUserOption, SlashCommandOptionsOnlyBuilder, ChatInputApplicationCommandData, ChatInputCommandInteraction } from 'discord.js';
+import Discord, { Client, GuildMember, Message, APIInteractionGuildMember, SlashCommandBuilder, SlashCommandAttachmentOption, SlashCommandBooleanOption, SlashCommandChannelOption, SlashCommandIntegerOption, SlashCommandMentionableOption, SlashCommandNumberOption, SlashCommandRoleOption, SlashCommandStringOption, SlashCommandUserOption, SlashCommandOptionsOnlyBuilder, ChatInputApplicationCommandData, ChatInputCommandInteraction, InteractionReplyOptions, ReplyOptions } from 'discord.js';
 import config from '../config';
+import { WriteStream, createWriteStream } from 'fs';
 
-const permlevel = (member: GuildMember| APIInteractionGuildMember | null) => {
+let writeStream: WriteStream;
+
+const permlevel = (member: GuildMember| APIInteractionGuildMember | null): number => {
     let permlvl:number = 0;
     const permOrder:permLevels[] = config.permLevels.slice(0).sort((p, c) => (p.level < c.level ? 1 : -1));
     while (permOrder.length) {
@@ -16,7 +19,7 @@ const permlevel = (member: GuildMember| APIInteractionGuildMember | null) => {
     return permlvl;
 };
 
-const targetGet = (message: Message, args: any[]) => {
+const targetGet = (message: Message, args: any[]): GuildMember | undefined => {
     if (!args[0]) return undefined;
     if (args[0].matchAll(Discord.MessageMentions.UsersPattern).next().value) {
         return message.guild?.members.cache.get(args[0].matchAll(Discord.MessageMentions.UsersPattern).next().value[1]);
@@ -24,8 +27,8 @@ const targetGet = (message: Message, args: any[]) => {
     return message.guild?.members.cache.get(args[0]);
 };
 
-const clean = async (client: Client, text: string) => {
-    let value = text;
+const clean = async (client: Client, text: string): Promise<string> => {
+    let value: string = text;
     if (value && value.constructor.name === 'Promise') { value = await value; }
     if (typeof value !== 'string') { value = require('util').inspect(value, { depth: 1 }); }
 
@@ -71,4 +74,20 @@ const optionToArray = (interaction:ChatInputCommandInteraction, options: Map<str
     return result;
 };
 
-export { permlevel, targetGet, clean, addOption, optionToArray };
+const reply = (message: Message | ChatInputCommandInteraction, reply: any): any => {
+    try {
+        return message.reply(reply);
+    } catch (err) {
+        return message instanceof Message ? console.error(err) : message.followUp(reply);
+    }
+};
+
+const writeFileStream = (path: string, stop: boolean, data?: any) => {
+    writeStream = createWriteStream(path, { encoding: 'binary', flags: 'a' });
+    stop ? writeStream.close() : writeStream.write(data);
+    return writeStream;
+};
+
+const getWriteStream = () => writeStream;
+
+export { permlevel, targetGet, clean, addOption, optionToArray, reply, writeFileStream, getWriteStream };
