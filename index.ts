@@ -5,7 +5,7 @@ import 'dotenv/config';
 import config from './config';
 import logger from './modules/logger';
 import { addOption } from './modules/functions';
-import { lstatSync } from 'fs';
+import { lstatSync, readdirSync } from 'fs';
 
 if(!process.env.token) throw new Error('請在.env文件提供令牌!');
 if(!lstatSync(config.settings.dicPath).isDirectory()) throw new Error('並不存在該文件夾');
@@ -25,8 +25,9 @@ for (let i = 0; i < permLevels.length; i++) {
 
 export const container =  { commands, aliases, levelCache };
 
-commandPaths.forEach(async (file:string) => {
+const loadCommandFunc = async (file: string) => {
     try {
+        if(!file.startsWith('./commands/')) file = `./commands/${file}`;
         const code:cmd = await import(file);
         const cmdName:string = code.conf.name;
         container.commands.set(cmdName, code);
@@ -35,7 +36,10 @@ commandPaths.forEach(async (file:string) => {
     } catch (e: any) {
        logger(e, 'error');
     }
-});
+}
+
+// config.settings.autoLoadCommand ? readdirSync('./commands').forEach(loadCommandFunc): commandPaths.forEach(loadCommandFunc);
+(config.settings.autoLoadCommand ? readdirSync('./commands') : commandPaths).forEach(loadCommandFunc);
 
 eventPaths.forEach(async(path, name) => {
     try {

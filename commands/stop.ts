@@ -16,7 +16,7 @@ export const run = (client: Client, message: Message | ChatInputCommandInteracti
 
 export const conf: conf = {
     name: 'stop',
-    permLevel: 'User',
+    permLevel: 'Owner',
     aliases: [],
     category: 'voice',
     args: new Map(),

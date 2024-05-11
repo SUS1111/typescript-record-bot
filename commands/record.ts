@@ -18,13 +18,13 @@ export const run = (client: Client, message: Message | ChatInputCommandInteracti
     if(!connection) return reply(message, { content: '機器人尚未加入語音頻道' });
     const encoder: OpusEncoder = new OpusEncoder(48000, 2);
     const subsription: AudioReceiveStream = connection.receiver.subscribe(user.id);
-    subsription.on('data', chunk => writeFileStream(`${path.join(config.settings.dicPath, fileName)}.pcm`, false, encoder.decode(chunk)));
-    return reply(message, { content: '開發中' });
+    subsription.on('data', chunk => writeFileStream(`${path.join(config.settings.dicPath, fileName)}.ogg`, false, encoder.decode(chunk)));
+    return reply(message, { content: '正在錄音' });
 }
 
 export const conf: conf = {
     name: 'record',
-    permLevel: 'User',
+    permLevel: 'Owner',
     aliases: [],
     category: 'voice',
     args: new Map([
