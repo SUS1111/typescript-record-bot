@@ -1,6 +1,6 @@
 interface conf { name: string; permLevel: string; aliases: string[], category: string, args: Map<string, { required: boolean, description: string, type: string }>, description: string };
 
-import { Client, Message, ChatInputCommandInteraction } from "discord.js";
+import { type Client, type Message, type ChatInputCommandInteraction } from "discord.js";
 import { codeBlock } from '@discordjs/builders';
 import logger from '../modules/logger';
 import { clean } from '../modules/functions';

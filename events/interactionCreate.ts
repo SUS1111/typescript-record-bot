@@ -1,7 +1,7 @@
 interface permLevel { level: number, name: string, check: (member: any) => boolean }
 interface cmd { run: (client: Client, message: Message | ChatInputCommandInteraction, args: string[]) => any, conf: { name: string; permLevel: string; aliases: string[], category: string , description: string , args: Map<string, { required: boolean, description: string, type: string }>}}
 
-import { BaseInteraction, ChatInputCommandInteraction, Client, Message } from "discord.js";
+import { type BaseInteraction, type ChatInputCommandInteraction, type Client, type Message } from "discord.js";
 import { optionToArray, permlevel } from '../modules/functions';
 import { container } from '../index';
 import config from "../config";
@@ -23,14 +23,14 @@ export default async(client: Client, interaction: BaseInteraction) => {
             return interaction.followUp({ content: `你沒有權限使用!\n你的權限等級為 ${permlevelGet} (${config.permLevels.find((l: permLevel) => l.level === permlevelGet)?.name})\n你需要權限等級 ${container.levelCache[cmd.conf.permLevel]} (${cmd.conf.permLevel})` });
         }
         // 執行指令
-        const result = await cmd.run(client, interaction, optionToArray(interaction, cmd.conf.args));
+        const result: any = await cmd.run(client, interaction, optionToArray(interaction, cmd.conf.args));
         // 記錄日誌
         logger(`${config.permLevels.find((l) => l.level === permlevelGet)?.name} ${interaction.user.tag} 執行了 ${cmd.conf.name}`, 'cmd');
         // 回傳結果(雖然沒必要)
         return result;
-    } catch (e: any) {
+    } catch (err: any) {
         // 回報錯誤
-        logger(e, 'error');
-        return interaction.reply({ content: `出現了些錯誤\n\`\`\`${e.message}\`\`\``, fetchReply: true });
+        logger(err, 'error');
+        return interaction.reply({ content: `出現了些錯誤\n\`\`\`${err.message}\`\`\``, fetchReply: true });
     }
 }

@@ -17,7 +17,7 @@ const config:config = {
         activity: '簡單試下機器人',
         clientId: '1236596820755349505',
         dicPath: '../../音樂/', // 文件夾名稱即可
-        autoLoadCommand: false
+        autoLoadCommand: true
     },
     permLevels: [
         {
@@ -36,7 +36,7 @@ const config:config = {
             check: member => member.id === '785496543141560371'
         }
     ],
-    commandPaths: ['./commands/ping', './commands/eval', './commands/joinChannel', './commands/leaveChannel', './commands/record', './commands/stop'], // 可繼續接下去 以,分割
+    commandPaths: ['./commands/ping', './commands/eval', './commands/joinChannel', './commands/leaveChannel', './commands/record', './commands/stop'], // 可繼續接下去 以,分割 若autoLoadCommand爲true可以只留個空陣列
     eventPaths: new Map([
         // ['name', 'path']
         ['ready', './events/ready'],

@@ -1,6 +1,6 @@
-# Discord.js v14 Command Handler but TypeScript
+# Discord.js v14 Record Bot
 
-這是基於[PickachuTW](https://github.com/PikachuTW/)的[框架](https://github.com/PikachuTW/Discord.js-Command-Handler)所開發的Discord.js v14機器人，你可以用它開始搭建機器人
+這是基於[PickachuTW](https://github.com/PikachuTW/)的[框架](https://github.com/PikachuTW/Discord.js-Command-Handler)所開發的Discord.js v14錄音機器人，你可以直接用它使用或是基於它增加新功能
 
 ## Requirements
 
@@ -15,7 +15,10 @@
 interface config {
     settings: {
         prefix: string,
-        activity: string
+        activity: string,
+        clientId: string,
+        dicPath: string,
+        autoLoadCommand: boolean
     };
     permLevels: { level: number, name: string, check: (member: any) => boolean }[];
     commandPaths: string[];
@@ -27,7 +30,8 @@ const config:config = {
         prefix: 's!',
         activity: '簡單試下機器人',
         clientId: '1236596820755349505',
-        dicPath: '../../音樂/' // 文件夾名稱即可
+        dicPath: '../../音樂/', // 文件夾名稱即可
+        autoLoadCommand: false
     },
     permLevels: [
         {
@@ -38,18 +42,20 @@ const config:config = {
         {
             level: 1,
             name: 'Staff',
-            check: member => member.roles.cache.has('管理員身份組id')
+            check: member => member.roles.cache.has('945279453871869984')
         },
         {
             level: 2,
             name: 'Owner',
-            check: member => member.id === '你的id'
+            check: member => member.id === '785496543141560371'
         }
     ],
-    commandPaths: ['./commands/ping', './commands/114514'], // 可接着寫輸入指令文件的所在路徑
+    commandPaths: ['./commands/ping', './commands/114514'], // 可繼續接下去 以,分割 若autoLoadCommand爲true可以只留個空陣列
     eventPaths: new Map([
-        // ['事件名稱', '事件執行路徑']
-        ['ready', './events/ready']
+        // ['name', 'path']
+        ['ready', './events/ready'],
+        ['messageCreate', './events/messageCreate'],
+        ['interactionCreate', './events/interactionCreate']
     ])
 };
 
@@ -65,7 +71,7 @@ token=你的token
 ## 注意事項
 
 * 請自行創立.env文件並按照上面.env的段落填寫機器人的token
-* `config.ts` 可設定機器人前綴與其活動狀態、權限設定、所要執行的指令、監聽的時間
+* `config.ts` 可設定機器人前綴與其活動狀態、權限設定、所要執行的指令、監聽的時間、錄音文件的位置
 * 下載之後請運行 `npm install` ，安裝所需要的套件
 * 若要運行， 請在命令行輸入`ts-node .`
 * 最後對訊息的作者回傳的訊息請使用

@@ -1,7 +1,7 @@
 interface conf { name: string; permLevel: string; aliases: string[], category: string, args: Map<string, { required: boolean, description: string, type: string }>, description: string };
 
-import { Client, Message, ChatInputCommandInteraction, } from "discord.js";
-import { VoiceConnection, getVoiceConnection } from '@discordjs/voice';
+import { type Client, type Message, type ChatInputCommandInteraction } from "discord.js";
+import { type VoiceConnection, getVoiceConnection } from '@discordjs/voice';
 import { reply } from "../modules/functions";
 
 export const run = (client: Client, message: Message | ChatInputCommandInteraction, args: string[]) => {

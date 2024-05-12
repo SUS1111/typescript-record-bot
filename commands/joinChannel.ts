@@ -1,11 +1,12 @@
 interface conf { name: string; permLevel: string; aliases: string[], category: string, args: Map<string, { required: boolean, description: string, type: string }>, description: string };
 
-import { Client, Message, ChatInputCommandInteraction, Channel, GuildChannel, ChannelType } from "discord.js";
+import { type Client, Message, type ChatInputCommandInteraction, type Channel, GuildChannel, ChannelType } from "discord.js";
 import { joinVoiceChannel } from "@discordjs/voice";
 import { reply } from "../modules/functions";
 
 export const run = (client: Client, message: Message | ChatInputCommandInteraction, args: string[]) => {
-    const channel: Channel | unknown = (message instanceof Message ? message.mentions.channels.first() || message.guild?.channels.cache.get(args[0]) || message.member?.voice.channel : message.guild?.channels.cache.get(args[0]));
+    if(!message.member?.user.id) return;
+    const channel: Channel | unknown = (message instanceof Message ? message.mentions.channels.first() || message.guild?.channels.cache.get(args[0]) || message.member?.voice.channel : message.guild?.channels.cache.get(args[0])) || message.guild?.members.cache.get(message.member?.user.id)?.voice.channel;
     if(!channel || !(channel instanceof GuildChannel)) return reply(message, { content: '找不到頻道' });
     if(channel.type !== ChannelType.GuildVoice) return reply(message, { content: '機器人只能加入語音頻道' });
     if(!message.guildId || !client.user) return;

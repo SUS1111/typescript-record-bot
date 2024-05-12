@@ -1,10 +1,7 @@
 interface permLevels { level: number, name: string, check: (member: any) => boolean }[]
 
-import Discord, { Client, GuildMember, Message, APIInteractionGuildMember, SlashCommandBuilder, SlashCommandAttachmentOption, SlashCommandBooleanOption, SlashCommandChannelOption, SlashCommandIntegerOption, SlashCommandMentionableOption, SlashCommandNumberOption, SlashCommandRoleOption, SlashCommandStringOption, SlashCommandUserOption, SlashCommandOptionsOnlyBuilder, ChatInputApplicationCommandData, ChatInputCommandInteraction, InteractionReplyOptions, ReplyOptions } from 'discord.js';
+import Discord, { type Client, type GuildMember, Message, type APIInteractionGuildMember, type SlashCommandBuilder, type ChatInputCommandInteraction, type SlashCommandOptionsOnlyBuilder } from 'discord.js';
 import config from '../config';
-import { WriteStream, createWriteStream } from 'fs';
-
-let writeStream: WriteStream;
 
 const permlevel = (member: GuildMember| APIInteractionGuildMember | null): number => {
     let permlvl:number = 0;
@@ -68,26 +65,14 @@ const addOption = (type: string, slashCmd: SlashCommandBuilder, option: { requir
     }
 };
 
-const optionToArray = (interaction:ChatInputCommandInteraction, options: Map<string, { required: boolean, description: string, type: string }>):any[] => {
+const optionToArray = (interaction: ChatInputCommandInteraction, options: Map<string, { required: boolean, description: string, type: string }>):any[] => {
     const optionName = [...options.keys()];
     const result = optionName.map(name => interaction.options.get(name)?.value);
     return result;
 };
 
-const reply = (message: Message | ChatInputCommandInteraction, reply: any): any => {
-    try {
-        return message.reply(reply);
-    } catch (err) {
-        return message instanceof Message ? console.error(err) : message.followUp(reply);
-    }
+const reply = (message: Message | ChatInputCommandInteraction, reply: any): Promise<Discord.Message<boolean>> => {
+    return message instanceof Message ? message.reply(reply) : message.editReply(reply);
 };
 
-const writeFileStream = (path: string, stop: boolean, data?: any) => {
-    writeStream = createWriteStream(path, { encoding: 'binary', flags: 'a' });
-    stop ? writeStream.close() : writeStream.write(data);
-    return writeStream;
-};
-
-const getWriteStream = () => writeStream;
-
-export { permlevel, targetGet, clean, addOption, optionToArray, reply, writeFileStream, getWriteStream };
+export { permlevel, targetGet, clean, addOption, optionToArray, reply };

@@ -1,6 +1,6 @@
 import config from '../config';
 import logger from '../modules/logger';
-import { Client, ActivityType } from 'discord.js';
+import { type Client, ActivityType } from 'discord.js';
 const { settings } = config;
 
 export default async (client: Client) => {

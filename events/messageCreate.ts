@@ -5,7 +5,7 @@ import logger from '../modules/logger';
 import config from '../config';
 import { permlevel } from '../modules/functions';
 import { container } from '../index';
-import { Client, Message, ChatInputCommandInteraction } from 'discord.js';
+import { type Client, type Message, type ChatInputCommandInteraction } from 'discord.js';
 
 const { prefix } = config.settings;
 
@@ -31,12 +31,12 @@ export default async (client:Client, message:Message) => {
                 return message.channel.send(`你沒有權限使用!\n你的權限等級為 ${permlevelGet} (${config.permLevels.find((l: permLevel) => l.level === permlevelGet)?.name})\n你需要權限等級 ${container.levelCache[cmd.conf.permLevel]} (${cmd.conf.permLevel})`);
             }
             // 執行指令
-            const result = await cmd.run(client, message, args);
+            const result: any = await cmd.run(client, message, args);
             // 記錄日誌
             logger(`${config.permLevels.find((l) => l.level === permlevelGet)?.name} ${message.author.tag} 執行了 ${cmd.conf.name}`, 'cmd');
             // 回傳結果(雖然沒必要)
             return result;
-        } catch (err:any) {
+        } catch (err: any) {
             // 如果出現錯誤，就回覆錯誤訊息
             message.channel.send({ content: `出現了些錯誤\n\`\`\`${err.message}\`\`\`` });
         }

@@ -1,6 +1,6 @@
 interface cmd { run: (client: Client, message: Message | ChatInputCommandInteraction, args: string[]) => any, conf: { name: string; permLevel: string; aliases: string[], category: string, description: string, args: Map<string, { required: boolean, description: string, type: string }> }}
 
-import { Client, Partials, Collection, Message, REST, Routes, SlashCommandBuilder, ChatInputCommandInteraction, GatewayIntentBits } from 'discord.js';
+import { Client, Partials, Collection, type Message, REST, Routes, SlashCommandBuilder, type ChatInputCommandInteraction, GatewayIntentBits } from 'discord.js';
 import 'dotenv/config';
 import config from './config';
 import logger from './modules/logger';
@@ -38,7 +38,6 @@ const loadCommandFunc = async (file: string) => {
     }
 }
 
-// config.settings.autoLoadCommand ? readdirSync('./commands').forEach(loadCommandFunc): commandPaths.forEach(loadCommandFunc);
 (config.settings.autoLoadCommand ? readdirSync('./commands') : commandPaths).forEach(loadCommandFunc);
 
 eventPaths.forEach(async(path, name) => {
