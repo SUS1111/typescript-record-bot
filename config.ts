@@ -9,9 +9,10 @@ interface config {
     permLevels: { level: number, name: string, check: (member: any) => boolean }[];
     commandPaths: string[];
     eventPaths: Map<string, string>;
+    categoryList: Map<string, string>;
 }
 
-const config:config = {
+const config: config = {
     settings: {
         prefix: 's!',
         activity: '簡單試下機器人',
@@ -42,6 +43,10 @@ const config:config = {
         ['ready', './events/ready'],
         ['messageCreate', './events/messageCreate'],
         ['interactionCreate', './events/interactionCreate']
+    ]),
+    categoryList: new Map([
+        ['system', '系統'],
+        ['voice', '語音']
     ])
 };
 

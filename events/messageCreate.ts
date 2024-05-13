@@ -20,6 +20,8 @@ export default async (client:Client, message:Message) => {
             // 得到 command 指令名稱 和 args 參數陣列
             const args:string[] = message.content.slice(prefix.length).trim().split(/ +/g);
             const command:string | undefined = args.shift()?.toLowerCase();
+            // 如果沒有command則不執行
+            if(!command) return;
             // 得到使用者的權限等級
             const permlevelGet:number = permlevel(message.member);
             // 從指令名稱得到其export的函數

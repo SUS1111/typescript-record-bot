@@ -23,15 +23,16 @@ interface config {
     permLevels: { level: number, name: string, check: (member: any) => boolean }[];
     commandPaths: string[];
     eventPaths: Map<string, string>;
+    categoryList: Map<string, string>;
 }
 
-const config:config = {
+const config: config = {
     settings: {
         prefix: 's!',
         activity: '簡單試下機器人',
         clientId: '1236596820755349505',
         dicPath: '../../音樂/', // 文件夾名稱即可
-        autoLoadCommand: false
+        autoLoadCommand: true
     },
     permLevels: [
         {
@@ -50,12 +51,17 @@ const config:config = {
             check: member => member.id === '785496543141560371'
         }
     ],
-    commandPaths: ['./commands/ping', './commands/114514'], // 可繼續接下去 以,分割 若autoLoadCommand爲true可以只留個空陣列
+    commandPaths: ['./commands/ping', './commands/eval', './commands/joinChannel', './commands/leaveChannel', './commands/record', './commands/stop'], // 可繼續接下去 以,分割 若autoLoadCommand爲true可以只留個空陣列
     eventPaths: new Map([
         // ['name', 'path']
         ['ready', './events/ready'],
         ['messageCreate', './events/messageCreate'],
         ['interactionCreate', './events/interactionCreate']
+    ]),
+    categoryList: new Map([
+        ['system', '系統'],
+        ['voice', '語音'],
+        // ['economy'', '經濟']
     ])
 };
 
@@ -74,6 +80,7 @@ token=你的token
 * `config.ts` 可設定機器人前綴與其活動狀態、權限設定、所要執行的指令、監聽的時間、錄音文件的位置
 * 下載之後請運行 `npm install` ，安裝所需要的套件
 * 若要運行， 請在命令行輸入`ts-node .`
+* 若要增加新的類別 除了在指令的config增加 還記得要在config.ts的categoryList裏面增加並且附上其譯名
 * 最後對訊息的作者回傳的訊息請使用
 ```js
 reply(message, { your: 'content' });
