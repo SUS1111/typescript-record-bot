@@ -18,7 +18,7 @@ export const run = async (client: Client, message: Message | ChatInputCommandInt
         const cleaned: string = await clean(client, evaled);
         logger(`${cleaned}`, 'eval');
         reply(message, { content: codeBlock('js', cleaned) });
-    } catch (err:any) {
+    } catch (err: any) {
         logger(`${err}`, 'error');
         reply(message, { content: codeBlock('js', err) });
     }

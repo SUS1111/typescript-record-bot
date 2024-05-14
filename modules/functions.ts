@@ -38,7 +38,7 @@ const clean = async (client: Client, text: string): Promise<string> => {
     return value;
 };
 
-const addOption = (type: string, slashCmd: SlashCommandBuilder, option: { required: boolean, description: string, name: string }):SlashCommandOptionsOnlyBuilder | SlashCommandBuilder => {
+const addOption = (type: string, slashCmd: SlashCommandBuilder, option: { required: boolean, description: string, name: string }): SlashCommandOptionsOnlyBuilder | SlashCommandBuilder => {
     // return Symbol(`add${type.charAt(0).toUpperCase() + type.slice(1)}Option`);
     const { name, description, required } = option;
     switch (type.toLocaleLowerCase()) {
@@ -65,7 +65,7 @@ const addOption = (type: string, slashCmd: SlashCommandBuilder, option: { requir
     }
 };
 
-const optionToArray = (interaction: ChatInputCommandInteraction, options: Map<string, { required: boolean, description: string, type: string }>):any[] => {
+const optionToArray = (interaction: ChatInputCommandInteraction, options: Map<string, { required: boolean, description: string, type: string }>): any[] => {
     const optionName = [...options.keys()];
     const result = optionName.map(name => interaction.options.get(name)?.value);
     return result;

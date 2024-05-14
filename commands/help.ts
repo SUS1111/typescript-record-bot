@@ -15,8 +15,9 @@ export const run = (client: Client, message: Message | ChatInputCommandInteracti
         ['boolean', '布林值(true或false)'],
         ['channel', '頻道'],
         ['integer', '整數'],
-        ['mentionable', '可被@的'],
+        ['mentionable', '身份組和用戶'],
         ['number', '數字'],
+        ['role', '身份組'],
         ['string', '文字'],
         ['user', '用戶']
     ]);
@@ -39,23 +40,22 @@ export const run = (client: Client, message: Message | ChatInputCommandInteracti
         const command: string = args[0].toLowerCase();
         const cmd: cmd | undefined = commands.get(command);
         if(!cmd) return reply(message, { content: '查無指令' });
-        const mainFields: APIEmbedField[] = [{ name: '別名', value: cmd.conf.aliases.length ? cmd.conf.aliases.join(', ') : '無' }, { name: '權限', value: cmd.conf.permLevel }]
         const argsFields: APIEmbedField[] = [];
         cmd.conf.args.forEach(({ required, description, type }, key: string) => argsFields.push({ name: key, value: `必填參數: ${required ? '是' : '否'}\n說明: ${description}\n類型: ${typeList.get(type)}`}));
         const mainEmbed: EmbedBuilder = new EmbedBuilder()
             .setTitle(command)
             .setDescription(cmd.conf.description)
-            .addFields(...mainFields)
+            .addFields({ name: '別名', value: cmd.conf.aliases.length ? cmd.conf.aliases.join(', ') : '無' }, { name: '權限', value: cmd.conf.permLevel })
             .setColor(0xFFFF00)
             .setTimestamp()
             .setFooter({ text: client.user.username, iconURL: client.user.displayAvatarURL() });
         const argsEmbed: EmbedBuilder = new EmbedBuilder()
             .setTitle(`${command}的參數`)
+            .addFields(...argsFields)
             .setColor(0xFFFF00)
             .setTimestamp()
-            .addFields(...argsFields)
             .setFooter({ text: client.user.username, iconURL: client.user.displayAvatarURL() });
-        reply(message, { embeds: [...cmd.conf.args.keys()].length ? [mainEmbed, argsEmbed] : [mainEmbed] });
+        reply(message, { embeds: cmd.conf.args.size ? [mainEmbed, argsEmbed] : [mainEmbed] });
     }
 };
 

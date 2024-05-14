@@ -10,6 +10,7 @@ import logger from "../modules/logger";
 export default async(client: Client, interaction: BaseInteraction) => {
     // 當不是指令則忽略
     if(!interaction.isChatInputCommand()) return;
+    // 不是在伺服器執行也忽略
     if(!interaction.guildId) return;
     try {
         // 得到使用者的權限等級
