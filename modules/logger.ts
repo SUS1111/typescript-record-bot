@@ -2,7 +2,7 @@ const moment = require('moment-timezone');
 
 const types: string[] = ['log', 'warn', 'error', 'cmd', 'ready', 'eval'];
 
-const logger: any = {};
+const logger: { [key: string]: (arg: string) => void } = {};
 
 const run = (content: string, type: string) => {
     const timestamp:string = `[${moment().tz('Asia/Taipei').format('YYYY-MM-DD HH:mm:ss')}]:`;

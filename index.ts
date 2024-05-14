@@ -32,7 +32,7 @@ const loadCommandFunc = async (file: string) => {
         const cmdName:string = code.conf.name;
         container.commands.set(cmdName, code);
         code.conf.aliases.forEach((alias:string) => container.aliases.set(alias, cmdName));
-        logger.log(`CMD ${cmdName} 已被載入 ✅`, 'log');
+        logger.log(`CMD ${cmdName} 已被載入 ✅`);
     } catch (e: any) {
        logger.error(e);
     }
