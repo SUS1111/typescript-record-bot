@@ -1,6 +1,6 @@
 # Discord.js v14 Record Bot
 
-這是基於[PickachuTW](https://github.com/PikachuTW/)的[框架](https://github.com/PikachuTW/Discord.js-Command-Handler)所開發的Discord.js v14錄音機器人，你可以直接用它使用或是基於它增加新功能
+這是基於[PickachuTW](https://github.com/PikachuTW/)的[框架](https://github.com/PikachuTW/Discord.js-Command-Handler)所開發的Discord.js v14錄音機器人，你可以直接使用它或是基於它修改
 
 ## Requirements
 
