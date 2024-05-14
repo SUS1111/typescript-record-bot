@@ -14,9 +14,9 @@ export default async(client: Client, interaction: BaseInteraction) => {
     if(!interaction.guildId) return;
     try {
         // 得到使用者的權限等級
-        const permlevelGet:number = permlevel(interaction.member);
+        const permlevelGet: number = permlevel(interaction.member);
         // 從指令名稱得到其export的函數
-        const cmd:cmd | undefined = container.commands.get(interaction.commandName);
+        const cmd: cmd | undefined = container.commands.get(interaction.commandName);
         await interaction.deferReply();
         if(!cmd) return interaction.followUp({ content: '並沒有這個指令' });
         // 比較權限等級，如果使用者的權限等級小於指令的權限等級，就不執行
@@ -26,12 +26,12 @@ export default async(client: Client, interaction: BaseInteraction) => {
         // 執行指令
         const result: any = await cmd.run(client, interaction, optionToArray(interaction, cmd.conf.args));
         // 記錄日誌
-        logger(`${config.permLevels.find((l) => l.level === permlevelGet)?.name} ${interaction.user.tag} 執行了 ${cmd.conf.name}`, 'cmd');
+        logger.cmd(`${config.permLevels.find((l: permLevel) => l.level === permlevelGet)?.name} ${interaction.user.tag} 執行了 ${cmd.conf.name}`);
         // 回傳結果(雖然沒必要)
         return result;
     } catch (err: any) {
         // 回報錯誤
-        logger(err, 'error');
+        logger.error(err);
         return interaction.reply({ content: `出現了些錯誤\n\`\`\`${err.message}\`\`\``, fetchReply: true });
     }
 }

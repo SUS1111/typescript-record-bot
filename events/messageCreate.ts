@@ -18,12 +18,12 @@ export default async (client:Client, message:Message) => {
     if (message.content.toLowerCase().startsWith(prefix)) {
         try {
             // 得到 command 指令名稱 和 args 參數陣列
-            const args:string[] = message.content.slice(prefix.length).trim().split(/ +/g);
-            const command:string | undefined = args.shift()?.toLowerCase();
+            const args: string[] = message.content.slice(prefix.length).trim().split(/ +/g);
+            const command: string | undefined = args.shift()?.toLowerCase();
             // 如果沒有command則不執行
             if(!command) return;
             // 得到使用者的權限等級
-            const permlevelGet:number = permlevel(message.member);
+            const permlevelGet: number = permlevel(message.member);
             // 從指令名稱得到其export的函數
             const cmd:cmd | undefined = container.commands.get(command) || container.commands.get(container.aliases.get(command));
             // 如果找不到，就不執行
@@ -35,7 +35,7 @@ export default async (client:Client, message:Message) => {
             // 執行指令
             const result: any = await cmd.run(client, message, args);
             // 記錄日誌
-            logger(`${config.permLevels.find((l) => l.level === permlevelGet)?.name} ${message.author.tag} 執行了 ${cmd.conf.name}`, 'cmd');
+            logger.cmd(`${config.permLevels.find((l: permLevel) => l.level === permlevelGet)?.name} ${message.author.tag} 執行了 ${cmd.conf.name}`);
             // 回傳結果(雖然沒必要)
             return result;
         } catch (err: any) {

@@ -30,8 +30,8 @@ const config: config = {
     settings: {
         prefix: 's!',
         activity: '簡單試下機器人',
-        clientId: '1236596820755349505',
-        dicPath: '../../音樂/', // 文件夾名稱即可
+        clientId: '你的機器人id',
+        dicPath: '../foo/bar', // 文件夾名稱即可
         autoLoadCommand: true
     },
     permLevels: [
@@ -43,15 +43,15 @@ const config: config = {
         {
             level: 1,
             name: 'Staff',
-            check: member => member.roles.cache.has('945279453871869984')
+            check: member => member.roles.cache.has('管理員的身份組id')
         },
         {
             level: 2,
             name: 'Owner',
-            check: member => member.id === '785496543141560371'
+            check: member => member.id === '你的id'
         }
     ],
-    commandPaths: ['./commands/ping', './commands/eval', './commands/joinChannel', './commands/leaveChannel', './commands/record', './commands/stop'], // 可繼續接下去 以,分割 若autoLoadCommand爲true可以只留個空陣列
+    commandPaths: ['./commands/ping', './commands/eval', './commands/joinChannel', './commands/leaveChannel', './commands/record', './commands/stop'], // 可繼續接下去 以,分割 若autoLoadCommand爲true可以只只寫new Map([])
     eventPaths: new Map([
         // ['name', 'path']
         ['ready', './events/ready'],

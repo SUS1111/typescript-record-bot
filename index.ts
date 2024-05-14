@@ -13,17 +13,17 @@ if(!lstatSync(config.settings.dicPath).isDirectory()) throw new Error('並不存
 const client: Client = new Client({ intents: [GatewayIntentBits.AutoModerationConfiguration, GatewayIntentBits.AutoModerationExecution, GatewayIntentBits.DirectMessagePolls, GatewayIntentBits.DirectMessageReactions, GatewayIntentBits.DirectMessageTyping, GatewayIntentBits.DirectMessages, GatewayIntentBits.GuildEmojisAndStickers, GatewayIntentBits.GuildIntegrations, GatewayIntentBits.GuildInvites, GatewayIntentBits.GuildMembers, GatewayIntentBits.GuildMessagePolls, GatewayIntentBits.GuildMessageReactions, GatewayIntentBits.GuildMessageTyping, GatewayIntentBits.GuildVoiceStates, GatewayIntentBits.GuildMessages, GatewayIntentBits.GuildModeration, GatewayIntentBits.GuildPresences, GatewayIntentBits.GuildScheduledEvents, GatewayIntentBits.GuildVoiceStates, GatewayIntentBits.GuildWebhooks, GatewayIntentBits.MessageContent, GatewayIntentBits.Guilds], partials: [Partials.Channel, Partials.User, Partials.GuildMember, Partials.Message, Partials.Reaction, Partials.GuildScheduledEvent, Partials.ThreadMember] });
 const rest: REST = new REST().setToken(process.env.token);
 
-const commands: Collection<string | undefined, cmd> = new Collection<string, cmd>();
-const aliases: Collection<string, string> = new Collection<string, string>();
+const commands: Collection<string | undefined, cmd> = new Collection();
+const aliases: Collection<string, string> = new Collection();
 
 const { permLevels, commandPaths, eventPaths, settings } = config;
-const levelCache:any = {};
+const levelCache: {[key: string]: number} = {};
 for (let i = 0; i < permLevels.length; i++) {
     const thisLevel = permLevels[i];
     levelCache[thisLevel.name] = thisLevel.level;
 }
 
-export const container =  { commands, aliases, levelCache };
+export const container = { commands, aliases, levelCache };
 
 const loadCommandFunc = async (file: string) => {
     try {
@@ -32,28 +32,28 @@ const loadCommandFunc = async (file: string) => {
         const cmdName:string = code.conf.name;
         container.commands.set(cmdName, code);
         code.conf.aliases.forEach((alias:string) => container.aliases.set(alias, cmdName));
-        logger(`CMD ${cmdName} 已被載入 ✅`, 'log');
+        logger.log(`CMD ${cmdName} 已被載入 ✅`, 'log');
     } catch (e: any) {
-       logger(e, 'error');
+       logger.error(e);
     }
 }
 
 (config.settings.autoLoadCommand ? readdirSync('./commands') : commandPaths).forEach(loadCommandFunc);
 
-eventPaths.forEach(async(path, name) => {
+eventPaths.forEach(async(path: string, name: string) => {
     try {
         const { default: code } = await import(path);
         client.on(name, code.bind(null, client));
-        logger(`EVENT ${name} 已被載入 ✅`, 'log');
+        logger.log(`EVENT ${name} 已被載入 ✅`);
     } catch (e: any) {
-        logger(e, 'error');
+        logger.error(e);
     }
 });
 
 client.login(process.env.token).then(async() => {
     const cmdConf:cmd['conf'][] = commands.map((code: cmd) => code.conf);
     const slashCommands:SlashCommandBuilder[] = [];
-    cmdConf.forEach(async (value:cmd['conf']) => {
+    cmdConf.forEach(async (value: cmd['conf']) => {
         const slashCommand:SlashCommandBuilder = new SlashCommandBuilder()
             .setName(value.name)
             .setDescription(value.description);

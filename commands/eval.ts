@@ -16,10 +16,10 @@ export const run = async (client: Client, message: Message | ChatInputCommandInt
         // eslint-disable-next-line no-eval
         const evaled: any = eval(code);
         const cleaned: string = await clean(client, evaled);
-        logger(`${cleaned}`, 'eval');
+        logger.eval(`${cleaned}`);
         reply(message, { content: codeBlock('js', cleaned) });
     } catch (err: any) {
-        logger(`${err}`, 'error');
+        logger.error(`${err}`);
         reply(message, { content: codeBlock('js', err) });
     }
 };
