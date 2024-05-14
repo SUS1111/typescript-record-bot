@@ -1,9 +1,10 @@
 import { type WriteStream, createWriteStream, rmSync } from 'fs';
 import Archiver from 'archiver';
-import config from '../config';
+import moment from 'moment-timezone';
 import path from 'path';
+import config from '../config';
 
-let allWriteStream: Map<string, WriteStream> = new Map();
+const allWriteStream: Map<string, WriteStream> = new Map();
 
 const addWriteStream = (path: string, id: string): Map<string, WriteStream> => allWriteStream.set(id, createWriteStream(path, { encoding: 'binary', flags: 'a' }));
 const writeFileStream = (id: string, data?: any): WriteStream | undefined => {
@@ -17,15 +18,14 @@ const stopwriteStream = (id: string): void => {
     return writeStream ? writeStream.close() : void(0);
 };
 const fileToZip = (...filePaths: string[]): void => {
-    const fullPath = (fileName: string): string => path.join(config.settings.dicPath, fileName);
-    const output: WriteStream = createWriteStream(fullPath(`record-${Math.random().toString().substring(2)}.zip`));
+    const output: WriteStream = createWriteStream(path.join(config.settings.dicPath, `record-${moment.tz('Asia/Taipei').format('YYYY-MM-DD_HH:mm:ss')}.zip`));
     const archive: any = Archiver('zip', { zlib: { level: 9 }});
-    filePaths.forEach((filePath: string) => archive.file(fullPath(filePath)));
+    filePaths.forEach((filePath: string) => archive.file(filePath));
     archive.pipe(output);
     archive.finalize();
     output.on('close', () => {
         console.log('進去了');
-        filePaths.forEach((filePath: string) => rmSync(fullPath(filePath)));
+        filePaths.forEach((filePath: string) => rmSync(filePath));
     });
 };
 const getWriteStream = (id: string): WriteStream | undefined => allWriteStream.get(id);

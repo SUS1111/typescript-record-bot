@@ -1,6 +1,7 @@
 import { type Client, Message, type ChatInputCommandInteraction, type GuildMember, type User } from "discord.js";
 import { type VoiceConnection, type AudioReceiveStream, getVoiceConnection } from "@discordjs/voice";
 import { OpusEncoder } from "@discordjs/opus";
+import moment from "moment-timezone";
 import path from 'path';
 import config from '../config';
 import { reply } from "../modules/functions";
@@ -12,7 +13,7 @@ export const run = (client: Client, message: Message | ChatInputCommandInteracti
     if(!message.guildId || !client.user) return;
     const user: GuildMember | User | undefined = message instanceof Message ? message.mentions.members?.first() || message.guild?.members.cache.get(args[0]) : message.guild?.members.cache.get(args[0]);
     if(!user) return reply(message, { content: '請指定一個用戶' });
-    const fileName: string = args[2] || `${Date.now().toString()}.pcm`;
+    const fileName: string = args[2] || `${moment().tz('Asia/Taipei').format('YYYY-MM-DD_HH:mm:ss')}.pcm`;
     const connection: VoiceConnection | undefined = getVoiceConnection(message.guildId, client.user.id);
     if(!connection) return reply(message, { content: '機器人尚未加入語音頻道' });
     const encoder: OpusEncoder = new OpusEncoder(48000, 2);
