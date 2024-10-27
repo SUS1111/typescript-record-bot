@@ -1,10 +1,10 @@
 interface permLevels { level: number, name: string, check: (member: any) => boolean }[]
 
-import Discord, { type Client, type GuildMember, Message, type APIInteractionGuildMember, type SlashCommandBuilder, type ChatInputCommandInteraction, type SlashCommandOptionsOnlyBuilder } from 'discord.js';
+import { type Client, type GuildMember, Message, type APIInteractionGuildMember, type SlashCommandBuilder, type ChatInputCommandInteraction, type SlashCommandOptionsOnlyBuilder, MessageMentions } from 'discord.js';
 import config from '../config';
 
 const permlevel = (member: GuildMember| APIInteractionGuildMember | null): number => {
-    let permlvl:number = 0;
+    let permlvl: number = 0;
     const permOrder:permLevels[] = config.permLevels.slice(0).sort((p, c) => (p.level < c.level ? 1 : -1));
     while (permOrder.length) {
         const currentLevel = permOrder.shift();
@@ -18,8 +18,8 @@ const permlevel = (member: GuildMember| APIInteractionGuildMember | null): numbe
 
 const targetGet = (message: Message, args: any[]): GuildMember | undefined => {
     if (!args[0]) return undefined;
-    if (args[0].matchAll(Discord.MessageMentions.UsersPattern).next().value) {
-        return message.guild?.members.cache.get(args[0].matchAll(Discord.MessageMentions.UsersPattern).next().value[1]);
+    if (args[0].matchAll(MessageMentions.UsersPattern).next().value) {
+        return message.guild?.members.cache.get(args[0].matchAll(MessageMentions.UsersPattern).next().value[1]);
     }
     return message.guild?.members.cache.get(args[0]);
 };
@@ -41,25 +41,26 @@ const clean = async (client: Client, text: string): Promise<string> => {
 const addOption = (type: string, slashCmd: SlashCommandBuilder, option: { required: boolean, description: string, name: string }): SlashCommandOptionsOnlyBuilder | SlashCommandBuilder => {
     // return Symbol(`add${type.charAt(0).toUpperCase() + type.slice(1)}Option`);
     const { name, description, required } = option;
+    const addSlashCommandOption = slashCommandOption => slashCommandOption.setName(name).setDescription(description).setRequired(required); 
     switch (type.toLocaleLowerCase()) {
         case 'string':
-            return slashCmd.addStringOption((option: any) => option.setName(name).setDescription(description).setRequired(required));
+            return slashCmd.addStringOption(addSlashCommandOption);
         case 'channel':
-            return slashCmd.addChannelOption((option: any) => option.setName(name).setDescription(description).setRequired(required));
+            return slashCmd.addChannelOption(addSlashCommandOption);
         case 'boolean':
-            return slashCmd.addBooleanOption((option: any) => option.setName(name).setDescription(description).setRequired(required));
+            return slashCmd.addBooleanOption(addSlashCommandOption);
         case 'integer':
-            return slashCmd.addIntegerOption((option: any) => option.setName(name).setDescription(description).setRequired(required));
+            return slashCmd.addIntegerOption(addSlashCommandOption);
         case 'number':
-            return slashCmd.addNumberOption((option: any) => option.setName(name).setDescription(description).setRequired(required));
+            return slashCmd.addNumberOption(addSlashCommandOption);
         case 'user':
-            return slashCmd.addUserOption((option: any) => option.setName(name).setDescription(description).setRequired(required));
+            return slashCmd.addUserOption(addSlashCommandOption);
         case 'role':
-            return slashCmd.addRoleOption((option: any) => option.setName(name).setDescription(description).setRequired(required));
+            return slashCmd.addRoleOption(addSlashCommandOption);
         case 'mentionable':
-            return slashCmd.addMentionableOption((option: any) => option.setName(name).setDescription(description).setRequired(required));
+            return slashCmd.addMentionableOption(addSlashCommandOption);
         case 'attachment':
-            return slashCmd.addAttachmentOption((option: any) => option.setName(name).setDescription(description).setRequired(required));
+            return slashCmd.addAttachmentOption(addSlashCommandOption);
         default:
             return slashCmd;
     }
@@ -71,7 +72,7 @@ const optionToArray = (interaction: ChatInputCommandInteraction, options: Map<st
     return result;
 };
 
-const reply = (message: Message | ChatInputCommandInteraction, reply: any): Promise<Discord.Message<boolean>> => {
+const reply = (message: Message | ChatInputCommandInteraction, reply: any): Promise<Message<boolean>> => {
     return message instanceof Message ? message.reply(reply) : message.editReply(reply);
 };
 
