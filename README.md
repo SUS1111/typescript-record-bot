@@ -78,9 +78,16 @@ token=你的token
 
 * 請自行創立.env文件並按照上面.env的段落填寫機器人的token
 * `config.ts` 可設定機器人前綴與其活動狀態、權限設定、所要執行的指令、監聽的事件、錄音文件的位置
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> f084433 (Update logger object type and correct README.md type)
 * 下載之後請運行 `npm install` ，安裝所需要的套件
+=======
+* 下載程式碼之後請運行 `npm install`以安裝所需要的套件
+>>>>>>> f93f065 (Update Modules)
 * 若要運行， 請在命令行輸入`ts-node .`
-* 若要增加新的類別 除了在指令的config增加 還記得要在config.ts的categoryList裏面增加並且附上其譯名
+* 若要增加新的類別 除了在指令的conf物件增加 還記得要在config.ts的categoryList裏面增加並且附上其譯名
 * 最後對訊息的作者回傳的訊息請使用
 ```js
 reply(message, { your: 'content' });

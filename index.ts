@@ -17,7 +17,7 @@ const commands: Collection<string | undefined, cmd> = new Collection();
 const aliases: Collection<string, string> = new Collection();
 
 const { permLevels, commandPaths, eventPaths, settings } = config;
-const levelCache: {[key: string]: number} = {};
+const levelCache: { [key: string]: number } = {};
 for (let i = 0; i < permLevels.length; i++) {
     const thisLevel = permLevels[i];
     levelCache[thisLevel.name] = thisLevel.level;

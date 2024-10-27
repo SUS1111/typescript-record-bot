@@ -28,7 +28,7 @@ export const conf: conf = {
     category: 'voice',
     args: new Map([
         ['是否壓縮成zip檔案', { required: false, description: '是隨便寫 否寫false', type: 'string' }],
-        ['用戶', { required: false, description: '想要停止錄音的用戶', type: 'user' }]
+        ['用戶', { required: false, description: '想要停止錄音的用戶 不填則則是停止所有錄音', type: 'user' }]
     ]),
     description: '停止對語音頻道進行錄音'
 };

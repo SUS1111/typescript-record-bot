@@ -5,12 +5,12 @@ import logger from '../modules/logger';
 import config from '../config';
 import { permlevel } from '../modules/functions';
 import { container } from '../index';
-import { type Client, type Message, type ChatInputCommandInteraction } from 'discord.js';
+import { type Client, type Message, type ChatInputCommandInteraction, ChannelType } from 'discord.js';
 
 const { prefix } = config.settings;
 
 export default async (client:Client, message:Message) => {
-    if (!message.guildId || message.author.bot) return; // 確認訊息在伺服器內發送，且不為機器人
+    if (!message.guildId || message.channel.type === ChannelType.GroupDM || message.author.bot) return; // 確認訊息在伺服器內發送，且不為機器人
     if (message.content.match(new RegExp(`^<@!?${client?.user?.id}>( |)$`))) {
         return message.reply(`嗨! 機器人的前綴是 \`${prefix}\``); // 如果有人提及機器人，就回覆前綴
     }
@@ -25,7 +25,7 @@ export default async (client:Client, message:Message) => {
             // 得到使用者的權限等級
             const permlevelGet: number = permlevel(message.member);
             // 從指令名稱得到其export的函數
-            const cmd:cmd | undefined = container.commands.get(command) || container.commands.get(container.aliases.get(command));
+            const cmd: cmd | undefined = container.commands.get(command) || container.commands.get(container.aliases.get(command));
             // 如果找不到，就不執行
             if (!cmd) return;
             // 比較權限等級，如果使用者的權限等級小於指令的權限等級，就不執行
