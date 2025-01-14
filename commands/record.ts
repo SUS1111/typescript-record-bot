@@ -18,7 +18,7 @@ export const run = (client: Client, message: Message | ChatInputCommandInteracti
     if(!connection) return reply(message, { content: '機器人尚未加入語音頻道' });
     const encoder: OpusEncoder = new OpusEncoder(48000, 2);
     const subsription: AudioReceiveStream = connection.receiver.subscribe(user.id);
-    addWriteStream(path.join(config.settings.dicPath, fileName), user.id);
+    addWriteStream(path.join(config.settings.audioOutputDicPath, fileName), user.id);
     subsription.on('data', chunk => writeFileStream(user.id, encoder.decode(chunk)));
     return reply(message, { content: '正在錄音' });
 }

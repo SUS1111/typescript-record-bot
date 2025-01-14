@@ -18,7 +18,7 @@ const stopwriteStream = (id: string): void => {
     return writeStream ? writeStream.close() : void(0);
 };
 const fileToZip = (...filePaths: string[]): void => {
-    const output: WriteStream = createWriteStream(path.join(config.settings.dicPath, `record-${moment.tz('Asia/Taipei').format('YYYY-MM-DD_HH:mm:ss')}.zip`));
+    const output: WriteStream = createWriteStream(path.join(config.settings.audioOutputDicPath, `record-${moment.tz('Asia/Taipei').format('YYYY-MM-DD_HH:mm:ss')}.zip`));
     const archive: any = Archiver('zip', { zlib: { level: 9 }});
     filePaths.forEach((filePath: string) => archive.file(filePath));
     archive.pipe(output);

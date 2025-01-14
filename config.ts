@@ -3,7 +3,7 @@ interface config {
         prefix: string,
         activity: string,
         clientId: string,
-        dicPath: string,
+        audioOutputDicPath: string,
         autoLoadCommand: boolean
     };
     permLevels: { level: number, name: string, check: (member: any) => boolean }[];
@@ -17,7 +17,7 @@ const config: config = {
         prefix: 's!',
         activity: '簡單試下機器人',
         clientId: '1236596820755349505',
-        dicPath: '../../音樂/', // 文件夾名稱即可
+        audioOutputDicPath: '../../音樂/', // 文件夾名稱即可
         autoLoadCommand: true
     },
     permLevels: [
