@@ -9,15 +9,15 @@
   "author": "SUS1111",
   "license": "MIT",
   "dependencies": {
-    "@discordjs/opus": "^0.9.0",
-    "@discordjs/voice": "^0.17.0",
+    "@discordjs/opus": "^0.10.0",
+    "@discordjs/voice": "^0.18.0",
     "archiver": "^7.0.1",
     "discord.js": "^14.16.3",
-    "dotenv": "^16.4.5",
+    "dotenv": "^16.4.7",
     "libsodium-wrappers": "^0.7.15",
-    "moment-timezone": "^0.5.45",
+    "moment-timezone": "^0.5.47",
     "ts-node": "^10.9.2",
-    "typescript": "^5.6.3"
+    "typescript": "^5.7.3"
   },
   "devDependencies": {
     "@types/archiver": "^6.0.2"

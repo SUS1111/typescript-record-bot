@@ -6,8 +6,7 @@ import path from 'path';
 import config from '../config';
 import { reply } from "../modules/functions";
 import { addWriteStream, writeFileStream } from "../modules/writeStream";
-
-interface conf { name: string; permLevel: string; aliases: string[], category: string, args: Map<string, { required: boolean, description: string, type: string }>, description: string };
+import { type configCommandType } from '..';
 
 export const run = (client: Client, message: Message | ChatInputCommandInteraction, args: string[]) => {
     if(!message.guildId || !client.user) return;
@@ -23,13 +22,13 @@ export const run = (client: Client, message: Message | ChatInputCommandInteracti
     return reply(message, { content: '正在錄音' });
 }
 
-export const conf: conf = {
+export const conf: configCommandType = {
     name: 'record',
     permLevel: 'Owner',
     aliases: [],
     category: 'voice',
     args: new Map([
-        ['用戶', { required: true, description: '想要錄哪個用戶', type: 'member' }],
+        ['用戶', { required: true, description: '想要錄哪個用戶', type: 'user' }],
         ['文件名稱', { required: false, description: '錄音後的文件名稱', type: 'string' }]
     ]),
     description: '對語音頻道錄音'

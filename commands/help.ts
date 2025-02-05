@@ -1,10 +1,8 @@
-interface conf { name: string; permLevel: string; aliases: string[], category: string, args: Map<string, { required: boolean, description: string, type: string }>, description: string };
-interface cmd { run: (client: Client, message: Message | ChatInputCommandInteraction, args: string[]) => any, conf: { name: string; permLevel: string; aliases: string[], category: string, description: string, args: Map<string, { required: boolean, description: string, type: string }> }}
-
 import { type Client, type Message, type ChatInputCommandInteraction, EmbedBuilder, type APIEmbedField, Embed } from 'discord.js';
 import { container } from '../index';
 import config from '../config';
 import { reply } from '../modules/functions';
+import { type configCommandType, type cmd } from "..";
 
 export const run = (client: Client, message: Message | ChatInputCommandInteraction, args: string[]) => {
     if(!client.user) return;
@@ -59,7 +57,7 @@ export const run = (client: Client, message: Message | ChatInputCommandInteracti
     }
 };
 
-export const conf: conf = {
+export const conf: configCommandType = {
     name: 'help',
     permLevel: 'User',
     aliases: ['h'],

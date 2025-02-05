@@ -16,7 +16,7 @@ const config: config = {
     settings: {
         prefix: 's!',
         activity: '簡單試下機器人',
-        clientId: '1236596820755349505',
+        clientId: '1336590336906231819',
         audioOutputDicPath: '../../音樂/', // 文件夾名稱即可
         autoLoadCommand: true
     },

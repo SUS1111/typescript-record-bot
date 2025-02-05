@@ -1,8 +1,7 @@
-interface conf { name: string; permLevel: string; aliases: string[], category: string, args: Map<string, { required: boolean, description: string, type: string }>, description: string };
-
 import { type Client, Message, type ChatInputCommandInteraction, type Channel, GuildChannel, ChannelType } from "discord.js";
 import { DiscordGatewayAdapterCreator, joinVoiceChannel } from "@discordjs/voice";
 import { reply } from "../modules/functions";
+import { type configCommandType } from '..';
 
 export const run = (client: Client, message: Message | ChatInputCommandInteraction, args: string[]) => {
     if(!message.member?.user.id || !message.guildId || !client.user) return;
@@ -13,7 +12,7 @@ export const run = (client: Client, message: Message | ChatInputCommandInteracti
     reply(message, { content: '成功加入頻道' });
 };
 
-export const conf: conf = {
+export const conf: configCommandType = {
     name: 'join',
     permLevel: 'User',
     aliases: ['joinchannel', 'joinvoicechannel'],

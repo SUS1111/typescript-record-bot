@@ -1,4 +1,6 @@
-interface cmd { run: (client: Client, message: Message | ChatInputCommandInteraction, args: string[]) => any, conf: { name: string; permLevel: string; aliases: string[], category: string, description: string, args: Map<string, { required: boolean, description: string, type: string }> }}
+export interface cmd { run: (client: Client, message: Message | ChatInputCommandInteraction, args: string[]) => any, conf: { name: string; permLevel: string; aliases: string[], category: string, description: string, args: Map<string, { required: boolean, description: string, type: slashCommandOptionTypes }> }}
+export type slashCommandOptionTypes = 'attachment' | 'boolean' | 'channel' | 'integer' | 'mentionable' | 'number' | 'role' | 'string' | 'user'
+export interface configCommandType { name: string; permLevel: string; aliases: string[], category: string, args: Map<string, { required: boolean, description: string, type: string }>, description: string };
 
 import { Client, Partials, Collection, type Message, REST, Routes, SlashCommandBuilder, type ChatInputCommandInteraction, GatewayIntentBits } from 'discord.js';
 import 'dotenv/config';
@@ -57,7 +59,8 @@ client.login(process.env.token).then(async() => {
         const slashCommand: SlashCommandBuilder = new SlashCommandBuilder()
             .setName(name)
             .setDescription(description);
-        args.forEach((argValue: { required: boolean, description: string, type: string }, argName: string) => addOption(argValue.type, slashCommand, { ...argValue, name: argName }));
+        args.forEach((argValue: { required: boolean, description: string, type: slashCommandOptionTypes }, argName: string) => addOption(argValue.type, slashCommand, { ...argValue, name: argName }));
+        // console.log(slashCommand)
         slashCommands.push(slashCommand);
     });
     await rest.put(Routes.applicationCommands(settings.clientId), { body: slashCommands });

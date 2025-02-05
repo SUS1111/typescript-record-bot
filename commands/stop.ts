@@ -3,8 +3,7 @@ import { type VoiceConnection, getVoiceConnection } from "@discordjs/voice";
 import { reply } from '../modules/functions';
 import { fileToZip, getAllWriteStream, stopwriteStream } from "../modules/writeStream";
 import { type WriteStream } from 'fs';
-
-interface conf { name: string; permLevel: string; aliases: string[], category: string, args: Map<string, { required: boolean, description: string, type: string }>, description: string };
+import { type configCommandType } from "..";
 
 export const run = (client: Client, message: Message | ChatInputCommandInteraction, args: string[]) => {
     if(!message.guildId || !client.user) return;
@@ -21,7 +20,7 @@ export const run = (client: Client, message: Message | ChatInputCommandInteracti
     reply(message, { content: '機器人正在停止錄音' });
 }
 
-export const conf: conf = {
+export const conf: configCommandType = {
     name: 'stop',
     permLevel: 'Owner',
     aliases: [],

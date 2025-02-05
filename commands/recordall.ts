@@ -6,8 +6,7 @@ import config from '../config';
 import { reply } from "../modules/functions";
 import { addWriteStream, getWriteStream, writeFileStream } from "../modules/writeStream";
 import moment from "moment";
-
-interface conf { name: string; permLevel: string; aliases: string[], category: string, args: Map<string, { required: boolean, description: string, type: string }>, description: string };
+import { type configCommandType } from "..";
 
 export const run = (client: Client, message: Message | ChatInputCommandInteraction, args: string[]) => {
     if(!message.guildId || !client.user || !message.guild || !message.member) return;
@@ -28,7 +27,7 @@ export const run = (client: Client, message: Message | ChatInputCommandInteracti
     return reply(message, { content: '已開始錄音' });
 };
 
-export const conf: conf = {
+export const conf: configCommandType = {
     name: 'recordall',
     permLevel: 'User',
     aliases: [],
