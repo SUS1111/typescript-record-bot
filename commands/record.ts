@@ -5,9 +5,8 @@ import moment from "moment-timezone";
 import path from 'path';
 import config from '../config';
 import { reply } from "../modules/functions";
-import { addWriteStream } from "../modules/writeStream";
+import { addRecord } from "../modules/recordbuffer";
 import { type configCommandType } from '..';
-import { type WriteStream } from "fs";
 
 export const run = (client: Client, message: Message | ChatInputCommandInteraction, args: string[]) => {
     const { timeFormat, timeZone, audioOutputPath } = config.settings;
@@ -19,8 +18,8 @@ export const run = (client: Client, message: Message | ChatInputCommandInteracti
     if(!connection) return reply(message, { content: '機器人尚未加入語音頻道' });
     const encoder: OpusEncoder = new OpusEncoder(48000, 2);
     const listenStream: AudioReceiveStream = connection.receiver.subscribe(user.id);
-    const writeStream: WriteStream = addWriteStream(path.join(audioOutputPath, fileName), user.id);
-    listenStream.on('data', chunk => writeStream.write(encoder.decode(chunk)));
+    const writeStream: Buffer[] = addRecord(path.join(audioOutputPath, fileName), user.id);
+    listenStream.on('data', chunk => writeStream.push(encoder.decode(chunk)));
     return reply(message, { content: '正在錄音' });
 }
 
