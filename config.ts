@@ -3,8 +3,10 @@ interface config {
         prefix: string,
         activity: string,
         clientId: string,
-        audioOutputDicPath: string,
-        autoLoadCommand: boolean
+        audioOutputPath: string,
+        timeFormat: string,
+        autoLoadCommand: boolean,
+        timeZone: string
     };
     permLevels: { level: number, name: string, check: (member: any) => boolean }[];
     commandPaths: string[];
@@ -17,8 +19,10 @@ const config: config = {
         prefix: 's!',
         activity: '簡單試下機器人',
         clientId: '1336590336906231819',
-        audioOutputDicPath: '../../音樂/', // 文件夾名稱即可
-        autoLoadCommand: true
+        autoLoadCommand: true,
+        audioOutputPath: '../../音樂/', // 文件夾名稱即可
+        timeFormat: 'YYYY-MM-DD_HH-mm-ss', // 文件默认输出的时间格式
+        timeZone: 'Asia/Kuala_Lumpur'
     },
     permLevels: [
         {
@@ -34,7 +38,7 @@ const config: config = {
         {
             level: 2,
             name: 'Owner',
-            check: member => member.id === '785496543141560371'
+            check: member => member.id === process.env.ownerId
         }
     ],
     commandPaths: ['./commands/ping', './commands/eval', './commands/joinChannel', './commands/leaveChannel', './commands/record', './commands/stop'], // 可繼續接下去 以,分割 若autoLoadCommand爲true可以只留個空陣列

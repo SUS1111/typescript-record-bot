@@ -9,16 +9,19 @@ import logger from './modules/logger';
 import { addOption } from './modules/functions';
 import { lstatSync, readdirSync } from 'fs';
 
-if(!process.env.token) throw new Error('請在.env文件提供令牌!');
-if(!lstatSync(config.settings.audioOutputDicPath).isDirectory()) throw new Error('並不存在該文件夾');
+const { permLevels, commandPaths, eventPaths, settings } = config;
 
-const client: Client = new Client({ intents: [GatewayIntentBits.AutoModerationConfiguration, GatewayIntentBits.AutoModerationExecution, GatewayIntentBits.DirectMessagePolls, GatewayIntentBits.DirectMessageReactions, GatewayIntentBits.DirectMessageTyping, GatewayIntentBits.DirectMessages, GatewayIntentBits.GuildEmojisAndStickers, GatewayIntentBits.GuildIntegrations, GatewayIntentBits.GuildInvites, GatewayIntentBits.GuildMembers, GatewayIntentBits.GuildMessagePolls, GatewayIntentBits.GuildMessageReactions, GatewayIntentBits.GuildMessageTyping, GatewayIntentBits.GuildVoiceStates, GatewayIntentBits.GuildMessages, GatewayIntentBits.GuildModeration, GatewayIntentBits.GuildPresences, GatewayIntentBits.GuildScheduledEvents, GatewayIntentBits.GuildVoiceStates, GatewayIntentBits.GuildWebhooks, GatewayIntentBits.MessageContent, GatewayIntentBits.Guilds], partials: [Partials.Channel, Partials.User, Partials.GuildMember, Partials.Message, Partials.Reaction, Partials.GuildScheduledEvent, Partials.ThreadMember] });
+if(!process.env.token) throw new Error('請在.env文件提供令牌!');
+if(!lstatSync(settings.audioOutputPath).isDirectory()) throw new Error('並不存在該文件夾');
+
+const intents: GatewayIntentBits[] = [GatewayIntentBits.AutoModerationConfiguration, GatewayIntentBits.AutoModerationExecution, GatewayIntentBits.DirectMessagePolls, GatewayIntentBits.DirectMessageReactions, GatewayIntentBits.DirectMessageTyping, GatewayIntentBits.DirectMessages, GatewayIntentBits.GuildEmojisAndStickers, GatewayIntentBits.GuildIntegrations, GatewayIntentBits.GuildInvites, GatewayIntentBits.GuildMembers, GatewayIntentBits.GuildMessagePolls, GatewayIntentBits.GuildMessageReactions, GatewayIntentBits.GuildMessageTyping, GatewayIntentBits.GuildVoiceStates, GatewayIntentBits.GuildMessages, GatewayIntentBits.GuildModeration, GatewayIntentBits.GuildPresences, GatewayIntentBits.GuildScheduledEvents, GatewayIntentBits.GuildVoiceStates, GatewayIntentBits.GuildWebhooks, GatewayIntentBits.MessageContent, GatewayIntentBits.Guilds]
+const partials: Partials[] = [Partials.Channel, Partials.User, Partials.GuildMember, Partials.Message, Partials.Reaction, Partials.GuildScheduledEvent, Partials.ThreadMember];
+const client: Client = new Client({ intents, partials });
 const rest: REST = new REST().setToken(process.env.token);
 
 const commands: Collection<string | undefined, cmd> = new Collection();
 const aliases: Collection<string, string> = new Collection();
 
-const { permLevels, commandPaths, eventPaths, settings } = config;
 const levelCache: { [key: string]: number } = {};
 for (let i = 0; i < permLevels.length; i++) {
     const thisLevel = permLevels[i];
@@ -52,7 +55,7 @@ eventPaths.forEach(async(path: string, name: string) => {
     }
 });
 
-client.login(process.env.token).then(async() => {
+client.login(process.env.token).then(() => {
     const cmdConf: cmd['conf'][] = commands.map((code: cmd) => code.conf);
     const slashCommands: SlashCommandBuilder[] = [];
     cmdConf.forEach(async ({ name, description, args }) => {
@@ -60,8 +63,7 @@ client.login(process.env.token).then(async() => {
             .setName(name)
             .setDescription(description);
         args.forEach((argValue: { required: boolean, description: string, type: slashCommandOptionTypes }, argName: string) => addOption(argValue.type, slashCommand, { ...argValue, name: argName }));
-        // console.log(slashCommand)
         slashCommands.push(slashCommand);
     });
-    await rest.put(Routes.applicationCommands(settings.clientId), { body: slashCommands });
+    return rest.put(Routes.applicationCommands(settings.clientId), { body: slashCommands });
 });

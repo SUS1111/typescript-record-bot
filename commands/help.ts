@@ -1,8 +1,7 @@
-import { type Client, type Message, type ChatInputCommandInteraction, EmbedBuilder, type APIEmbedField, Embed } from 'discord.js';
-import { container } from '../index';
+import { type Client, type Message, type ChatInputCommandInteraction, EmbedBuilder, type APIEmbedField } from 'discord.js';
 import config from '../config';
 import { reply } from '../modules/functions';
-import { type configCommandType, type cmd } from "..";
+import { type configCommandType, type cmd, container } from "..";
 
 export const run = (client: Client, message: Message | ChatInputCommandInteraction, args: string[]) => {
     if(!client.user) return;

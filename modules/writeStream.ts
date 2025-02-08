@@ -4,21 +4,20 @@ import moment from 'moment-timezone';
 import path from 'path';
 import config from '../config';
 
-const allWriteStream: Map<string, WriteStream> = new Map();
+export const allWriteStream: Map<string, WriteStream> = new Map();
+const { audioOutputPath, timeZone, timeFormat } = config.settings;
 
-const addWriteStream = (path: string, id: string): Map<string, WriteStream> => allWriteStream.set(id, createWriteStream(path, { encoding: 'binary', flags: 'a' }));
-const writeFileStream = (id: string, data?: any): WriteStream | undefined => {
-    const writeStream = allWriteStream.get(id);
-    if(!writeStream) return;
-    writeStream.write(data);
+export const addWriteStream = (path: string, id: string): WriteStream => {
+    const writeStream = createWriteStream(path, { encoding: 'binary', flags: 'a' });
+    allWriteStream.set(id, writeStream);
     return writeStream;
 };
-const stopwriteStream = (id: string): void => {
+export const stopwriteStream = (id: string): void => {
     const writeStream = allWriteStream.get(id);
     return writeStream ? writeStream.close() : void(0);
 };
-const fileToZip = (...filePaths: string[]): void => {
-    const output: WriteStream = createWriteStream(path.join(config.settings.audioOutputDicPath, `record-${moment.tz('Asia/Taipei').format('YYYY-MM-DD_HH:mm:ss')}.zip`));
+export const fileToZip = (...filePaths: string[]): void => {
+    const output: WriteStream = createWriteStream(path.join(audioOutputPath, `record-${moment.tz(timeZone).format(timeFormat)}.zip`));
     const archive: any = Archiver('zip', { zlib: { level: 9 }});
     filePaths.forEach((filePath: string) => archive.file(filePath));
     archive.pipe(output);
@@ -28,9 +27,6 @@ const fileToZip = (...filePaths: string[]): void => {
         filePaths.forEach((filePath: string) => rmSync(filePath));
     });
 };
-const getWriteStream = (id: string): WriteStream | undefined => allWriteStream.get(id);
-const getAllWriteStream = (): Map<string, WriteStream> => allWriteStream;
-const deleteWriteStream = (id: string): void => void(allWriteStream.delete(id));
-const deleteAllWriteStream = (): void => allWriteStream.clear();
-
-export { addWriteStream, writeFileStream, stopwriteStream, fileToZip, getWriteStream, getAllWriteStream, deleteWriteStream, deleteAllWriteStream };
+export const getWriteStream = (id: string): WriteStream | undefined => allWriteStream.get(id);
+export const deleteWriteStream = (id: string): void => void(allWriteStream.delete(id));
+export const deleteAllWriteStream = (): void => allWriteStream.clear();

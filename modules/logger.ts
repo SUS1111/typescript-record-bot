@@ -1,11 +1,12 @@
-const moment = require('moment-timezone');
+import config from "../config";
+import moment from 'moment-timezone';
 
 const types: string[] = ['log', 'warn', 'error', 'cmd', 'ready', 'eval'];
 
-const logger: { [key: string]: (arg: string) => void } = {};
+const logger: { [key: string]: (arg: any) => void } = {};
 
-const run = (content: string, type: string) => {
-    const timestamp:string = `[${moment().tz('Asia/Kuala_Lumpur').format('YYYY-MM-DD HH:mm:ss')}]:`;
+const run = (content: any, type: string) => {
+    const timestamp:string = `[${moment().tz(config.settings.timeZone).format('YYYY-MM-DD HH:mm:ss')}]:`;
 
     if (!(types.includes(type))) {
         throw new TypeError(`選項: ${types.join(', ')}`);
@@ -15,7 +16,7 @@ const run = (content: string, type: string) => {
 };
 
 types.forEach((type: string) => {
-    logger[type] = (arg: string) => run(arg, type);
+    logger[type] = arg => run(arg, type);
 });
 
 export default logger;

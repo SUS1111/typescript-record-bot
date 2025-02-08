@@ -87,3 +87,4 @@ token=你的token
 reply(message, { your: 'content' });
 ```
 * 想要部署在replit或其他地方請自己想辦法
+* 导出的录音文件为16比特PCM双声道48000Hz采样频率小端序的原始pcm文件 可用Audacity打开或是用ffmpeg转换成想要的文件格式

@@ -1,6 +1,3 @@
-interface permLevels { level: number, name: string, check: (member: any) => boolean }[]
-// type slashCommandOptionTypes = 'attachment' | 'boolean' | 'channel' | 'integer' | 'mentionable' | 'number' | 'role' | 'string' | 'user'
-
 import {
     type Client,
     type GuildMember,
@@ -12,11 +9,12 @@ import {
     MessageMentions
 } from 'discord.js';
 import config from '../config';
-import { type slashCommandOptionTypes } from '../index'
+import { type slashCommandOptionTypes } from '..';
+import logger from './logger';
 
 const permlevel = (member: GuildMember| APIInteractionGuildMember | null): number => {
     let permlvl: number = 0;
-    const permOrder:permLevels[] = config.permLevels.slice(0).sort((p, c) => (p.level < c.level ? 1 : -1));
+    const permOrder: config['permLevels'] = config.permLevels.slice(0).sort((p, c) => (p.level < c.level ? 1 : -1));
     while (permOrder.length) {
         const currentLevel = permOrder.shift();
         if (currentLevel?.check(member)) {
@@ -28,11 +26,11 @@ const permlevel = (member: GuildMember| APIInteractionGuildMember | null): numbe
 };
 
 const targetGet = (message: Message, args: any[]): GuildMember | undefined => {
-    if (!args[0]) return undefined;
+    if (!args[0] || !message.guild) return undefined;
     if (args[0].matchAll(MessageMentions.UsersPattern).next().value) {
-        return message.guild?.members.cache.get(args[0].matchAll(MessageMentions.UsersPattern).next().value[1]);
+        return message.guild.members.cache.get(args[0].matchAll(MessageMentions.UsersPattern).next().value[1]);
     }
-    return message.guild?.members.cache.get(args[0]);
+    return message.guild.members.cache.get(args[0]);
 };
 
 const clean = async (client: Client, text: string): Promise<string> => {
@@ -67,7 +65,7 @@ const addOption = (type: slashCommandOptionTypes, slashCmd: SlashCommandBuilder,
     try {
         return slashCommandOption[type]();
     } catch (e) {
-        console.error(e);
+        logger.error(e);
         return slashCmd;
     }
 };

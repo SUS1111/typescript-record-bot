@@ -1,15 +1,15 @@
-import { type Client, Message, type ChatInputCommandInteraction, type GuildMember, type User } from "discord.js";
+import { type Client, Message, type ChatInputCommandInteraction, type GuildMember } from "discord.js";
 import { type VoiceConnection, getVoiceConnection } from "@discordjs/voice";
 import { reply } from '../modules/functions';
-import { fileToZip, getAllWriteStream, stopwriteStream } from "../modules/writeStream";
+import { fileToZip, allWriteStream, stopwriteStream } from "../modules/writeStream";
 import { type WriteStream } from 'fs';
 import { type configCommandType } from "..";
 
 export const run = (client: Client, message: Message | ChatInputCommandInteraction, args: string[]) => {
     if(!message.guildId || !client.user) return;
     const compressToZip: boolean = args[0]?.toLowerCase() !== 'false';
-    const user: GuildMember | User | undefined = message instanceof Message ? message.mentions.members?.first() || message.guild?.members.cache.get(args[1]) : message.guild?.members.cache.get(args[1]);
-    const recordingFilePaths: Map<string, WriteStream> = getAllWriteStream();
+    const user: GuildMember | undefined = message instanceof Message ? message.mentions.members?.first() || message.guild?.members.cache.get(args[1]) : message.guild?.members.cache.get(args[1]);
+    const recordingFilePaths: Map<string, WriteStream> = allWriteStream;
     if(!recordingFilePaths) return reply(message, { content: '並沒有該錄音' });
     const connection: VoiceConnection | undefined = getVoiceConnection(message.guildId, client.user.id);
     if(!connection) return reply(message, { content: '機器人尚未加入語音頻道' });

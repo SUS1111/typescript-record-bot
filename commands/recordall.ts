@@ -1,14 +1,16 @@
 import { type Client, type Message, type ChatInputCommandInteraction, type VoiceBasedChannel } from "discord.js";
 import { AudioReceiveStream, type VoiceConnection, getVoiceConnection } from "@discordjs/voice";
-import { OpusEncoder } from "@discordjs/opus";
 import path from 'path';
 import config from '../config';
 import { reply } from "../modules/functions";
-import { addWriteStream, getWriteStream, writeFileStream } from "../modules/writeStream";
+import { addWriteStream, getWriteStream } from "../modules/writeStream";
 import moment from "moment";
 import { type configCommandType } from "..";
+import { type WriteStream } from "fs";
+import { OpusEncoder } from "@discordjs/opus";
 
 export const run = (client: Client, message: Message | ChatInputCommandInteraction, args: string[]) => {
+    const { timeFormat, timeZone, audioOutputPath } = config.settings;
     if(!message.guildId || !client.user || !message.guild || !message.member) return;
     const connection: VoiceConnection | undefined = getVoiceConnection(message.guildId, client.user.id);
     const voiceChannel: VoiceBasedChannel | undefined | null = message.guild.members.cache.get(message.member?.user.id)?.voice.channel;
@@ -17,10 +19,10 @@ export const run = (client: Client, message: Message | ChatInputCommandInteracti
     let i: number = 1;
     const listener = (userId: string): void => {
         if(getWriteStream(userId)) return;
-        const fileName: string = `${moment().tz('Asia/Taipei').format('YYYY-MM-DD_HH:mm:ss')}-${i}.pcm`;
-        addWriteStream(path.join(config.settings.audioOutputDicPath, fileName), userId);
-        const subsription: AudioReceiveStream = connection.receiver.subscribe(userId);
-        subsription.on('data', chunk => writeFileStream(userId, encoder.decode(chunk)));
+        const fileName: string = `${moment().tz(timeZone).format(timeFormat)}-${i}.pcm`;
+        const writeStream: WriteStream = addWriteStream(path.join(audioOutputPath, fileName), userId);
+        const listenStream: AudioReceiveStream = connection.receiver.subscribe(userId);
+        listenStream.on('data', chunk => writeStream.write(encoder.decode(chunk)));
         i++;
     };
     connection.receiver.speaking.on('start', listener);
