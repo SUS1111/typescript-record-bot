@@ -1,6 +1,6 @@
-export interface cmd { run: (client: Client, message: Message | ChatInputCommandInteraction, args: string[]) => any, conf: { name: string; permLevel: string; aliases: string[], category: string, description: string, args: Map<string, { required: boolean, description: string, type: slashCommandOptionTypes }> }}
-export type slashCommandOptionTypes = 'attachment' | 'boolean' | 'channel' | 'integer' | 'mentionable' | 'number' | 'role' | 'string' | 'user'
-export interface configCommandType { name: string; permLevel: string; aliases: string[], category: string, args: Map<string, { required: boolean, description: string, type: string }>, description: string };
+export interface cmd { run: (client: Client, message: Message | ChatInputCommandInteraction, args: string[]) => any, conf: { name: string; permLevel: string; aliases: string[], category: string, description: string, args: Map<string, { required: boolean, description: string, type: slashCommandOptionTypes }> }};
+export type slashCommandOptionTypes = 'attachment' | 'boolean' | 'channel' | 'integer' | 'mentionable' | 'number' | 'role' | 'string' | 'user';
+export interface configCommandType { name: string; permLevel: string; aliases: string[], category: string, description: string, args: Map<string, { required: boolean, description: string, type: slashCommandOptionTypes }> };
 
 import { Client, Partials, Collection, type Message, REST, Routes, SlashCommandBuilder, type ChatInputCommandInteraction, GatewayIntentBits } from 'discord.js';
 import 'dotenv/config';
@@ -14,7 +14,7 @@ const { permLevels, commandPaths, eventPaths, settings } = config;
 if(!process.env.token) throw new Error('請在.env文件提供令牌!');
 if(!lstatSync(settings.audioOutputPath).isDirectory()) throw new Error('並不存在該文件夾');
 
-const intents: GatewayIntentBits[] = [GatewayIntentBits.AutoModerationConfiguration, GatewayIntentBits.AutoModerationExecution, GatewayIntentBits.DirectMessagePolls, GatewayIntentBits.DirectMessageReactions, GatewayIntentBits.DirectMessageTyping, GatewayIntentBits.DirectMessages, GatewayIntentBits.GuildEmojisAndStickers, GatewayIntentBits.GuildIntegrations, GatewayIntentBits.GuildInvites, GatewayIntentBits.GuildMembers, GatewayIntentBits.GuildMessagePolls, GatewayIntentBits.GuildMessageReactions, GatewayIntentBits.GuildMessageTyping, GatewayIntentBits.GuildVoiceStates, GatewayIntentBits.GuildMessages, GatewayIntentBits.GuildModeration, GatewayIntentBits.GuildPresences, GatewayIntentBits.GuildScheduledEvents, GatewayIntentBits.GuildVoiceStates, GatewayIntentBits.GuildWebhooks, GatewayIntentBits.MessageContent, GatewayIntentBits.Guilds]
+const intents: GatewayIntentBits[] = [GatewayIntentBits.AutoModerationConfiguration, GatewayIntentBits.AutoModerationExecution, GatewayIntentBits.DirectMessagePolls, GatewayIntentBits.DirectMessageReactions, GatewayIntentBits.DirectMessageTyping, GatewayIntentBits.DirectMessages, GatewayIntentBits.GuildExpressions, GatewayIntentBits.GuildIntegrations, GatewayIntentBits.GuildInvites, GatewayIntentBits.GuildMembers, GatewayIntentBits.GuildMessagePolls, GatewayIntentBits.GuildMessageReactions, GatewayIntentBits.GuildMessageTyping, GatewayIntentBits.GuildVoiceStates, GatewayIntentBits.GuildMessages, GatewayIntentBits.GuildModeration, GatewayIntentBits.GuildPresences, GatewayIntentBits.Guilds, GatewayIntentBits.GuildScheduledEvents, GatewayIntentBits.GuildVoiceStates, GatewayIntentBits.GuildWebhooks, GatewayIntentBits.MessageContent]; // all intents
 const partials: Partials[] = [Partials.Channel, Partials.User, Partials.GuildMember, Partials.Message, Partials.Reaction, Partials.GuildScheduledEvent, Partials.ThreadMember];
 const client: Client = new Client({ intents, partials });
 const rest: REST = new REST().setToken(process.env.token);
@@ -56,9 +56,9 @@ eventPaths.forEach(async(path: string, name: string) => {
 });
 
 client.login(process.env.token).then(() => {
-    const cmdConf: cmd['conf'][] = commands.map((code: cmd) => code.conf);
+    const cmdConf: configCommandType[] = commands.map((code: cmd) => code.conf);
     const slashCommands: SlashCommandBuilder[] = [];
-    cmdConf.forEach(async ({ name, description, args }) => {
+    cmdConf.forEach(({ name, description, args }) => {
         const slashCommand: SlashCommandBuilder = new SlashCommandBuilder()
             .setName(name)
             .setDescription(description);

@@ -5,7 +5,7 @@ import path from 'path';
 import config from '../config';
 import logger from './logger';
 
-const { audioOutputPath, timeZone, timeFormat } = config.settings;
+const { audioOutputPath, timeZone, outputTimeFormat } = config.settings;
 export const allRecord: Map<string, { data: Buffer[], fileName: string }> = new Map();
 
 export const addRecord = (fileName: string, id: string, data: Buffer[] = []) : Buffer[] => {
@@ -13,7 +13,7 @@ export const addRecord = (fileName: string, id: string, data: Buffer[] = []) : B
     return data;
 };
 export const exportRecordAsZip = (...keys: string[]): void => {
-    const output: WriteStream = createWriteStream(path.join(audioOutputPath, `record-${moment.tz(timeZone).format(timeFormat)}.zip`));
+    const output: WriteStream = createWriteStream(path.join(audioOutputPath, `record-${moment.tz(timeZone).format(outputTimeFormat)}.zip`));
     const archive: any = Archiver('zip', { zlib: { level: 9 }});
     keys.forEach((key: string) => {
         const record = allRecord.get(key);

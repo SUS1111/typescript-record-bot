@@ -4,7 +4,7 @@ interface config {
         activity: string,
         clientId: string,
         audioOutputPath: string,
-        timeFormat: string,
+        outputTimeFormat: string,
         autoLoadCommand: boolean,
         timeZone: string
     };
@@ -21,7 +21,7 @@ const config: config = {
         clientId: '1336590336906231819',
         autoLoadCommand: true,
         audioOutputPath: '../../音樂/', // 文件夾名稱即可
-        timeFormat: 'YYYY-MM-DD_HH-mm-ss', // 文件默认输出的时间格式
+        outputTimeFormat: 'YYYY-MM-DD_HH-mm-ss', // 文件默认输出的时间格式
         timeZone: 'Asia/Kuala_Lumpur'
     },
     permLevels: [
