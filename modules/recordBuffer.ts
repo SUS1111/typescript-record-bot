@@ -1,17 +1,18 @@
-import { type WriteStream, createWriteStream, rmSync } from 'fs';
+import { type WriteStream, createWriteStream, writeFileSync } from 'fs';
 import Archiver from 'archiver';
 import moment from 'moment-timezone';
 import path from 'path';
 import config from '../config';
+import logger from './logger';
 
-export const allRecord: Map<string, { data: Buffer[], fileName: string }> = new Map();
 const { audioOutputPath, timeZone, timeFormat } = config.settings;
+export const allRecord: Map<string, { data: Buffer[], fileName: string }> = new Map();
 
 export const addRecord = (fileName: string, id: string, data: Buffer[] = []) : Buffer[] => {
     allRecord.set(id, { data, fileName });
     return data;
 };
-export const fileToZip = (...keys: string[]): void => {
+export const exportRecordAsZip = (...keys: string[]): void => {
     const output: WriteStream = createWriteStream(path.join(audioOutputPath, `record-${moment.tz(timeZone).format(timeFormat)}.zip`));
     const archive: any = Archiver('zip', { zlib: { level: 9 }});
     keys.forEach((key: string) => {
@@ -22,5 +23,12 @@ export const fileToZip = (...keys: string[]): void => {
     });
     archive.pipe(output);
     archive.finalize();
-    output.on('close', () => console.log('進去了'));
+    output.on('close', () => logger.log('文件已导出并压缩完成'));
 };
+export const exportRecord = (...keys: string[]): void => keys.forEach((key: string) => {
+    const record = allRecord.get(key);
+    if(!record) return;
+    const { data, fileName } = record;
+    writeFileSync(fileName, Buffer.concat(data));
+    logger.log('所有文件已导出');
+});
