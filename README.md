@@ -17,8 +17,10 @@ interface config {
         prefix: string,
         activity: string,
         clientId: string,
-        dicPath: string,
-        autoLoadCommand: boolean
+        audioOutputPath: string,
+        outputTimeFormat: string,
+        autoLoadCommand: boolean,
+        timeZone: string
     };
     permLevels: { level: number, name: string, check: (member: any) => boolean }[];
     commandPaths: string[];
@@ -31,8 +33,10 @@ const config: config = {
         prefix: 's!',
         activity: '簡單試下機器人',
         clientId: '你的機器人id',
-        dicPath: '../foo/bar', // 文件夾名稱即可
-        autoLoadCommand: true
+        autoLoadCommand: true,
+        audioOutputPath: '../foo/bar/', // 文件夾名稱即可
+        outputTimeFormat: 'YYYY-MM-DD_HH-mm-ss', // 文件默认输出的时间格式
+        timeZone: '你所在的時區'
     },
     permLevels: [
         {
@@ -48,10 +52,10 @@ const config: config = {
         {
             level: 2,
             name: 'Owner',
-            check: member => member.id === '你的id'
+            check: member => member.id === process.env.ownerId
         }
     ],
-    commandPaths: ['./commands/ping', './commands/eval', './commands/joinChannel', './commands/leaveChannel', './commands/record', './commands/stop'], // 可繼續接下去 以,分割 若autoLoadCommand爲true可以只只寫new Map([])
+    commandPaths: ['./commands/ping', './commands/eval', './commands/joinChannel', './commands/leaveChannel', './commands/record', './commands/stop'], // 可繼續接下去 以,分割 若autoLoadCommand爲true可以只留個空陣列
     eventPaths: new Map([
         // ['name', 'path']
         ['ready', './events/ready'],
@@ -76,9 +80,8 @@ token=你的token
 
 ## 注意事項
 
-* 請自行創立.env文件並按照上面.env的段落填寫機器人的token
-* `config.ts` 可設定機器人前綴與其活動狀態、權限設定、所要執行的指令、監聽的事件、錄音文件的位置
-* 下載之後請運行 `npm install` ，安裝所需要的套件
+* 請自行創立.env文件並按照上面.env的段落填寫機器人的token和你的用户id
+* `config.ts` 可設定機器人前綴與其活動狀態、權限設定、所要執行的指令、監聽的事件、錄音文件的位置等
 * 下載程式碼之後請運行 `npm install`以安裝所需要的套件
 * 若要運行， 請在命令行輸入`ts-node .`
 * 若要增加新的類別 除了在指令的conf物件增加 還記得要在config.ts的categoryList裏面增加並且附上其譯名
