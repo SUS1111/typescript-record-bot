@@ -77,4 +77,6 @@ const channelGet = (message: Message | ChatInputCommandInteraction, channel: str
     return message.guild?.channels.cache.get(channel?.matchAll(channelPatern).next().value?.at(1) ?? channel);
 };
 
-export { permlevel, memberGet, clean, addOption, optionToArray, reply, channelGet };
+const validFileName = (filename: string): boolean => filename !== '.' && filename !== '..' && !/[<>:"/\\|?*\u0000-\u001F]/g.test(filename) && !/^(con|prn|aux|nul|com\d|lpt\d)$/i.test(filename) && filename.length < 255;
+
+export { permlevel, memberGet, clean, addOption, optionToArray, reply, channelGet, validFileName };
