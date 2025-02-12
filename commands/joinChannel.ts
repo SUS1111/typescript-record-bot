@@ -1,13 +1,13 @@
 import { type Client, Message, type ChatInputCommandInteraction, type Channel, GuildChannel, ChannelType } from "discord.js";
-import { DiscordGatewayAdapterCreator, joinVoiceChannel } from "@discordjs/voice";
-import { reply } from "../modules/functions";
+import { joinVoiceChannel } from "@discordjs/voice";
+import { channelGet, reply } from "../modules/functions";
 import { type configCommandType } from '..';
 
 export const run = (client: Client, message: Message | ChatInputCommandInteraction, args: string[]) => {
-    if(!message.member?.user.id || !message.guild || !client.user) return;
-    const channel: Channel | unknown = (message instanceof Message ? message.mentions.channels.first() || message.guild.channels.cache.get(args[0]) || message.member.voice.channel : message.guild.channels.cache.get(args[0])) || message.guild.members.cache.get(message.member.user.id)?.voice.channel;
+    if(!message.member || !message.guild || !client.user) return;
+    const channel: Channel | unknown = channelGet(message, args[0]) || message.guild.members.cache.get(message.member.user.id)?.voice.channel;
     if(!channel || !(channel instanceof GuildChannel)) return reply(message, { content: '找不到頻道' });
-    if(channel.type !== ChannelType.GuildVoice) return reply(message, { content: '機器人只能加入語音頻道' });
+    if(channel.type !== ChannelType.GuildVoice && channel.type !== ChannelType.GuildStageVoice) return reply(message, { content: '機器人只能加入語音頻道' });
     joinVoiceChannel({
         channelId: channel.id,
         guildId: message.guild.id,
@@ -23,7 +23,7 @@ export const conf: configCommandType = {
     permLevel: 'User',
     aliases: ['joinchannel', 'joinvoicechannel'],
     args: new Map([
-        ['頻道', { required: true, description: '想要讓機器人加入的頻道', type: 'channel' }]
+        ['頻道', { required: false, description: '想要讓機器人加入的頻道', type: 'channel' }]
     ]),
     category: 'voice',
     description: '讓機器人加入語音頻道'

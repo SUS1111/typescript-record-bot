@@ -43,7 +43,7 @@ const loadCommandFunc = async (file: string) => {
     }
 }
 
-(config.settings.autoLoadCommand ? readdirSync('./commands') : commandPaths).forEach(loadCommandFunc);
+(settings.autoLoadCommand ? readdirSync('./commands') : commandPaths).forEach(loadCommandFunc);
 
 eventPaths.forEach(async(path: string, name: string) => {
     try {
@@ -57,13 +57,12 @@ eventPaths.forEach(async(path: string, name: string) => {
 
 client.login(process.env.token).then(() => {
     const cmdConf: configCommandType[] = commands.map((code: cmd) => code.conf);
-    const slashCommands: SlashCommandBuilder[] = [];
-    cmdConf.forEach(({ name, description, args }) => {
+    const slashCommands: SlashCommandBuilder[] = cmdConf.map(({ name, description, args }): SlashCommandBuilder => {
         const slashCommand: SlashCommandBuilder = new SlashCommandBuilder()
             .setName(name)
             .setDescription(description);
         args.forEach((argValue: { required: boolean, description: string, type: slashCommandOptionTypes }, argName: string) => addOption(argValue.type, slashCommand, { ...argValue, name: argName }));
-        slashCommands.push(slashCommand);
+        return slashCommand;
     });
     return rest.put(Routes.applicationCommands(settings.clientId), { body: slashCommands });
 });

@@ -6,11 +6,11 @@ import {
     type SlashCommandBuilder,
     type ChatInputCommandInteraction,
     type SlashCommandOptionsOnlyBuilder,
+    type Channel,
     MessageMentions
 } from 'discord.js';
 import config from '../config';
 import { type slashCommandOptionTypes } from '..';
-import logger from './logger';
 
 const permlevel = (member: GuildMember| APIInteractionGuildMember | null): number => {
     let permlvl: number = 0;
@@ -25,12 +25,9 @@ const permlevel = (member: GuildMember| APIInteractionGuildMember | null): numbe
     return permlvl;
 };
 
-const targetGet = (message: Message, args: any[]): GuildMember | undefined => {
-    if (!args[0] || !message.guild) return undefined;
-    if (args[0].matchAll(MessageMentions.UsersPattern).next().value) {
-        return message.guild.members.cache.get(args[0].matchAll(MessageMentions.UsersPattern).next().value[1]);
-    }
-    return message.guild.members.cache.get(args[0]);
+const memberGet = (message: Message | ChatInputCommandInteraction, member: string): GuildMember | undefined => {
+    const userPatern: RegExp = new RegExp(MessageMentions.UsersPattern, 'g');
+    return message.guild?.members.cache.get(member?.matchAll(userPatern).next().value?.at(1) ?? member);
 };
 
 const clean = async (client: Client, text: string): Promise<string> => {
@@ -62,12 +59,7 @@ const addOption = (type: slashCommandOptionTypes, slashCmd: SlashCommandBuilder,
         string: (): SlashCommandOptionsOnlyBuilder => slashCmd.addStringOption(addSlashCommandOption),
         user: (): SlashCommandOptionsOnlyBuilder => slashCmd.addUserOption(addSlashCommandOption)
     };
-    try {
-        return slashCommandOption[type]();
-    } catch (e) {
-        logger.error(e);
-        return slashCmd;
-    }
+    return slashCommandOption[type]();
 };
 
 const optionToArray = (interaction: ChatInputCommandInteraction, options: Map<string, { required: boolean, description: string, type: string }>): any[] => {
@@ -80,4 +72,9 @@ const reply = (message: Message | ChatInputCommandInteraction, reply: any): Prom
     return message instanceof Message ? message.reply(reply) : message.editReply(reply);
 };
 
-export { permlevel, targetGet, clean, addOption, optionToArray, reply };
+const channelGet = (message: Message | ChatInputCommandInteraction, channel: string): Channel | undefined => {
+    const channelPatern: RegExp = new RegExp(MessageMentions.ChannelsPattern, 'g');
+    return message.guild?.channels.cache.get(channel?.matchAll(channelPatern).next().value?.at(1) ?? channel);
+};
+
+export { permlevel, memberGet, clean, addOption, optionToArray, reply, channelGet };

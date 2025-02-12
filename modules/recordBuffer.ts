@@ -30,5 +30,5 @@ export const exportRecord = (...keys: string[]): void => keys.forEach((key: stri
     if(!record) return;
     const { data, fileName } = record;
     writeFileSync(fileName, Buffer.concat(data));
-    logger.log('所有文件已导出');
+    logger.log(`${fileName}已成功导出`);
 });

@@ -4,14 +4,14 @@ import { OpusEncoder } from "@discordjs/opus";
 import moment from "moment-timezone";
 import path from 'path';
 import config from '../config';
-import { reply } from "../modules/functions";
+import { memberGet, reply } from "../modules/functions";
 import { addRecord } from "../modules/recordBuffer";
 import { type configCommandType } from '..';
 
 export const run = (client: Client, message: Message | ChatInputCommandInteraction, args: string[]) => {
     const { outputTimeFormat, timeZone, audioOutputPath } = config.settings;
     if(!message.guild || !client.user) return;
-    const user: GuildMember | undefined = message instanceof Message ? message.mentions.members?.first() || message.guild.members.cache.get(args[0]) : message.guild.members.cache.get(args[0]);
+    const user: GuildMember | undefined = memberGet(message, args[0]);
     if(!user) return reply(message, { content: '請指定一個用戶' });
     const fileName: string = args[1] || `${moment().tz(timeZone).format(outputTimeFormat)}.pcm`;
     const connection: VoiceConnection | undefined = getVoiceConnection(message.guild.id, client.user.id);

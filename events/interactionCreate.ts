@@ -32,6 +32,6 @@ export default async(client: Client, interaction: BaseInteraction) => {
     } catch (err: any) {
         // 回報錯誤
         logger.error(err);
-        return interaction.reply({ content: `出現了些錯誤\n\`\`\`${err.message}\`\`\``, fetchReply: true });
+        return interaction.followUp({ content: `出現了些錯誤\n\`\`\`${err.message}\`\`\``, fetchReply: true });
     }
 }
