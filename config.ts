@@ -41,7 +41,7 @@ const config: config = {
             check: member => member.id === process.env.ownerId
         }
     ],
-    commandPaths: ['./commands/ping', './commands/eval', './commands/joinChannel', './commands/leaveChannel', './commands/record', './commands/stop'], // 可繼續接下去 以,分割 若autoLoadCommand爲true可以只留個空陣列
+    commandPaths: ['./commands/ping', './commands/eval', './commands/joinChannel', './commands/leaveChannel', './commands/record', './commands/stop', './commands/permission'], // 可繼續接下去 以,分割 若autoLoadCommand爲true可以只留個空陣列
     eventPaths: new Map([
         // ['name', 'path']
         ['ready', './events/ready'],

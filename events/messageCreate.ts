@@ -1,11 +1,8 @@
-interface permLevel { level: number, name: string, check: (member: any) => boolean }
-interface cmd { run: (client: Client, message: Message | ChatInputCommandInteraction, args: string[]) => any, conf: { name: string; permLevel: string; aliases: string[], category: string, description: string, args: Map<string, { required: boolean, description: string, type: string }> }}
-
 import logger from '../modules/logger';
 import config from '../config';
 import { permlevel } from '../modules/functions';
-import { container } from '../index';
-import { type Client, type Message, type ChatInputCommandInteraction, ChannelType } from 'discord.js';
+import { container, type permLevel, type cmd } from '..';
+import { type Client, type Message, ChannelType } from 'discord.js';
 
 const { prefix } = config.settings;
 
