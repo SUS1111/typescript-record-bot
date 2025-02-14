@@ -1,7 +1,9 @@
+type commandArgumentAsArray = [string, { required: boolean, description: string, type: slashCommandOptionTypes }];
+
 import { type Client, type Message, type ChatInputCommandInteraction, EmbedBuilder, type APIEmbedField } from 'discord.js';
 import config from '../config';
 import { reply } from '../modules/functions';
-import { type configCommandType, type cmd, container } from "..";
+import { type configCommandType, type cmd, container, type slashCommandOptionTypes } from "..";
 
 export const run = (client: Client, message: Message | ChatInputCommandInteraction, args: string[]) => {
     if(!client.user) return;
@@ -20,39 +22,41 @@ export const run = (client: Client, message: Message | ChatInputCommandInteracti
     ]);
 
     if(!args[0]) {
-        const fields: APIEmbedField[] = [];
+        const fields: APIEmbedField[] = Array.from(categoryList, ([ name, value ]: string[]): APIEmbedField => {
+            const filter: (cmd: cmd) => boolean = (cmd: cmd) => cmd.conf.category === name;
+            const mapFunc: (value: cmd) => string = (value: cmd) => `\`${value.conf.name}\``;
+            return { name: value, value: [...commands.values()].filter(filter).map(mapFunc).join(', ') };
+        });
         const embed: EmbedBuilder = new EmbedBuilder()
             .setTitle('指令列表')
+            .addFields(fields)
             .setColor(0xFFFF00)
             .setTimestamp()
             .setFooter({ text: client.user.username, iconURL: client.user.displayAvatarURL() });
-        categoryList.forEach((value: string, name: string) => {
-            const filter: (cmd: cmd) => boolean = (cmd: cmd) => cmd.conf.category === name;
-            const mapFunc: (value: cmd) => string = (value: cmd) => `\`${value.conf.name}\``;
-            fields.push({ name: value, value: [...commands.values()].filter(filter).map(mapFunc).join(', ') });
-        });
-        embed.addFields(...fields);
         reply(message, { embeds: [embed] });
     } else {
         const command: string = args[0].toLowerCase();
         const cmd: cmd | undefined = commands.get(command);
         if(!cmd) return reply(message, { content: '查無指令' });
-        const argsFields: APIEmbedField[] = [];
-        cmd.conf.args.forEach(({ required, description, type }, key: string) => argsFields.push({ name: key, value: `必填參數: ${required ? '是' : '否'}\n說明: ${description}\n類型: ${typeList.get(type)}`}));
+        const { aliases, args: commandArgs, permLevel, description } = cmd.conf;
+        const mapFunc = ([name, { required, description, type }]: commandArgumentAsArray): APIEmbedField => {
+            return { name, value: `必填參數: ${required ? '是' : '否'}\n說明: ${description}\n類型: ${typeList.get(type)}` };
+        };
+        const argsFields: APIEmbedField[] = Array.from(commandArgs, mapFunc);
         const mainEmbed: EmbedBuilder = new EmbedBuilder()
             .setTitle(command)
-            .setDescription(cmd.conf.description)
-            .addFields({ name: '別名', value: cmd.conf.aliases.length ? cmd.conf.aliases.join(', ') : '無' }, { name: '權限', value: cmd.conf.permLevel })
+            .setDescription(description)
+            .addFields({ name: '別名', value: aliases.length ? aliases.join(', ') : '無' }, { name: '權限', value: permLevel })
             .setColor(0xFFFF00)
             .setTimestamp()
             .setFooter({ text: client.user.username, iconURL: client.user.displayAvatarURL() });
         const argsEmbed: EmbedBuilder = new EmbedBuilder()
             .setTitle(`${command}的參數`)
-            .addFields(...argsFields)
             .setColor(0xFFFF00)
             .setTimestamp()
             .setFooter({ text: client.user.username, iconURL: client.user.displayAvatarURL() });
-        reply(message, { embeds: cmd.conf.args.size ? [mainEmbed, argsEmbed] : [mainEmbed] });
+        commandArgs.size ? argsEmbed.addFields(argsFields) : argsEmbed.setDescription('無');
+        reply(message, { embeds: [mainEmbed, argsEmbed] });
     }
 };
 
