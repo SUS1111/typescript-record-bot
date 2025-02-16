@@ -4,7 +4,7 @@ import { memberGet, reply } from '../modules/functions';
 import { exportRecordAsZip, exportRecord, allRecord } from "../modules/recordBuffer";
 import { type configCommandType } from "..";
 
-export const run = (client: Client, message: Message | ChatInputCommandInteraction, args: string[]) => {
+export const run = async(client: Client, message: Message | ChatInputCommandInteraction, args: string[]) => {
     if(!message.guildId || !client.user) return;
     const user: GuildMember | undefined = memberGet(message, args[1]);
     if(!allRecord) return reply(message, { content: '機器人並未錄音' });
@@ -13,8 +13,9 @@ export const run = (client: Client, message: Message | ChatInputCommandInteracti
     if(allRecord.size === 0) return reply(message, { content: '机器人并未开始录音' });
     if(user && !allRecord.has(user.id)) return reply(message, { content: '机器人并未对于该用户录音' });
     const stopRecordId: string[] = user ? [user.id] : Array.from(allRecord.keys());
-    args[0]?.toString().toLowerCase() === 'false' ? exportRecord(stopRecordId) : exportRecordAsZip(stopRecordId);
-    reply(message, { content: '機器人正在停止錄音' });
+    args[0]?.toString().toLowerCase() === 'false' ? exportRecord(stopRecordId) : await exportRecordAsZip(stopRecordId);
+    stopRecordId.forEach(id => allRecord.delete(id));
+    reply(message, { content: '機器人已停止錄音并导出文件' });
 };
 
 export const conf: configCommandType = {

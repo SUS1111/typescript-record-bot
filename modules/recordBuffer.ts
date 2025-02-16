@@ -13,7 +13,7 @@ export const addRecord = (fileName: string, id: string): Buffer[] => {
     allRecord.set(id, { data, fileName });
     return data;
 };
-export const exportRecordAsZip = (keys: string[]): void => {
+export const exportRecordAsZip = (keys: string[]): Promise<void> => {
     const output: WriteStream = createWriteStream(path.join(audioOutputPath, `record-${moment.tz(timeZone).format(outputTimeFormat)}.zip`));
     const archive: any = Archiver('zip', { zlib: { level: 9 }});
     keys.forEach((key: string) => {
@@ -24,7 +24,10 @@ export const exportRecordAsZip = (keys: string[]): void => {
     });
     archive.pipe(output);
     archive.finalize();
-    output.on('close', () => logger.log('文件已导出并压缩完成'));
+    return new Promise<void>(resolve => output.on('close' , () => {
+        logger.log('文件已导出并压缩完成');
+        resolve();
+    }));
 };
 export const exportRecord = (keys: string[]): void => keys.forEach((key: string) => {
     const record = allRecord.get(key);
