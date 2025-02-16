@@ -32,22 +32,20 @@ for (let i = 0; i < permLevels.length; i++) {
 
 export const container = { commands, aliases, levelCache };
 
-const loadCommandFunc = async (file: string) => {
+(settings.autoLoadCommand ? readdirSync('./commands') : commandPaths).forEach(async (file: string) => {
     try {
         if(!file.startsWith('./commands/')) file = `./commands/${file}`;
-        const code:cmd = await import(file);
-        const cmdName:string = code.conf.name;
+        const code: cmd = await import(file);
+        const cmdName: string = code.conf.name;
         container.commands.set(cmdName, code);
         code.conf.aliases.forEach((alias: string) => container.aliases.set(alias, cmdName));
         logger.log(`CMD ${cmdName} 已被載入 ✅`);
     } catch (e: any) {
        logger.error(e);
     }
-}
+});
 
-(settings.autoLoadCommand ? readdirSync('./commands') : commandPaths).forEach(loadCommandFunc);
-
-eventPaths.forEach(async(path: string, name: string) => {
+eventPaths.forEach(async (path: string, name: string) => {
     try {
         const { default: code } = await import(path);
         client.on(name, code.bind(null, client));
@@ -63,7 +61,7 @@ client.login(process.env.token).then(() => {
         const slashCommand: SlashCommandBuilder = new SlashCommandBuilder()
             .setName(name)
             .setDescription(description);
-        args.forEach((argValue: { required: boolean, description: string, type: slashCommandOptionTypes }, argName: string) => addOption(argValue.type, slashCommand, { ...argValue, name: argName }));
+        args.forEach((argValue: { required: boolean, description: string, type: slashCommandOptionTypes }, argName: string) => addOption(slashCommand, { ...argValue, name: argName }));
         return slashCommand;
     });
     return rest.put(Routes.applicationCommands(settings.clientId), { body: slashCommands });

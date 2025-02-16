@@ -13,7 +13,7 @@ export const run = (client: Client, message: Message | ChatInputCommandInteracti
     if(allRecord.size === 0) return reply(message, { content: '机器人并未开始录音' });
     if(user && !allRecord.has(user.id)) return reply(message, { content: '机器人并未对于该用户录音' });
     const stopRecordId: string[] = user ? [user.id] : Array.from(allRecord.keys());
-    args[0]?.toString()?.toLowerCase() === 'false' ? exportRecord(...stopRecordId) : exportRecordAsZip(...stopRecordId);
+    args[0]?.toString().toLowerCase() === 'false' ? exportRecord(stopRecordId) : exportRecordAsZip(stopRecordId);
     reply(message, { content: '機器人正在停止錄音' });
 };
 

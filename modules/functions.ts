@@ -10,7 +10,7 @@ import {
     MessageMentions
 } from 'discord.js';
 import config from '../config';
-import { type slashCommandOptionTypes } from '..';
+import { type configCommandType, type slashCommandOptionTypes } from '..';
 
 const permlevel = (member: GuildMember| APIInteractionGuildMember | null): number => {
     let permlvl: number = 0;
@@ -44,9 +44,9 @@ const clean = async (client: Client, text: string): Promise<string> => {
     return value;
 };
 
-const addOption = (type: slashCommandOptionTypes, slashCmd: SlashCommandBuilder, option: { required: boolean, description: string, name: string }): SlashCommandOptionsOnlyBuilder => {
+const addOption = (slashCmd: SlashCommandBuilder, option: { required: boolean, description: string, name: string, type: slashCommandOptionTypes }): SlashCommandOptionsOnlyBuilder => {
     // return Symbol(`add${type.charAt(0).toUpperCase() + type.slice(1)}Option`);
-    const { name, description, required } = option;
+    const { name, description, required, type } = option;
     const addSlashCommandOption = (slashCommandOption: any) => slashCommandOption.setName(name).setDescription(description).setRequired(required);
     const slashCommandOption = {
         attachment: (): SlashCommandOptionsOnlyBuilder => slashCmd.addAttachmentOption(addSlashCommandOption),
@@ -62,7 +62,7 @@ const addOption = (type: slashCommandOptionTypes, slashCmd: SlashCommandBuilder,
     return slashCommandOption[type]();
 };
 
-const optionToArray = (interaction: ChatInputCommandInteraction, options: Map<string, { required: boolean, description: string, type: string }>): any[] => {
+const optionToArray = (interaction: ChatInputCommandInteraction, options: configCommandType['args']): any[] => {
     const optionName: string[] = [...options.keys()];
     const result = optionName.map(name => interaction.options.get(name)?.value);
     return result;
