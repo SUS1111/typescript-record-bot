@@ -25,7 +25,7 @@ const permlevel = (member: GuildMember| APIInteractionGuildMember | null): numbe
     return permlvl;
 };
 
-const memberGet = (message: Message | ChatInputCommandInteraction, member: string): GuildMember | undefined => {
+const memberGet = (message: Message | ChatInputCommandInteraction, member: string = ''): GuildMember | undefined => {
     const userPatern: RegExp = new RegExp(MessageMentions.UsersPattern, 'g');
     return message.guild?.members.cache.get(member.matchAll(userPatern).next().value?.at(1) ?? member);
 };
@@ -72,7 +72,7 @@ const reply = (message: Message | ChatInputCommandInteraction, reply: any): Prom
     return message instanceof Message ? message.reply(reply) : message.editReply(reply);
 };
 
-const channelGet = (message: Message | ChatInputCommandInteraction, channel: string): Channel | undefined => {
+const channelGet = (message: Message | ChatInputCommandInteraction, channel: string = ''): Channel | undefined => {
     const channelPatern: RegExp = new RegExp(MessageMentions.ChannelsPattern, 'g');
     return message.guild?.channels.cache.get(channel.matchAll(channelPatern).next().value?.at(1) ?? channel);
 };
