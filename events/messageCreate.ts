@@ -22,17 +22,19 @@ export default async (client:Client, message:Message) => {
             // 得到使用者的權限等級
             const permlevelGet: number = permlevel(message.member);
             // 從指令名稱得到其export的函數
-            const cmd: cmd | undefined = container.commands.get(command) || container.commands.get(container.aliases.get(command));
+            const cmd: cmd | undefined = container.commands.get(command) || container.commands.get(container.aliases.get(command) ?? '');
             // 如果找不到，就不執行
             if (!cmd) return;
+            // 獲得成員的權限名稱
+            const permLevelName = config.permLevels.find((l: permLevel) => l.level === permlevelGet)!.name;
             // 比較權限等級，如果使用者的權限等級小於指令的權限等級，就不執行
             if (permlevelGet < container.levelCache[cmd.conf.permLevel]) {
-                return message.channel.send(`你沒有權限使用!\n你的權限等級為 ${permlevelGet} (${config.permLevels.find((l: permLevel) => l.level === permlevelGet)?.name})\n你需要權限等級 ${container.levelCache[cmd.conf.permLevel]} (${cmd.conf.permLevel})`);
+                return message.channel.send(`你沒有權限使用!\n你的權限等級為 ${permlevelGet} (${permLevelName})\n你需要權限等級 ${container.levelCache[cmd.conf.permLevel]} (${cmd.conf.permLevel})`);
             }
             // 執行指令
             const result: any = await cmd.run(client, message, args);
             // 記錄日誌
-            logger.cmd(`${config.permLevels.find((l: permLevel) => l.level === permlevelGet)?.name} ${message.author.tag} 執行了 ${cmd.conf.name}`);
+            logger.cmd(`${permLevelName} ${message.author.tag} 執行了 ${cmd.conf.name}`);
             // 回傳結果(雖然沒必要)
             return result;
         } catch (err: any) {

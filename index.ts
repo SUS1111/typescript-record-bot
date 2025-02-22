@@ -9,6 +9,7 @@ import config from './config';
 import logger from './modules/logger';
 import { addOption, validFileName } from './modules/functions';
 import { lstatSync, readdirSync } from 'fs';
+import moment from 'moment-timezone';
 
 const { permLevels, commandPaths, eventPaths, settings } = config;
 
@@ -21,7 +22,7 @@ const partials: Partials[] = [Partials.Channel, Partials.User, Partials.GuildMem
 const client: Client = new Client({ intents, partials });
 const rest: REST = new REST().setToken(process.env.token);
 
-const commands: Collection<string | undefined, cmd> = new Collection();
+const commands: Collection<string, cmd> = new Collection();
 const aliases: Collection<string, string> = new Collection();
 
 const levelCache: { [key: string]: number } = {};
@@ -30,7 +31,7 @@ for (let i = 0; i < permLevels.length; i++) {
     levelCache[thisLevel.name] = thisLevel.level;
 }
 
-export const container = { commands, aliases, levelCache };
+export const container = { commands, aliases, levelCache, momentInit: moment().tz(settings.timeZone) };
 
 (settings.autoLoadCommand ? readdirSync('./commands') : commandPaths).forEach(async (file: string) => {
     try {

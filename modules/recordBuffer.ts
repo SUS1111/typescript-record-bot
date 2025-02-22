@@ -1,11 +1,11 @@
 import { type WriteStream, createWriteStream, writeFileSync } from 'fs';
 import Archiver from 'archiver';
-import moment from 'moment-timezone';
+import { container } from '..';
 import path from 'path';
 import config from '../config';
 import logger from './logger';
 
-const { audioOutputPath, timeZone, outputTimeFormat } = config.settings;
+const { audioOutputPath, outputTimeFormat } = config.settings;
 export const allRecord: Map<string, { data: Buffer[], fileName: string }> = new Map();
 
 const extractRecord = (key: string): [Buffer[], string] => {
@@ -19,7 +19,7 @@ export const addRecord = (fileName: string, id: string): Buffer[] => {
     return data;
 };
 export const exportRecordAsZip = (keys: string[]): Promise<void> => {
-    const output: WriteStream = createWriteStream(path.join(audioOutputPath, `record-${moment.tz(timeZone).format(outputTimeFormat)}.zip`));
+    const output: WriteStream = createWriteStream(path.join(audioOutputPath, `record-${container.momentInit.format(outputTimeFormat)}.zip`));
     const archive: any = Archiver('zip', { zlib: { level: 9 }});
     keys.map(extractRecord).forEach(([data, fileName]) => archive.append(Buffer.concat(data), { name: path.basename(fileName) }));
     archive.pipe(output);

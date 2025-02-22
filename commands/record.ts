@@ -1,19 +1,18 @@
 import { type Client, Message, type ChatInputCommandInteraction, type GuildMember } from "discord.js";
 import { type VoiceConnection, type AudioReceiveStream, getVoiceConnection } from "@discordjs/voice";
 import { OpusEncoder } from "@discordjs/opus";
-import moment from "moment-timezone";
 import path from 'path';
 import config from '../config';
 import { memberGet, reply, validFileName } from "../modules/functions";
 import { addRecord, allRecord } from "../modules/recordBuffer";
-import { type configCommandType } from '..';
+import { container, type configCommandType } from '..';
 
 export const run = (client: Client, message: Message | ChatInputCommandInteraction, args: string[]) => {
-    const { outputTimeFormat, timeZone, audioOutputPath } = config.settings;
+    const { outputTimeFormat, audioOutputPath } = config.settings;
     if(!message.guild || !client.user) return;
     const user: GuildMember | undefined = memberGet(message, args[0]);
     if(!user) return reply(message, { content: '請指定一個用戶' });
-    const fileName: string = args[1] || `${moment().tz(timeZone).format(outputTimeFormat)}.pcm`;
+    const fileName: string = args[1] || `${container.momentInit.format(outputTimeFormat)}.pcm`;
     const connection: VoiceConnection | undefined = getVoiceConnection(message.guild.id, client.user.id);
     if(!validFileName(fileName)) return reply(message, { content: '输入了无效的文件名或是文件名过长' });
     if(!connection) return reply(message, { content: '機器人尚未加入語音頻道' });
