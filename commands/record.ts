@@ -5,7 +5,7 @@ import moment from "moment-timezone";
 import path from 'path';
 import config from '../config';
 import { memberGet, reply, validFileName } from "../modules/functions";
-import { addRecord } from "../modules/recordBuffer";
+import { addRecord, allRecord } from "../modules/recordBuffer";
 import { type configCommandType } from '..';
 
 export const run = (client: Client, message: Message | ChatInputCommandInteraction, args: string[]) => {
@@ -17,6 +17,7 @@ export const run = (client: Client, message: Message | ChatInputCommandInteracti
     const connection: VoiceConnection | undefined = getVoiceConnection(message.guild.id, client.user.id);
     if(!validFileName(fileName)) return reply(message, { content: '输入了无效的文件名或是文件名过长' });
     if(!connection) return reply(message, { content: '機器人尚未加入語音頻道' });
+    if(allRecord.has(user.id)) return reply(message, { content: '机器人早就对该用户录音了' });
     const encoder: OpusEncoder = new OpusEncoder(48000, 2);
     const listenStream: AudioReceiveStream = connection.receiver.subscribe(user.id);
     const recordData: Buffer[] = addRecord(path.join(audioOutputPath, fileName), user.id);

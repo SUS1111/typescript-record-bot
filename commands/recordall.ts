@@ -3,7 +3,7 @@ import { AudioReceiveStream, type VoiceConnection, getVoiceConnection } from "@d
 import path from 'path';
 import config from '../config';
 import { reply } from "../modules/functions";
-import { addRecord } from "../modules/recordBuffer";
+import { addRecord, allRecord } from "../modules/recordBuffer";
 import moment from "moment";
 import { type configCommandType } from "..";
 import { OpusEncoder } from "@discordjs/opus";
@@ -15,14 +15,13 @@ export const run = (client: Client, message: Message | ChatInputCommandInteracti
     const voiceChannel: VoiceBasedChannel | undefined | null = message.guild.members.cache.get(message.member.user.id)?.voice.channel;
     if(!connection || !voiceChannel) return reply(message, { content: '機器人尚未加入語音頻道' });
     const encoder: OpusEncoder = new OpusEncoder(48000, 2);
-    let i: number = 1;
     voiceChannel.members.forEach(member => {
         const memberId = member.id;
-        const fileName: string = `${moment().tz(timeZone).format(outputTimeFormat)}-${i}.pcm`;
+        if(allRecord.has(memberId)) return;
+        const fileName: string = `${moment().tz(timeZone).format(outputTimeFormat)}-${memberId}.pcm`;
         const listenStream: AudioReceiveStream = connection.receiver.subscribe(memberId);
         const recordData: Buffer[] = addRecord(path.join(audioOutputPath, fileName), memberId);
         listenStream.on('data', chunk => recordData.push(encoder.decode(chunk)));
-        i++;
     });
     return reply(message, { content: '已開始錄音' });
 };
