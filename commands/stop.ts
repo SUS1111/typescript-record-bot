@@ -13,7 +13,10 @@ export const run = async(client: Client, message: Message | ChatInputCommandInte
     if(user && !allRecord.has(user.id)) return reply(message, { content: '机器人并未对于该用户录音' });
     const stopRecordId: string[] = user ? [user.id] : Array.from(allRecord.keys());
     args[0]?.toString().toLowerCase() === 'false' ? exportRecord(stopRecordId) : await exportRecordAsZip(stopRecordId);
-    stopRecordId.forEach(id => allRecord.delete(id));
+    stopRecordId.forEach(id => {
+        allRecord.get(id)?.listenStream.destroy();
+        allRecord.delete(id);
+    });
     reply(message, { content: '機器人已停止錄音并导出文件' });
 };
 

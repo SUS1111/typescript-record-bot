@@ -4,18 +4,19 @@ import { container } from '..';
 import path from 'path';
 import config from '../config';
 import logger from './logger';
+import type { AudioReceiveStream } from '@discordjs/voice';
 
 const { audioOutputPath, outputTimeFormat } = config.settings;
-export const allRecord: Map<string, { data: Buffer[], fileName: string }> = new Map();
+export const allRecord: Map<string, { data: Buffer[], fileName: string, listenStream: AudioReceiveStream }> = new Map();
 
 const extractRecord = (key: string): [Buffer[], string] => {
     const { data, fileName } = allRecord.get(key)!;
     return [data, fileName];
 };
 
-export const addRecord = (fileName: string, id: string): Buffer[] => {
+export const addRecord = (id: string, fileName: string, listenStream: AudioReceiveStream): Buffer[] => {
     const data: Buffer[] = [];
-    allRecord.set(id, { data, fileName });
+    allRecord.set(id, { data, fileName, listenStream });
     return data;
 };
 export const exportRecordAsZip = (keys: string[]): Promise<void> => {
