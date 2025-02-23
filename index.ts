@@ -31,7 +31,7 @@ for (let i = 0; i < permLevels.length; i++) {
     levelCache[thisLevel.name] = thisLevel.level;
 }
 
-export const container = { commands, aliases, levelCache, momentInit: moment().tz(settings.timeZone) };
+export const container = { commands, aliases, levelCache };
 
 (settings.autoLoadCommand ? readdirSync('./commands') : commandPaths).forEach(async (file: string) => {
     try {

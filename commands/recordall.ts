@@ -4,8 +4,9 @@ import path from 'path';
 import config from '../config';
 import { reply } from "../modules/functions";
 import { addRecord, allRecord } from "../modules/recordBuffer";
-import { container, type configCommandType } from "..";
+import type { configCommandType } from "..";
 import { OpusEncoder } from "@discordjs/opus";
+import moment from "moment-timezone";
 
 export const run = (client: Client, message: Message | ChatInputCommandInteraction) => {
     const { outputTimeFormat, audioOutputPath } = config.settings;
@@ -17,7 +18,7 @@ export const run = (client: Client, message: Message | ChatInputCommandInteracti
     voiceChannel.members.forEach(member => {
         const memberId = member.id;
         if(allRecord.has(memberId)) return;
-        const fileName: string = `${container.momentInit.format(outputTimeFormat)}-${memberId}.pcm`;
+        const fileName: string = `${moment.tz(outputTimeFormat).format(outputTimeFormat)}-${memberId}.pcm`;
         const listenStream: AudioReceiveStream = connection.receiver.subscribe(memberId);
         const recordData: Buffer[] = addRecord(memberId, path.join(audioOutputPath, fileName), listenStream);
         listenStream.on('data', chunk => recordData.push(encoder.decode(chunk)));

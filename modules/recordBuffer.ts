@@ -1,6 +1,6 @@
 import { type WriteStream, createWriteStream, writeFileSync } from 'fs';
 import Archiver from 'archiver';
-import { container } from '..';
+import moment from 'moment';
 import path from 'path';
 import config from '../config';
 import logger from './logger';
@@ -20,7 +20,7 @@ export const addRecord = (id: string, fileName: string, listenStream: AudioRecei
     return data;
 };
 export const exportRecordAsZip = (keys: string[]): Promise<void> => {
-    const output: WriteStream = createWriteStream(path.join(audioOutputPath, `record-${container.momentInit.format(outputTimeFormat)}.zip`));
+    const output: WriteStream = createWriteStream(path.join(audioOutputPath, `record-${moment.tz(audioOutputPath).format(outputTimeFormat)}.zip`));
     const archive: any = Archiver('zip', { zlib: { level: 9 }});
     keys.map(extractRecord).forEach(([data, fileName]) => archive.append(Buffer.concat(data), { name: path.basename(fileName) }));
     archive.pipe(output);

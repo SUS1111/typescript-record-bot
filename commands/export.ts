@@ -1,7 +1,7 @@
 import type { Client, Message, ChatInputCommandInteraction, GuildMember } from "discord.js";
 import { type VoiceConnection, getVoiceConnection } from "@discordjs/voice";
 import { memberGet, reply } from '../modules/functions';
-import { exportRecord, allRecord } from "../modules/recordBuffer";
+import { allRecord, exportRecordAsZip } from "../modules/recordBuffer";
 import { type configCommandType } from "..";
 
 export const run = (client: Client, message: Message | ChatInputCommandInteraction, args: string[]) => {
@@ -12,8 +12,7 @@ export const run = (client: Client, message: Message | ChatInputCommandInteracti
     if(allRecord.size === 0) return reply(message, { content: '机器人并未开始录音' });
     if(user && !allRecord.has(user.id)) return reply(message, { content: '机器人并未对于该用户录音' });
     const stopRecordId: string[] = user ? [user.id] : Array.from(allRecord.keys());
-    exportRecord(stopRecordId);
-    reply(message, { content: '機器人已停止錄音' });
+    exportRecordAsZip(stopRecordId).then(() => reply(message, { content: '機器人已汇出錄音' }));
 };
 
 export const conf: configCommandType = {
