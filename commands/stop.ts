@@ -1,8 +1,8 @@
-import { type Client, Message, type ChatInputCommandInteraction, type GuildMember } from "discord.js";
+import type { Client, Message, ChatInputCommandInteraction, GuildMember } from "discord.js";
 import { type VoiceConnection, getVoiceConnection } from "@discordjs/voice";
 import { memberGet, reply } from '../modules/functions';
 import { exportRecordAsZip, exportRecord, allRecord } from "../modules/recordBuffer";
-import { type configCommandType } from "..";
+import type { configCommandType } from "..";
 
 export const run = async(client: Client, message: Message | ChatInputCommandInteraction, args: string[]) => {
     if(!message.guildId || !client.user) return;

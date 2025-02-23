@@ -10,7 +10,7 @@ import {
     MessageMentions
 } from 'discord.js';
 import config from '../config';
-import { type configCommandType, type slashCommandOptionTypes } from '..';
+import type { configCommandType, slashCommandOptionTypes } from '..';
 
 const permlevel = (member: GuildMember| APIInteractionGuildMember | null): number => {
     let permlvl: number = 0;

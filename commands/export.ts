@@ -1,4 +1,4 @@
-import { type Client, Message, type ChatInputCommandInteraction, type GuildMember } from "discord.js";
+import type { Client, Message, ChatInputCommandInteraction, GuildMember } from "discord.js";
 import { type VoiceConnection, getVoiceConnection } from "@discordjs/voice";
 import { memberGet, reply } from '../modules/functions';
 import { exportRecord, allRecord } from "../modules/recordBuffer";

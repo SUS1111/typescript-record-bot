@@ -1,6 +1,6 @@
-import { type Client, type Message, type ChatInputCommandInteraction, type GuildMember, APIInteractionGuildMember } from "discord.js";
+import type { Client, Message, ChatInputCommandInteraction, GuildMember, APIInteractionGuildMember } from "discord.js";
 import { memberGet, permlevel, reply } from "../modules/functions";
-import { type configCommandType, type permLevel } from "..";
+import type { configCommandType, permLevel } from "..";
 import config from "../config";
 
 export const run = (client: Client, message: Message | ChatInputCommandInteraction, args: any[]) => {

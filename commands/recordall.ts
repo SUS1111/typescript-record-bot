@@ -1,4 +1,4 @@
-import { type Client, type Message, type ChatInputCommandInteraction, type VoiceBasedChannel } from "discord.js";
+import type { Client, Message, ChatInputCommandInteraction, VoiceBasedChannel } from "discord.js";
 import { AudioReceiveStream, type VoiceConnection, getVoiceConnection } from "@discordjs/voice";
 import path from 'path';
 import config from '../config';

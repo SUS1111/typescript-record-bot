@@ -1,4 +1,4 @@
-import { type Client, Message, type ChatInputCommandInteraction, type GuildMember } from "discord.js";
+import type { Client, Message, ChatInputCommandInteraction, GuildMember } from "discord.js";
 import { type VoiceConnection, type AudioReceiveStream, getVoiceConnection } from "@discordjs/voice";
 import { OpusEncoder } from "@discordjs/opus";
 import path from 'path';

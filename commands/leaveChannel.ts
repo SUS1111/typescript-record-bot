@@ -1,7 +1,7 @@
-import { type Client, type Message, type ChatInputCommandInteraction } from "discord.js";
+import type { Client, Message, ChatInputCommandInteraction } from "discord.js";
 import { type VoiceConnection, getVoiceConnection } from '@discordjs/voice';
 import { reply } from "../modules/functions";
-import { type configCommandType } from "..";
+import type { configCommandType } from "..";
 
 export const run = (client: Client, message: Message | ChatInputCommandInteraction) => {
     if(!message.guildId || !client.user) return;
