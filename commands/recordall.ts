@@ -9,7 +9,7 @@ import { OpusEncoder } from "@discordjs/opus";
 import moment from "moment-timezone";
 
 export const run = (client: Client, message: Message | ChatInputCommandInteraction) => {
-    const { outputTimeFormat, audioOutputPath } = config.settings;
+    const { outputTimeFormat, audioOutputPath, timeZone } = config.settings;
     if(!client.user || !message.guild || !message.member) return;
     const connection: VoiceConnection | undefined = getVoiceConnection(message.guild.id, client.user.id);
     const voiceChannel: VoiceBasedChannel | undefined | null = message.guild.members.cache.get(message.member.user.id)?.voice.channel;
@@ -18,7 +18,7 @@ export const run = (client: Client, message: Message | ChatInputCommandInteracti
     voiceChannel.members.forEach(member => {
         const memberId = member.id;
         if(allRecord.has(memberId)) return;
-        const fileName: string = `${moment.tz(outputTimeFormat).format(outputTimeFormat)}-${memberId}.pcm`;
+        const fileName: string = `${moment().tz(timeZone).format(outputTimeFormat)}-${memberId}.pcm`;
         const listenStream: AudioReceiveStream = connection.receiver.subscribe(memberId);
         const recordData: Buffer[] = addRecord(memberId, path.join(audioOutputPath, fileName), listenStream);
         listenStream.on('data', chunk => recordData.push(encoder.decode(chunk)));

@@ -6,14 +6,14 @@ import config from '../config';
 import { memberGet, reply, validFileName } from "../modules/functions";
 import { addRecord, allRecord } from "../modules/recordBuffer";
 import type { configCommandType } from '..';
-import moment from "moment";
+import moment from "moment-timezone";
 
 export const run = (client: Client, message: Message | ChatInputCommandInteraction, args: string[]) => {
-    const { outputTimeFormat, audioOutputPath } = config.settings;
+    const { outputTimeFormat, audioOutputPath, timeZone } = config.settings;
     if(!message.guild || !client.user) return;
     const user: GuildMember | undefined = memberGet(message, args[0]);
     if(!user) return reply(message, { content: '請指定一個用戶' });
-    const fileName: string = args[1] || `${moment.tz(outputTimeFormat).format(outputTimeFormat)}.pcm`;
+    const fileName: string = args[1] || `${moment().tz(timeZone).format(outputTimeFormat)}.pcm`;
     const connection: VoiceConnection | undefined = getVoiceConnection(message.guild.id, client.user.id);
     if(!validFileName(fileName)) return reply(message, { content: '输入了无效的文件名或是文件名过长' });
     if(!connection) return reply(message, { content: '機器人尚未加入語音頻道' });
