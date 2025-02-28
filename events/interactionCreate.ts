@@ -1,4 +1,4 @@
-import { type BaseInteraction, type Client } from "discord.js";
+import type { BaseInteraction, Client } from "discord.js";
 import { optionToArray, permlevel } from '../modules/functions';
 import { container, type permLevel, type cmd } from '..';
 import config from "../config";

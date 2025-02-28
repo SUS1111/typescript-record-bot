@@ -9,7 +9,6 @@ import config from './config';
 import logger from './modules/logger';
 import { addOption, validFileName } from './modules/functions';
 import { lstatSync, readdirSync } from 'fs';
-import moment from 'moment-timezone';
 
 const { permLevels, commandPaths, eventPaths, settings } = config;
 

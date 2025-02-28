@@ -1,8 +1,7 @@
 import type { Client, Message, ChatInputCommandInteraction } from "discord.js";
 import { codeBlock } from '@discordjs/builders';
 import logger from '../modules/logger';
-import { clean } from '../modules/functions';
-import { reply } from "../modules/functions";
+import { clean, reply } from '../modules/functions';
 import type { configCommandType } from "..";
 
 /*
