@@ -4,7 +4,7 @@
 
 ## Requirements
 
-* Node.js v20.12.2+
+* Node.js v20.13.1+
 * NPM v10.5.0+
 
 ## Config
