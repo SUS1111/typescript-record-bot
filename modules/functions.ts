@@ -8,7 +8,8 @@ import {
     type SlashCommandOptionsOnlyBuilder,
     type Channel,
     type MessageReplyOptions,
-    MessageMentions
+    MessageMentions,
+    type InteractionEditReplyOptions
 } from 'discord.js';
 import config from '../config';
 import type { configCommandType, slashCommandOptionTypes } from '..';
@@ -70,7 +71,7 @@ const optionToArray = (interaction: ChatInputCommandInteraction, options: config
 };
 
 const reply = (message: Message | ChatInputCommandInteraction, reply: string | MessageReplyOptions): Promise<Message<boolean>> => {
-    return message instanceof Message ? message.reply(reply) : message.editReply(reply);
+    return message instanceof Message ? message.reply(reply) : message.editReply(reply as InteractionEditReplyOptions);
 };
 
 const channelGet = (message: Message | ChatInputCommandInteraction, channel: string = ''): Channel | undefined => {

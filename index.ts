@@ -1,9 +1,9 @@
 export interface cmd { run: (client: Client, message: Message | ChatInputCommandInteraction, args: string[]) => any, conf: { name: string; permLevel: string; aliases: string[], category: string, description: string, args: Map<string, { required: boolean, description: string, type: slashCommandOptionTypes }> }};
 export type slashCommandOptionTypes = 'attachment' | 'boolean' | 'channel' | 'integer' | 'mentionable' | 'number' | 'role' | 'string' | 'user';
 export interface configCommandType { name: string; permLevel: string; aliases: string[], category: string, description: string, args: Map<string, { required: boolean, description: string, type: slashCommandOptionTypes }> };
-export interface permLevel { level: number, name: string, check: (member: any) => boolean }
+export interface permLevel { level: number, name: string, check: (member: GuildMember | APIInteractionGuildMember) => boolean }
 
-import { Client, Partials, Collection, type Message, REST, Routes, SlashCommandBuilder, type ChatInputCommandInteraction, GatewayIntentBits } from 'discord.js';
+import { Client, Partials, Collection, type Message, REST, Routes, SlashCommandBuilder, type ChatInputCommandInteraction, GatewayIntentBits, type GuildMember, type APIInteractionGuildMember } from 'discord.js';
 import 'dotenv/config';
 import config from './config';
 import logger from './modules/logger';
