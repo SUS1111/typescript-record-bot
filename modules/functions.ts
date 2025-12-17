@@ -29,7 +29,8 @@ const permlevel = (member: GuildMember| APIInteractionGuildMember | null): numbe
 
 const memberGet = (message: Message | ChatInputCommandInteraction, member: string = ''): GuildMember | undefined => {
     const userPatern: RegExp = new RegExp(MessageMentions.UsersPattern, 'g');
-    return message.guild?.members.cache.get(member.matchAll(userPatern).next().value?.at(1) ?? member);
+    const memberMatched = [...member.matchAll(userPatern)].length !== 0 ? [...member.matchAll(userPatern)][0][1] : member;
+    return message.guild?.members.cache.get(memberMatched);
 };
 
 const clean = async (client: Client, text: string): Promise<string> => {
@@ -76,7 +77,8 @@ const reply = (message: Message | ChatInputCommandInteraction, reply: string | M
 
 const channelGet = (message: Message | ChatInputCommandInteraction, channel: string = ''): Channel | undefined => {
     const channelPatern: RegExp = new RegExp(MessageMentions.ChannelsPattern, 'g');
-    return message.guild?.channels.cache.get(channel.matchAll(channelPatern).next().value?.at(1) ?? channel);
+    const channelMatched = [...channel.matchAll(channelPatern)].length !== 0 ? [...channel.matchAll(channelPatern)][0][1] : channel;
+    return message.guild?.channels.cache.get(channelMatched);
 };
 
 const validFileName = (filename: string): boolean => filename !== '.' && filename !== '..' && !/[<>:"/\\|?*\u0000-\u001F]/g.test(filename) && !/^(con|prn|aux|nul|com\d|lpt\d)$/i.test(filename) && filename.length < 255;

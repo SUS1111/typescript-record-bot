@@ -27,7 +27,8 @@ export const exportRecordAsZip = (keys: string[]): Promise<void> => {
     archive.finalize();
     return new Promise<void>(resolve => output.on('close' , () => resolve(logger.log('文件已导出并压缩完成'))));
 };
+
 export const exportRecord = (keys: string[]): void => keys.map(extractRecord).forEach(([data, fileName]) => {
     writeFileSync(fileName, Buffer.concat(data));
-    logger.log(`${fileName}已成功导出`);
+    logger.log(`RECORD ${fileName}已成功导出`);
 });
