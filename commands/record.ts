@@ -20,7 +20,7 @@ export const run = (client: Client, message: Message | ChatInputCommandInteracti
     if(allRecord.has(user.id)) return reply(message, { content: '机器人早就对该用户录音了' });
     const encoder: OpusEncoder = new OpusEncoder(48000, 2);
     const listenStream: AudioReceiveStream = connection.receiver.subscribe(user.id);
-    const recordData: Buffer[] = addRecord(user.id, path.join(audioOutputPath, fileName), listenStream);
+    const recordData: Buffer[] = addRecord(user.id, path.join(audioOutputPath, fileName), listenStream, Date.now());
     listenStream.on('data', chunk => recordData.push(encoder.decode(chunk)));
     return reply(message, { content: '正在錄音' });
 };

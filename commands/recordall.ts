@@ -20,7 +20,7 @@ export const run = (client: Client, message: Message | ChatInputCommandInteracti
         if(allRecord.has(memberId)) return;
         const fileName: string = `${moment().tz(timeZone).format(outputTimeFormat)}-${memberId}.pcm`;
         const listenStream: AudioReceiveStream = connection.receiver.subscribe(memberId);
-        const recordData: Buffer[] = addRecord(memberId, path.join(audioOutputPath, fileName), listenStream);
+        const recordData: Buffer[] = addRecord(memberId, path.join(audioOutputPath, fileName), listenStream, Date.now());
         listenStream.on('data', chunk => recordData.push(encoder.decode(chunk)));
     });
     return reply(message, { content: '已開始錄音' });
