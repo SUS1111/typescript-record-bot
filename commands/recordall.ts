@@ -7,6 +7,7 @@ import { addRecord, allRecord } from "../modules/recordBuffer";
 import type { configCommandType } from "..";
 import { OpusEncoder } from "@discordjs/opus";
 import moment from "moment-timezone";
+import { type WriteStream, createWriteStream } from "fs";
 
 export const run = (client: Client, message: Message | ChatInputCommandInteraction) => {
     const { outputTimeFormat, audioOutputPath, timeZone } = config.settings;
@@ -19,9 +20,10 @@ export const run = (client: Client, message: Message | ChatInputCommandInteracti
         const memberId = member.id;
         if(allRecord.has(memberId)) return;
         const fileName: string = `${moment().tz(timeZone).format(outputTimeFormat)}-${memberId}.pcm`;
+        const filePath = path.join(audioOutputPath, fileName);
         const listenStream: AudioReceiveStream = connection.receiver.subscribe(memberId);
-        const recordData: Buffer[] = addRecord(memberId, path.join(audioOutputPath, fileName), listenStream, Date.now());
-        listenStream.on('data', chunk => recordData.push(encoder.decode(chunk)));
+        const recordData: WriteStream = addRecord(memberId, filePath, listenStream, Date.now(), createWriteStream(filePath));
+        listenStream.on('data', chunk => recordData.write(encoder.decode(chunk)));
     });
     return reply(message, { content: '已開始錄音' });
 };

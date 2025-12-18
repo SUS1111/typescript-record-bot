@@ -14,7 +14,7 @@ export const run = async(client: Client, message: Message | ChatInputCommandInte
     const stopRecordId: string[] = member ? [member.id] : Array.from(allRecord.keys());
     args[0]?.toString().toLowerCase() === 'false' ? exportRecord(stopRecordId) : await exportRecordAsZip(stopRecordId);
     stopRecordId.forEach(id => {
-        allRecord.get(id)?.listenStream.destroy();
+        allRecord.get(id)?.listenStream.push(null);
         allRecord.delete(id);
     });
     reply(message, { content: '機器人已停止錄音并导出文件' });
