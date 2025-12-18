@@ -6,7 +6,7 @@ import {
     type SlashCommandBuilder,
     type ChatInputCommandInteraction,
     type SlashCommandOptionsOnlyBuilder,
-    type Channel,
+    type GuildBasedChannel,
     type MessageReplyOptions,
     MessageMentions,
     type InteractionEditReplyOptions
@@ -14,7 +14,7 @@ import {
 import config from '../config';
 import type { configCommandType, slashCommandOptionTypes } from '..';
 
-const permlevel = (member: GuildMember| APIInteractionGuildMember | null): number => {
+const permlevel = (member: GuildMember | APIInteractionGuildMember | null): number => {
     let permlvl: number = 0;
     const permOrder: config['permLevels'] = config.permLevels.slice(0).sort((p, c) => (p.level < c.level ? 1 : -1));
     while (permOrder.length) {
@@ -65,17 +65,17 @@ const addOption = (slashCmd: SlashCommandBuilder, option: { required: boolean, d
     return slashCommandOption[type]();
 };
 
-const optionToArray = (interaction: ChatInputCommandInteraction, options: configCommandType['args']): any[] => {
+const optionToArray = (interaction: ChatInputCommandInteraction, options: configCommandType['args']): string[] => {
     const optionName: string[] = [...options.keys()];
-    const result = optionName.map(name => interaction.options.get(name)?.value);
+    const result = optionName.map(name => interaction.options.get(name)?.value?.toString() || '');
     return result;
 };
 
-const reply = (message: Message | ChatInputCommandInteraction, reply: string | MessageReplyOptions): Promise<Message<boolean>> => {
-    return message instanceof Message ? message.reply(reply) : message.editReply(reply as InteractionEditReplyOptions);
+const reply = (message: Message | ChatInputCommandInteraction, reply: string | MessageReplyOptions | InteractionEditReplyOptions): Promise<Message<boolean>> => {
+    return message instanceof Message ? message.reply(reply as MessageReplyOptions) : message.editReply(reply as InteractionEditReplyOptions);
 };
 
-const channelGet = (message: Message | ChatInputCommandInteraction, channel: string = ''): Channel | undefined => {
+const channelGet = (message: Message | ChatInputCommandInteraction, channel: string = ''): GuildBasedChannel | undefined => {
     const channelPatern: RegExp = new RegExp(MessageMentions.ChannelsPattern, 'g');
     const channelMatched = [...channel.matchAll(channelPatern)].length !== 0 ? [...channel.matchAll(channelPatern)][0][1] : channel;
     return message.guild?.channels.cache.get(channelMatched);

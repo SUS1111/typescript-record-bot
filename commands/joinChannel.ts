@@ -1,12 +1,12 @@
-import { type Client, Message, type ChatInputCommandInteraction, type Channel, GuildChannel, ChannelType } from "discord.js";
+import { type Client, type Message, type ChatInputCommandInteraction, type GuildBasedChannel, ChannelType } from "discord.js";
 import { joinVoiceChannel } from "@discordjs/voice";
 import { channelGet, reply } from "../modules/functions";
 import { type configCommandType } from '..';
 
 export const run = (client: Client, message: Message | ChatInputCommandInteraction, args: string[]) => {
     if(!message.member || !message.guild || !client.user) return;
-    const channel: Channel | unknown = channelGet(message, args[0]) || message.guild.members.cache.get(message.member.user.id)?.voice.channel;
-    if(!channel || !(channel instanceof GuildChannel)) return reply(message, { content: '找不到頻道' });
+    const channel: GuildBasedChannel | undefined | null = channelGet(message, args[0]) || message.guild.members.cache.get(message.member.user.id)?.voice.channel;
+    if(!channel) return reply(message, { content: '找不到頻道' });
     if(channel.type !== ChannelType.GuildVoice && channel.type !== ChannelType.GuildStageVoice) return reply(message, { content: '機器人只能加入語音頻道' });
     joinVoiceChannel({
         channelId: channel.id,

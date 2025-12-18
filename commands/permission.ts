@@ -1,10 +1,10 @@
-import type { Client, Message, ChatInputCommandInteraction, GuildMember, APIInteractionGuildMember } from "discord.js";
+import type { Client, Message, ChatInputCommandInteraction, GuildMember } from "discord.js";
 import { memberGet, permlevel, reply } from "../modules/functions";
 import type { configCommandType, permLevel } from "..";
 import config from "../config";
 
 export const run = (client: Client, message: Message | ChatInputCommandInteraction, args: any[]) => {
-    const member: GuildMember | APIInteractionGuildMember | null = memberGet(message, args[0]) || message.member;
+    const member: GuildMember | undefined = memberGet(message, args[0] || message.member?.user.id);
     const { permLevels } = config;
     if(!member) return;
     const permlevelGet: number = permlevel(member);

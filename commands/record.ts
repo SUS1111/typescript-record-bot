@@ -7,6 +7,7 @@ import { memberGet, reply, validFileName } from "../modules/functions";
 import { addRecord, allRecord } from "../modules/recordBuffer";
 import type { configCommandType } from '..';
 import moment from "moment-timezone";
+import { existsSync, lstatSync } from "fs";
 
 export const run = (client: Client, message: Message | ChatInputCommandInteraction, args: string[]) => {
     const { outputTimeFormat, audioOutputPath, timeZone } = config.settings;
@@ -14,13 +15,16 @@ export const run = (client: Client, message: Message | ChatInputCommandInteracti
     const user: GuildMember | undefined = memberGet(message, args[0]);
     if(!user) return reply(message, { content: '請指定一個用戶' });
     const fileName: string = args[1] || `${moment().tz(timeZone).format(outputTimeFormat)}.pcm`;
-    const connection: VoiceConnection | undefined = getVoiceConnection(message.guild.id, client.user.id);
     if(!validFileName(fileName)) return reply(message, { content: '输入了无效的文件名或是文件名过长' });
+    const filePath = path.join(audioOutputPath, fileName);
+    if(existsSync(filePath) && args[2] !== 'true') return reply(message, { content: '该文件已存在' });
+    if(!lstatSync(filePath).isFile()) return reply(message, { content: '该文件无法被覆写' });
+    const connection: VoiceConnection | undefined = getVoiceConnection(message.guild.id, client.user.id);
     if(!connection) return reply(message, { content: '機器人尚未加入語音頻道' });
     if(allRecord.has(user.id)) return reply(message, { content: '机器人早就对该用户录音了' });
     const encoder: OpusEncoder = new OpusEncoder(48000, 2);
     const listenStream: AudioReceiveStream = connection.receiver.subscribe(user.id);
-    const recordData: Buffer[] = addRecord(user.id, path.join(audioOutputPath, fileName), listenStream, Date.now());
+    const recordData: Buffer[] = addRecord(user.id, filePath, listenStream, Date.now());
     listenStream.on('data', chunk => recordData.push(encoder.decode(chunk)));
     return reply(message, { content: '正在錄音' });
 };
@@ -32,7 +36,8 @@ export const conf: configCommandType = {
     category: 'voice',
     args: new Map([
         ['用戶', { required: true, description: '想要錄哪個用戶', type: 'user' }],
-        ['文件名稱', { required: false, description: '錄音後的文件名稱', type: 'string' }]
+        ['文件名稱', { required: false, description: '錄音後的文件名稱', type: 'string' }],
+        ['覆写', { required: false, description: '是否覆写文件', type: 'boolean' }]
     ]),
     description: '對語音頻道錄音'
 };
