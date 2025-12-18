@@ -46,7 +46,8 @@ const config: config = {
         // ['name', 'path']
         ['clientReady', './events/clientReady'],
         ['messageCreate', './events/messageCreate'],
-        ['interactionCreate', './events/interactionCreate']
+        ['interactionCreate', './events/interactionCreate'],
+        ['error', './events/error']
     ]),
     categoryList: new Map([
         ['system', '系統'],
