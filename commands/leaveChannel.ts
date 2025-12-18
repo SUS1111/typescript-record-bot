@@ -7,8 +7,7 @@ export const run = (client: Client, message: Message | ChatInputCommandInteracti
     if(!message.guildId || !client.user) return;
     const connection: VoiceConnection | undefined = getVoiceConnection(message.guildId, client.user.id);
     if(!connection) return reply(message, { content: '機器人根本沒有加入語音頻道' });
-    connection.destroy();
-    reply(message, { content: '成功離開頻道' });
+    reply(message, { content: connection.disconnect() ? '成功離開頻道': '离开频道失败' });
 };
 
 export const conf: configCommandType = {
