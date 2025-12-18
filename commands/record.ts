@@ -11,7 +11,7 @@ import { existsSync, lstatSync, type WriteStream, createWriteStream } from "fs";
 
 export const run = (client: Client, message: Message | ChatInputCommandInteraction, args: string[]) => {
     const { outputTimeFormat, audioOutputPath, timeZone } = config.settings;
-    if(!message.guild || !client.user) return;
+    if(!message.guild) return;
     const user: GuildMember | undefined = memberGet(message, args[0]);
     if(!user) return reply(message, { content: '請指定一個用戶' });
     const fileName: string = args[1] || `${moment().tz(timeZone).format(outputTimeFormat)}.pcm`;
@@ -19,7 +19,7 @@ export const run = (client: Client, message: Message | ChatInputCommandInteracti
     const filePath = path.join(audioOutputPath, fileName);
     if(existsSync(filePath) && args[2] !== 'true') return reply(message, { content: '该文件已存在' });
     if(existsSync(filePath) && !lstatSync(filePath).isFile()) return reply(message, { content: '该文件无法被覆写' });
-    const connection: VoiceConnection | undefined = getVoiceConnection(message.guild.id, client.user.id);
+    const connection: VoiceConnection | undefined = getVoiceConnection(message.guild.id, config.settings.clientId);
     if(!connection) return reply(message, { content: '機器人尚未加入語音頻道' });
     if(allRecord.has(user.id)) return reply(message, { content: '机器人早就对该用户录音了' });
     const encoder: OpusEncoder = new OpusEncoder(48000, 2);

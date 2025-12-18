@@ -32,5 +32,5 @@ export const exportRecordAsZip = (keys: string[]): Promise<void> => {
 
 export const exportRecord = (keys: string[]): void => keys.map(extractRecord).forEach(([fileName, writeStream]) => {
     writeStream.end();
-    logger.log(`RECORD ${fileName}已成功导出`);
+    logger.log(`RECORD ${path.basename(fileName)}已成功导出`);
 });

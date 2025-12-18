@@ -11,8 +11,8 @@ import { type WriteStream, createWriteStream } from "fs";
 
 export const run = (client: Client, message: Message | ChatInputCommandInteraction) => {
     const { outputTimeFormat, audioOutputPath, timeZone } = config.settings;
-    if(!client.user || !message.guild || !message.member) return;
-    const connection: VoiceConnection | undefined = getVoiceConnection(message.guild.id, client.user.id);
+    if(!message.guild || !message.member) return;
+    const connection: VoiceConnection | undefined = getVoiceConnection(message.guild.id, config.settings.clientId);
     const voiceChannel: VoiceBasedChannel | undefined | null = message.guild.members.cache.get(message.member.user.id)?.voice.channel;
     if(!connection || !voiceChannel) return reply(message, { content: '機器人尚未加入語音頻道' });
     const encoder: OpusEncoder = new OpusEncoder(48000, 2);
