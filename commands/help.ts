@@ -43,7 +43,7 @@ const specificHelpCommand = (bot: ClientUser, command: cmd) => {
     const mainEmbed: EmbedBuilder = new EmbedBuilder()
         .setTitle(command.conf.name)
         .setDescription(description)
-        .addFields({ name: '別名', value: aliases.length ? aliases.join(', ') : '無' }, { name: '權限', value: permLevel })
+        .addFields({ name: '別名', value: aliases.join(', ') || '無' }, { name: '權限', value: permLevel })
         .setColor(0xFFFF00)
         .setTimestamp()
         .setFooter({ text: bot.username, iconURL: bot.displayAvatarURL() });
