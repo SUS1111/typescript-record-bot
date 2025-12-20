@@ -4,19 +4,22 @@ import moment from 'moment-timezone';
 import path from 'path';
 import config from '../config';
 import logger from './logger';
-import type { AudioReceiveStream } from '@discordjs/voice';
+import type { AudioReceiveStream, VoiceReceiver } from '@discordjs/voice';
+import { OpusEncoder } from '@discordjs/opus';
 
 const { audioOutputPath, outputTimeFormat, timeZone } = config.settings;
-export const allRecord: Map<string, { fileName: string, listenStream: AudioReceiveStream, beginTime: number, writeStream: WriteStream }> = new Map();
+export const allRecord: Map<string, { fileName: string, receiver: VoiceReceiver, listenStream: AudioReceiveStream, beginTime: number, writeStream: WriteStream }> = new Map();
 
 const extractRecord = (key: string): [string, WriteStream] => {
     const { fileName, writeStream } = allRecord.get(key)!;
     return [fileName, writeStream];
 };
 
-export const addRecord = (id: string, fileName: string, listenStream: AudioReceiveStream, beginTime: number, writeStream: WriteStream): WriteStream => {
-    allRecord.set(id, { fileName, listenStream, beginTime, writeStream });
-    return writeStream;
+export const addRecord = (id: string, fileName: string, receiver: VoiceReceiver, beginTime: number, writeStream: WriteStream) => {
+    const listenStream = receiver.subscribe(id);
+    allRecord.set(id, { fileName, receiver, beginTime, listenStream, writeStream });
+    const encoder = new OpusEncoder(48000, 2);
+    listenStream.on('data', chunk => writeStream.write(encoder.decode(chunk)));
 };
 
 export const exportRecordAsZip = (keys: string[]): Promise<void> => {

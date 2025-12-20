@@ -1,33 +1,34 @@
 import type { Client, Message, ChatInputCommandInteraction, GuildMember } from "discord.js";
-import { type VoiceConnection, type AudioReceiveStream, getVoiceConnection } from "@discordjs/voice";
-import { OpusEncoder } from "@discordjs/opus";
+import { type VoiceConnection, getVoiceConnection } from "@discordjs/voice";
 import path from 'path';
 import config from '../config';
 import { memberGet, reply, validFileName } from "../modules/functions";
 import { addRecord, allRecord } from "../modules/recordBuffer";
 import type { configCommandType } from '..';
 import moment from "moment-timezone";
-import { existsSync, lstatSync, type WriteStream, createWriteStream } from "fs";
+import { existsSync, lstatSync, createWriteStream } from "fs";
 
 export const run = (client: Client, message: Message | ChatInputCommandInteraction, args: string[]) => {
     const { outputTimeFormat, audioOutputPath, timeZone } = config.settings;
     if(!message.guild) return;
+
     const member: GuildMember | undefined = memberGet(message, args[0]);
     if(!member) return reply(message, { content: '請指定一個用戶' });
-    const voiceChannel = member.voice.channel;
+    
     const fileName: string = args[1] || `${moment().tz(timeZone).format(outputTimeFormat)}.pcm`;
-    if(!validFileName(fileName)) return reply(message, { content: '输入了无效的文件名或是文件名过长' });
     const filePath = path.join(audioOutputPath, fileName);
+    if(!validFileName(fileName)) return reply(message, { content: '输入了无效的文件名或是文件名过长' });
     if(existsSync(filePath) && args[2] !== 'true') return reply(message, { content: '该文件已存在' });
     if(existsSync(filePath) && !lstatSync(filePath).isFile()) return reply(message, { content: '该文件无法被覆写' });
+
     const connection: VoiceConnection | undefined = getVoiceConnection(message.guild.id, config.settings.clientId);
     if(!connection) return reply(message, { content: '機器人尚未加入語音頻道' });
+    
+    const voiceChannel = member.voice.channel;
     if(voiceChannel !== memberGet(message, config.settings.clientId)?.voice.channel) return reply(message, { content: '该用户并未与机器人处于同一频道' });
     if(allRecord.has(member.id)) return reply(message, { content: '机器人早就对该用户录音了' });
-    const encoder: OpusEncoder = new OpusEncoder(48000, 2);
-    const listenStream: AudioReceiveStream = connection.receiver.subscribe(member.id);
-    const recordData: WriteStream = addRecord(member.id, filePath, listenStream, Date.now(), createWriteStream(filePath));
-    listenStream.on('data', chunk => recordData.write(encoder.decode(chunk)));
+
+    addRecord(member.id, filePath, connection.receiver, Date.now(), createWriteStream(filePath));
     return reply(message, { content: '正在錄音' });
 };
 
