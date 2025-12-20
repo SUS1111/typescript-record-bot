@@ -1,4 +1,4 @@
-import { type WriteStream, createWriteStream, writeFileSync } from 'fs';
+import { type WriteStream, createWriteStream } from 'fs';
 import Archiver from 'archiver';
 import moment from 'moment-timezone';
 import path from 'path';
@@ -18,6 +18,7 @@ export const addRecord = (id: string, fileName: string, listenStream: AudioRecei
     allRecord.set(id, { fileName, listenStream, beginTime, writeStream });
     return writeStream;
 };
+
 export const exportRecordAsZip = (keys: string[]): Promise<void> => {
     const output: WriteStream = createWriteStream(path.join(audioOutputPath, `record-${moment().tz(timeZone).format(outputTimeFormat)}.zip`));
     const archive: any = Archiver('zip', { zlib: { level: 9 }});
