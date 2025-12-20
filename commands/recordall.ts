@@ -2,7 +2,7 @@ import type { Client, Message, ChatInputCommandInteraction, VoiceBasedChannel } 
 import { AudioReceiveStream, type VoiceConnection, getVoiceConnection } from "@discordjs/voice";
 import path from 'path';
 import config from '../config';
-import { reply } from "../modules/functions";
+import { memberGet, reply } from "../modules/functions";
 import { addRecord, allRecord } from "../modules/recordBuffer";
 import type { configCommandType } from "..";
 import { OpusEncoder } from "@discordjs/opus";
@@ -13,7 +13,7 @@ export const run = (client: Client, message: Message | ChatInputCommandInteracti
     const { outputTimeFormat, audioOutputPath, timeZone } = config.settings;
     if(!message.guild || !message.member) return;
     const connection: VoiceConnection | undefined = getVoiceConnection(message.guild.id, config.settings.clientId);
-    const voiceChannel: VoiceBasedChannel | undefined | null = message.guild.members.cache.get(message.member.user.id)?.voice.channel;
+    const voiceChannel: VoiceBasedChannel | undefined | null = memberGet(message, message.member.user.id)?.voice.channel;
     if(!connection || !voiceChannel) return reply(message, { content: '機器人尚未加入語音頻道' });
     const encoder: OpusEncoder = new OpusEncoder(48000, 2);
     voiceChannel.members.forEach(member => {

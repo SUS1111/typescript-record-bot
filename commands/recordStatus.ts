@@ -1,14 +1,11 @@
 import type { ChatInputCommandInteraction, Client, Message, APIEmbedField } from "discord.js";
 import { EmbedBuilder } from "discord.js";
 import type { configCommandType } from "..";
-import { type VoiceConnection, getVoiceConnection } from "@discordjs/voice";
 import { reply } from '../modules/functions';
 import { allRecord } from "../modules/recordBuffer";
 
 export const run = async(client: Client, message: Message | ChatInputCommandInteraction) => {
-    if(!message.guildId || !client.user) return;
-    const connection: VoiceConnection | undefined = getVoiceConnection(message.guildId, client.user.id);
-    if(!connection) return reply(message, { content: '機器人尚未加入語音頻道' });
+    if(!client.user) return;
     if(allRecord.size === 0) return reply(message, { content: '机器人并未开始录音' });
     const fields: APIEmbedField[] = Array.from(allRecord, ([ userId, { beginTime, writeStream } ]) => {
         const fileSize = writeStream.bytesWritten / (1024 ** 2);
