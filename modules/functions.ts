@@ -12,7 +12,7 @@ import {
     type InteractionEditReplyOptions
 } from 'discord.js';
 import config from '../config';
-import type { configCommandType, slashCommandOptionTypes } from '..';
+import type { commandArgsType, configCommandType } from '..';
 
 const permlevel = (member: GuildMember | APIInteractionGuildMember | null): number => {
     let permlvl: number = 0;
@@ -47,7 +47,7 @@ const clean = async (client: Client, text: string): Promise<string> => {
     return value;
 };
 
-const addOption = (slashCmd: SlashCommandBuilder, option: { required: boolean, description: string, name: string, type: slashCommandOptionTypes }): SlashCommandOptionsOnlyBuilder => {
+const addOption = (slashCmd: SlashCommandBuilder, option: commandArgsType & { name: string }): SlashCommandOptionsOnlyBuilder => {
     // return Symbol(`add${type.charAt(0).toUpperCase() + type.slice(1)}Option`);
     const { name, description, required, type } = option;
     const addSlashCommandOption = (slashCommandOption: any) => slashCommandOption.setName(name).setDescription(description).setRequired(required);
