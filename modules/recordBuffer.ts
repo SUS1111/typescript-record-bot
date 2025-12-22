@@ -24,15 +24,17 @@ export const addRecord = (id: string, fileName: string, receiver: VoiceReceiver,
     const speakingMap = receiver.speaking;
     const encoder = new OpusEncoder(48000, 2);
     const recordFunc = (chunk: Buffer) => writeStream.write(encoder.decode(chunk));
-    speakingMap.on('start', () => {
-        const silenceTime = Date.now() - (allRecord.get(id)?.lastSilence ?? beginTime);
+    speakingMap.on('start', (userId: string) => {
+        if(!allRecord.has(userId)) return;
+        const silenceTime = Date.now() - (allRecord.get(userId)?.lastSilence ?? beginTime);
         writeStream.write(Buffer.alloc(silenceTime * magicNumber));
         listenStream.on('data', recordFunc);
-        allRecord.get(id)!.listenStream = listenStream;
+        allRecord.get(userId)!.listenStream = listenStream;
     });
-    speakingMap.on('end', () => {
-        allRecord.set(id, { ...allRecord.get(id)!, lastSilence: Date.now() });
-        allRecord.get(id)?.listenStream?.off('data', recordFunc);
+    speakingMap.on('end', (userId: string) => {
+        if(!allRecord.has(userId)) return;
+        allRecord.set(userId, { ...allRecord.get(userId)!, lastSilence: Date.now() });
+        allRecord.get(userId)?.listenStream?.off('data', recordFunc);
     });
 };
 
