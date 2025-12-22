@@ -6,7 +6,7 @@ import moment from 'moment-timezone';
 import path from 'path';
 import config from '../config';
 import logger from './logger';
-import { type AudioReceiveStream, type VoiceReceiver } from '@discordjs/voice';
+import type { AudioReceiveStream, VoiceReceiver } from '@discordjs/voice';
 import { OpusEncoder } from '@discordjs/opus';
 
 const { audioOutputPath, outputTimeFormat, timeZone } = config.settings;

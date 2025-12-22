@@ -10,7 +10,7 @@ export const run = (client: Client, message: Message | ChatInputCommandInteracti
     const connection: VoiceConnection | undefined = getVoiceConnection(message.guildId, config.settings.clientId);
     if(!connection) return reply(message, { content: '機器人根本沒有加入語音頻道' });
     if(allRecord.size !== 0) {
-        const forceLeave = args[0] === 'true';
+        const forceLeave = args[0].toLowerCase() === 'true';
         if(!forceLeave) return reply(message, { content: '机器人还在录音' });
         const stopRecordId = Array.from(allRecord.keys());
         exportRecord(stopRecordId);
