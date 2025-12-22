@@ -83,4 +83,6 @@ const channelGet = (message: Message | ChatInputCommandInteraction, channel: str
 
 const validFileName = (filename: string): boolean => filename !== '.' && filename !== '..' && !/[<>:"/\\|?*\u0000-\u001F]/g.test(filename) && !/^(con|prn|aux|nul|com\d|lpt\d)$/i.test(filename) && filename.length < 255;
 
-export { permlevel, memberGet, clean, addOption, optionToArray, reply, channelGet, validFileName };
+const discordTime = (timestamp: number, type: 't' | 'T' | 'd' | 'D' | 'f' | 'F' | 'R') => `<t:${Math.floor(timestamp / 1000)}:${type}>`;
+
+export { permlevel, memberGet, clean, addOption, optionToArray, reply, channelGet, validFileName, discordTime };
