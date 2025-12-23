@@ -5,13 +5,14 @@ export interface configCommandType { name: string; permLevel: string; aliases: s
 export interface permLevel { level: number, name: string, check: (member: GuildMember | APIInteractionGuildMember) => boolean }
 
 import { Client, Partials, Collection, type Message, type ChatInputCommandInteraction, GatewayIntentBits, type GuildMember, type APIInteractionGuildMember } from 'discord.js';
-import 'dotenv/config';
 import config from './config';
 import logger from './modules/logger';
 import { validFileName } from './modules/functions';
 import { lstatSync, readdirSync } from 'fs';
 
 const { permLevels, commandPaths, eventPaths, settings } = config;
+
+process.loadEnvFile();
 
 if(!process.env.token) throw new Error('請在.env文件提供令牌!');
 if(!lstatSync(settings.audioOutputPath).isDirectory()) throw new Error('並不存在該文件夾');

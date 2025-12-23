@@ -1,5 +1,5 @@
 import type { Client, Message, ChatInputCommandInteraction } from "discord.js";
-import { codeBlock } from '@discordjs/builders';
+import { codeBlock } from 'discord.js';
 import logger from '../modules/logger';
 import { clean, reply } from '../modules/functions';
 import type { configCommandType } from "..";
