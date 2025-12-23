@@ -14,11 +14,10 @@ export const run = async(client: Client, message: Message | ChatInputCommandInte
             ['录音时长', discordTime(beginTime, 'R')],
             ['目前文件大小', `${fileSize.toFixed(2)}MB`],
             ['正在暂停中', listenStream.isPaused() ? '是' : '否'],
-            ['正在说话中', isSpeaking ? '是' : '否'],
-            ['最后一次不说话', lastSilence ? discordTime(lastSilence, 'R') : '自录音起尚未停止说话']
+            ['正在说话中', isSpeaking === undefined ? '未知' : (isSpeaking ? '是' : '否')],
+            ['最后一次不说话', lastSilence === undefined ? '未知' : (lastSilence ? discordTime(lastSilence, 'R') : '自录音起尚未停止说话')]
         ]);
-        const parseValue = Array.from(data, ([key, value]) => `${bold(key)}:${value}`).join('\n');
-        return { name: memberGet(message, userId)?.user.username as string, value: parseValue };
+        return { name: memberGet(message, userId)?.user.username as string, value: Array.from(data, ([key, value]) => `${bold(key)}:${value}`).join('\n') };
     });
     const embed = new EmbedBuilder()
         .setTitle('录音状况')

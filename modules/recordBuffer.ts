@@ -5,7 +5,7 @@ interface recordObject {
     beginTime: number,
     writeStream: WriteStream,
     lastSilence?: number,
-    isSpeaking: boolean
+    isSpeaking?: boolean
 }
 
 import { type WriteStream, createWriteStream } from 'fs';
@@ -24,37 +24,44 @@ export const allRecord: Map<string, recordObject> = new Map();
 
 const extractRecord = (key: string): [string, WriteStream, number, boolean] => {
     const { fileName, writeStream, isSpeaking } = allRecord.get(key)!;
-    return [fileName, writeStream, allRecord.get(key)?.lastSilence ?? Date.now(), isSpeaking];
+    return [fileName, writeStream, allRecord.get(key)?.lastSilence ?? Date.now(), isSpeaking ?? false];
+};
+
+const writeRecordData = (writeStram: WriteStream) => (chunk: Buffer) => writeStram.write(encoder.decode(chunk));
+
+const startSpeaking = (userId: string) => {
+    const userRecording = allRecord.get(userId);
+    if(!userRecording || allRecord.get(userId)?.listenStream.isPaused()) return;
+    const { listenStream, writeStream, lastSilence, beginTime } = userRecording;
+    listenStream.removeAllListeners('data');
+    const silenceTime = Date.now() - (lastSilence ?? beginTime);
+    writeStream.write(Buffer.alloc(silenceTime * magicNumber));
+    listenStream.on('data', writeRecordData(writeStream));
+    userRecording.isSpeaking = true;
+};
+
+const stopSpeaking = (userId: string) => {
+    if(!allRecord.has(userId) || allRecord.get(userId)?.listenStream.isPaused()) return;
+    allRecord.set(userId, { ...allRecord.get(userId)!, lastSilence: Date.now() });
+    const userRecording = allRecord.get(userId)!;
+    userRecording.listenStream.removeAllListeners('data');
+    userRecording.isSpeaking = false;
 };
 
 export const addRecord = (id: string, fileName: string, receiver: VoiceReceiver, beginTime: number, writeStream: WriteStream): void => {
     const listenStream = receiver.subscribe(id);
-    allRecord.set(id, { fileName, receiver, beginTime, listenStream, writeStream, isSpeaking: false });
+    allRecord.set(id, { fileName, receiver, beginTime, listenStream, writeStream });
     const speakingMap = receiver.speaking;
-    const recordFunc = (chunk: Buffer) => writeStream.write(encoder.decode(chunk));
-    speakingMap.on('start', (userId: string) => {
-        if(!allRecord.has(userId) || allRecord.get(userId)?.listenStream.isPaused()) return;
-        const userRecording = allRecord.get(userId)!;
-        const silenceTime = Date.now() - (userRecording.lastSilence ?? beginTime);
-        writeStream.write(Buffer.alloc(silenceTime * magicNumber));
-        listenStream.on('data', recordFunc);
-        userRecording.listenStream = listenStream;
-        userRecording.isSpeaking = true;
-    });
-    speakingMap.on('end', (userId: string) => {
-        if(!allRecord.has(userId) || allRecord.get(userId)?.listenStream.isPaused()) return;
-        allRecord.set(userId, { ...allRecord.get(userId)!, lastSilence: Date.now() });
-        const userRecording = allRecord.get(userId)!;
-        userRecording.listenStream?.off('data', recordFunc);
-        userRecording.isSpeaking = false;
-    });
+    listenStream.on('data', writeRecordData(writeStream));
+    speakingMap.on('start', startSpeaking);
+    speakingMap.on('end', stopSpeaking);
 };
 
 export const exportRecordAsZip = (keys: string[]): Promise<void> => {
     const output: WriteStream = createWriteStream(path.join(audioOutputPath, `record-${moment().tz(timeZone).format(outputTimeFormat)}.zip`));
     const archive = Archiver('zip', { zlib: { level: 9 }});
     keys.map(extractRecord).forEach(([fileName, writeStream, lastSilence, isSpeaking]) => {
-        if (!isSpeaking) writeStream.write(Buffer.alloc((Date.now() - lastSilence) * magicNumber)); 
+        if (!isSpeaking) writeStream.write(Buffer.alloc((Date.now() - lastSilence) * magicNumber));
         writeStream.end();
         archive.file(writeStream.path.toString(), { name: path.basename(fileName) });
     });
