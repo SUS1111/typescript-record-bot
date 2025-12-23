@@ -10,12 +10,12 @@ export const run = async(client: Client, message: Message | ChatInputCommandInte
     const fields: APIEmbedField[] = Array.from(allRecord, ([ userId, { beginTime, writeStream, listenStream, isSpeaking, lastSilence } ]) => {
         const fileSize = writeStream.bytesWritten / (1024 ** 2);
         const data = new Map([
-            ['开始时间', time(beginTime, TimestampStyles.FullDateShortTime)],
-            ['录音时长', time(beginTime, TimestampStyles.RelativeTime)],
+            ['开始时间', time(Math.floor(beginTime / 1000), TimestampStyles.FullDateShortTime)],
+            ['录音时长', time(Math.floor(beginTime / 1000), TimestampStyles.RelativeTime)],
             ['目前文件大小', `${fileSize.toFixed(2)}MB`],
             ['正在暂停中', listenStream.isPaused() ? '是' : '否'],
             ['正在说话中', isSpeaking === undefined ? '未知' : (isSpeaking ? '是' : '否')],
-            ['最后一次不说话', lastSilence === undefined ? '未知' : (lastSilence ? time(lastSilence, TimestampStyles.RelativeTime) : '自录音起尚未停止说话')]
+            ['最后一次不说话', lastSilence === undefined ? '未知' : (lastSilence ? time(Math.floor(lastSilence / 1000), TimestampStyles.RelativeTime) : '自录音起尚未停止说话')]
         ]);
         return { name: memberGet(message, userId)?.user.username as string, value: Array.from(data, ([key, value]) => `${bold(key)}:${value}`).join('\n') };
     });
