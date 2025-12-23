@@ -1,5 +1,5 @@
 interface recordObject {
-    fileName: string,
+    filePath: string,
     receiver: VoiceReceiver,
     listenStream: AudioReceiveStream,
     beginTime: number,
@@ -23,8 +23,8 @@ export const magicNumber = 192; // Size of 16 bit 48000Hz stereo audio PCM file 
 export const allRecord: Map<string, recordObject> = new Map();
 
 const extractRecord = (key: string): [string, WriteStream, number, boolean] => {
-    const { fileName, writeStream, isSpeaking } = allRecord.get(key)!;
-    return [fileName, writeStream, allRecord.get(key)?.lastSilence ?? Date.now(), isSpeaking ?? false];
+    const { filePath, writeStream, isSpeaking } = allRecord.get(key)!;
+    return [filePath, writeStream, allRecord.get(key)?.lastSilence ?? Date.now(), isSpeaking ?? false];
 };
 
 const writeRecordData = (writeStram: WriteStream) => (chunk: Buffer) => writeStram.write(encoder.decode(chunk));
@@ -48,9 +48,9 @@ const stopSpeaking = (userId: string) => {
     userRecording.isSpeaking = false;
 };
 
-export const addRecord = (id: string, fileName: string, receiver: VoiceReceiver, beginTime: number, writeStream: WriteStream): void => {
+export const addRecord = (id: string, filePath: string, receiver: VoiceReceiver, beginTime: number, writeStream: WriteStream): void => {
     const listenStream = receiver.subscribe(id);
-    allRecord.set(id, { fileName, receiver, beginTime, listenStream, writeStream });
+    allRecord.set(id, { filePath, receiver, beginTime, listenStream, writeStream });
     const speakingMap = receiver.speaking;
     listenStream.on('data', writeRecordData(writeStream));
     speakingMap.on('start', startSpeaking);
@@ -60,18 +60,18 @@ export const addRecord = (id: string, fileName: string, receiver: VoiceReceiver,
 export const exportRecordAsZip = (keys: string[]): Promise<void> => {
     const output: WriteStream = createWriteStream(path.join(audioOutputPath, `record-${moment().tz(timeZone).format(outputTimeFormat)}.zip`));
     const archive = Archiver('zip', { zlib: { level: 9 }});
-    keys.map(extractRecord).forEach(([fileName, writeStream, lastSilence, isSpeaking]) => {
+    keys.map(extractRecord).forEach(([filePath, writeStream, lastSilence, isSpeaking]) => {
         if (!isSpeaking) writeStream.write(Buffer.alloc((Date.now() - lastSilence) * magicNumber));
         writeStream.end();
-        archive.file(writeStream.path.toString(), { name: path.basename(fileName) });
+        archive.file(writeStream.path.toString(), { name: path.basename(filePath) });
     });
     archive.pipe(output);
     archive.finalize();
     return new Promise<void>(resolve => output.on('close' , () => resolve(logger.log('RECORD 文件已导出并压缩完成'))));
 };
 
-export const exportRecord = (keys: string[]): void => keys.map(extractRecord).forEach(([fileName, writeStream, lastSilence, isSpeaking]) => {
+export const exportRecord = (keys: string[]): void => keys.map(extractRecord).forEach(([filePath, writeStream, lastSilence, isSpeaking]) => {
     if (!isSpeaking) writeStream.write(Buffer.alloc((Date.now() - lastSilence) * magicNumber));
     writeStream.end();
-    logger.log(`RECORD ${path.basename(fileName)}已成功导出`);
+    logger.log(`RECORD ${path.basename(filePath)}已成功导出`);
 });
