@@ -6,7 +6,8 @@ import { memberGet, reply, validFileName } from "../modules/functions";
 import { addRecord, allRecord } from "../modules/recordBuffer";
 import type { configCommandType } from '..';
 import moment from "moment-timezone";
-import { existsSync, lstatSync, createWriteStream } from "fs";
+import { existsSync, lstatSync } from "fs";
+import { OpusEncoder } from "@discordjs/opus";
 
 export const run = (client: Client<true>, message: Message<true> | ChatInputCommandInteraction<'cached'>, args: string[]) => {
     const { outputTimeFormat, audioOutputPath, timeZone } = config.settings;
@@ -27,7 +28,7 @@ export const run = (client: Client<true>, message: Message<true> | ChatInputComm
     if(voiceChannel !== memberGet(message, config.settings.clientId)?.voice.channel) return reply(message, { content: '该用户并未与机器人处于同一频道' });
     if(allRecord.has(member.id)) return reply(message, { content: '机器人早就对该用户录音了' });
 
-    addRecord(member.id, filePath, connection.receiver, Date.now(), createWriteStream(filePath));
+    addRecord(member.id, filePath, connection.receiver, Date.now(), new OpusEncoder(48000, 2));
     return reply(message, { content: '正在錄音' });
 };
 

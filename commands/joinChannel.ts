@@ -1,5 +1,5 @@
 import { type Client, type Message, type ChatInputCommandInteraction, type GuildBasedChannel, ChannelType } from "discord.js";
-import { getVoiceConnection, joinVoiceChannel } from "@discordjs/voice";
+import { entersState, getVoiceConnection, joinVoiceChannel, VoiceConnectionStatus } from "@discordjs/voice";
 import { channelGet, reply } from "../modules/functions";
 import type { configCommandType } from '..';
 import config from "../config";
@@ -20,14 +20,16 @@ export const run = (client: Client<true>, message: Message<true> | ChatInputComm
             allRecord.delete(id);
         });
     }
-    joinVoiceChannel({
+    const connection = joinVoiceChannel({
         channelId: channel.id,
         guildId: message.guild.id,
         selfDeaf: false,
         adapterCreator: channel.guild.voiceAdapterCreator,
         group: config.settings.clientId
     });
-    reply(message, { content: '成功加入頻道' });
+    return entersState(connection, VoiceConnectionStatus.Ready, 5_000)
+        .then(() => reply(message, { content: '成功加入頻道' }))
+        .catch(() => reply(message, { content: '机器人无法在指定时间内加入频道' }));
 };
 
 export const conf: configCommandType = {

@@ -5,7 +5,8 @@ interface recordObject {
     beginTime: number,
     writeStream: WriteStream,
     lastSilence?: number,
-    isSpeaking?: boolean
+    isSpeaking?: boolean,
+    encoder: OpusEncoder
 }
 
 import { type WriteStream, createWriteStream } from 'fs';
@@ -18,7 +19,6 @@ import type { AudioReceiveStream, VoiceReceiver } from '@discordjs/voice';
 import { OpusEncoder } from '@discordjs/opus';
 
 const { audioOutputPath, outputTimeFormat, timeZone } = config.settings;
-const encoder = new OpusEncoder(48000, 2);
 export const magicNumber = 192; // Size of 16 bit 48000Hz stereo audio PCM file in 1 ms
 export const allRecord: Map<string, recordObject> = new Map();
 
@@ -27,16 +27,18 @@ const extractRecord = (key: string): [string, WriteStream, number, boolean] => {
     return [filePath, writeStream, allRecord.get(key)?.lastSilence ?? Date.now(), isSpeaking ?? false];
 };
 
-const writeRecordData = (writeStram: WriteStream) => (chunk: Buffer) => writeStram.write(encoder.decode(chunk));
+const writeRecordData = (writeStram: WriteStream, encoder: OpusEncoder) => (chunk: Buffer) => {
+    return writeStram.write(encoder.decode(chunk));
+};
 
 const startSpeaking = (userId: string) => {
     const userRecording = allRecord.get(userId);
     if(!userRecording || allRecord.get(userId)?.listenStream.isPaused()) return;
-    const { listenStream, writeStream, lastSilence, beginTime } = userRecording;
+    const { listenStream, writeStream, lastSilence, beginTime, encoder } = userRecording;
     listenStream.removeAllListeners('data');
     const silenceTime = Date.now() - (lastSilence ?? beginTime);
     writeStream.write(Buffer.alloc(silenceTime * magicNumber));
-    listenStream.on('data', writeRecordData(writeStream));
+    listenStream.on('data', writeRecordData(writeStream, encoder));
     userRecording.isSpeaking = true;
 };
 
@@ -48,11 +50,12 @@ const stopSpeaking = (userId: string) => {
     userRecording.isSpeaking = false;
 };
 
-export const addRecord = (id: string, filePath: string, receiver: VoiceReceiver, beginTime: number, writeStream: WriteStream): void => {
+export const addRecord = (id: string, filePath: string, receiver: VoiceReceiver, beginTime: number, encoder: OpusEncoder): void => {
     const listenStream = receiver.subscribe(id);
-    allRecord.set(id, { filePath, receiver, beginTime, listenStream, writeStream });
+    const writeStream = createWriteStream(filePath);
+    allRecord.set(id, { filePath, receiver, beginTime, listenStream, writeStream, encoder });
     const speakingMap = receiver.speaking;
-    listenStream.on('data', writeRecordData(writeStream));
+    if(speakingMap.users.has(id)) listenStream.on('data', writeRecordData(writeStream, encoder));
     speakingMap.on('start', startSpeaking);
     speakingMap.on('end', stopSpeaking);
 };
