@@ -18,7 +18,8 @@ export const run = (client: Client<true>, message: Message<true> | ChatInputComm
     const resumeRecordId = member ? [member.id] : Array.from(allRecord.keys());
     resumeRecordId.forEach(id => {
         const userRecording = allRecord.get(id)!;
-        const silenceTime = Date.now() - userRecording.lastSilence!;
+        if(!userRecording.lastSilence) return;
+        const silenceTime = Date.now() - userRecording.lastSilence;
         userRecording.writeStream.write(Buffer.alloc(silenceTime * magicNumber));
         userRecording.listenStream.resume();
         userRecording.lastSilence = Date.now();

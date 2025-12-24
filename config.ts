@@ -1,7 +1,7 @@
 interface config {
     settings: {
         prefix: string,
-        activity: string,
+        activity?: string,
         clientId: string,
         audioOutputPath: string,
         outputTimeFormat: string,
