@@ -4,7 +4,7 @@ import { container, type permLevel, type cmd } from '..';
 import config from "../config";
 import logger from "../modules/logger";
 
-export default async(client: Client, interaction: BaseInteraction) => {
+export default async(client: Client<true>, interaction: BaseInteraction) => {
     // 當是指令則執行如下程式
     if(interaction.isChatInputCommand()) {
         try {

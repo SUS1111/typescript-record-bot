@@ -5,8 +5,7 @@ import logger from '../modules/logger';
 import { type Client, ActivityType, type Guild, Routes, SlashCommandBuilder, REST } from 'discord.js';
 const { activity, clientId } = config.settings;
 
-export default (client: Client) => {
-    if(!client.user) return;
+export default (client: Client<true>) => {
     logger.ready(`${client.user.username}, 成員數: ${client.guilds.cache.map((g: Guild) => g.memberCount).reduce((a: number, b: number) => a + b, 0)} ，伺服器數: ${client.guilds.cache.size}`);
     if(activity) client.user.setActivity(activity, { type: ActivityType.Playing });
     const rest: REST = new REST().setToken(process.env.token as string);

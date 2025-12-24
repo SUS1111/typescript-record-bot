@@ -5,8 +5,7 @@ import { exportRecordAsZip, exportRecord, allRecord } from "../modules/recordBuf
 import type { configCommandType } from "..";
 import config from "../config";
 
-export const run = async(client: Client, message: Message | ChatInputCommandInteraction, args: string[]) => {
-    if(!message.guildId) return;
+export const run = async(client: Client<true>, message: Message<true> | ChatInputCommandInteraction<'cached'>, args: string[]) => {
     const member: GuildMember | undefined = memberGet(message, args[1]);
     const connection: VoiceConnection | undefined = getVoiceConnection(message.guildId, config.settings.clientId);
     if(!connection) return reply(message, { content: '機器人尚未加入語音頻道' });

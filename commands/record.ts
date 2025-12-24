@@ -8,9 +8,8 @@ import type { configCommandType } from '..';
 import moment from "moment-timezone";
 import { existsSync, lstatSync, createWriteStream } from "fs";
 
-export const run = (client: Client, message: Message | ChatInputCommandInteraction, args: string[]) => {
+export const run = (client: Client<true>, message: Message<true> | ChatInputCommandInteraction<'cached'>, args: string[]) => {
     const { outputTimeFormat, audioOutputPath, timeZone } = config.settings;
-    if(!message.guild) return;
 
     const member: GuildMember | undefined = memberGet(message, args[0]);
     if(!member) return reply(message, { content: '請指定一個用戶' });

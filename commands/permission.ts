@@ -3,8 +3,8 @@ import { memberGet, permlevel, reply } from "../modules/functions";
 import type { configCommandType, permLevel } from "..";
 import config from "../config";
 
-export const run = (client: Client, message: Message | ChatInputCommandInteraction, args: any[]) => {
-    const member: GuildMember | undefined = memberGet(message, args[0] || message.member?.user.id);
+export const run = (client: Client<true>, message: Message<true> | ChatInputCommandInteraction<'cached'>, args: any[]) => {
+    const member: GuildMember | undefined | null = memberGet(message, args[0]) || message.member;
     const { permLevels } = config;
     if(!member) return;
     const permlevelGet: number = permlevel(member);

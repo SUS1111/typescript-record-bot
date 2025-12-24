@@ -8,7 +8,7 @@ import type { configCommandType } from "..";
 Eval 指令非常危險，這將可以輸出你的Token，甚至是獲取、刪除整台電腦的檔案! 請務必只讓自己有操作權，尤其是用自己的伺服器架設的時候
 */
 
-export const run = async (client: Client, message: Message | ChatInputCommandInteraction, args: string[]) => {
+export const run = async (client: Client, message: Message<true> | ChatInputCommandInteraction<'cached'>, args: string[]) => {
     const code: string = args.join(' ');
     try {
         // eslint-disable-next-line no-eval

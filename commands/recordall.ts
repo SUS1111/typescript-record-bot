@@ -2,17 +2,16 @@ import type { Client, Message, ChatInputCommandInteraction, VoiceBasedChannel } 
 import { type VoiceConnection, getVoiceConnection } from "@discordjs/voice";
 import path from 'path';
 import config from '../config';
-import { memberGet, reply } from "../modules/functions";
+import { reply } from "../modules/functions";
 import { addRecord, allRecord } from "../modules/recordBuffer";
 import type { configCommandType } from "..";
 import moment from "moment-timezone";
 import { createWriteStream } from "fs";
 
-export const run = (client: Client, message: Message | ChatInputCommandInteraction) => {
+export const run = (client: Client<true>, message: Message<true> | ChatInputCommandInteraction<'cached'>) => {
     const { outputTimeFormat, audioOutputPath, timeZone } = config.settings;
-    if(!message.guild || !message.member) return;
     const connection: VoiceConnection | undefined = getVoiceConnection(message.guild.id, config.settings.clientId);
-    const voiceChannel: VoiceBasedChannel | undefined | null = memberGet(message, message.member.user.id)?.voice.channel;
+    const voiceChannel: VoiceBasedChannel | undefined | null = message.member?.voice.channel;
     if(!connection || !voiceChannel) return reply(message, { content: '機器人尚未加入語音頻道' });
     voiceChannel.members.forEach(member => {
         const memberId = member.id;

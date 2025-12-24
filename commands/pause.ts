@@ -3,10 +3,9 @@ import { memberGet, reply } from "../modules/functions";
 import { allRecord } from "../modules/recordBuffer";
 import { getVoiceConnection } from "@discordjs/voice";
 import config from "../config";
-import { configCommandType } from "..";
+import type { configCommandType } from "..";
 
-export const run = (client: Client, message: Message | ChatInputCommandInteraction, args: string[]) => {
-    if(!message.guildId) return;
+export const run = (client: Client<true>, message: Message<true> | ChatInputCommandInteraction<'cached'>, args: string[]) => {
     if(allRecord.size === 0) return reply(message, { content: '机器人并未开始录音' });
     const member = memberGet(message, args[0]);
     const connection = getVoiceConnection(message.guildId, config.settings.clientId);
@@ -16,7 +15,7 @@ export const run = (client: Client, message: Message | ChatInputCommandInteracti
         if(!allRecord.has(member.id)) return reply(message, { content: '机器人并未对该成员录音' });
         if(allRecord.get(member.id)?.listenStream.isPaused()) return reply(message, { content: '机器人已暂停了对该成员的录音' });
     }
-    const pauseRecordId = member ? [member!.id] : Array.from(allRecord.keys());
+    const pauseRecordId = member ? [member.id] : Array.from(allRecord.keys());
     pauseRecordId.forEach(id => {
         const userRecording = allRecord.get(id)!;
         userRecording.listenStream.pause();

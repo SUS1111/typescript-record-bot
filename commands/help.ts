@@ -1,6 +1,6 @@
 type commandArgumentAsArray = [string, { required: boolean, description: string, type: slashCommandOptionTypes }];
 
-import { type Client, type Message, type ChatInputCommandInteraction, EmbedBuilder, type APIEmbedField, type ClientUser } from 'discord.js';
+import { type Client, type Message, type ChatInputCommandInteraction, EmbedBuilder, type APIEmbedField, type ClientUser, inlineCode } from 'discord.js';
 import config from '../config';
 import { reply } from '../modules/functions';
 import { type configCommandType, type cmd, container, type slashCommandOptionTypes } from "..";
@@ -22,7 +22,7 @@ const typeList: Map<string, string> = new Map([
 const overallHelpCommand = (bot: ClientUser) => {
     const fields: APIEmbedField[] = Array.from(categoryList, ([ name, value ]: string[]): APIEmbedField => {
         const filter: (cmd: cmd) => boolean = cmd => cmd.conf.category === name;
-        const mapFunc: (value: cmd) => string = value => `\`${value.conf.name}\``;
+        const mapFunc: (value: cmd) => string = value => inlineCode(value.conf.name);
         return { name: value, value: [...commands.values()].filter(filter).map(mapFunc).join(', ') };
     });
     const embed = new EmbedBuilder()
@@ -56,8 +56,7 @@ const specificHelpCommand = (bot: ClientUser, command: cmd) => {
     return [mainEmbed, argsEmbed];
 }
 
-export const run = (client: Client, message: Message | ChatInputCommandInteraction, args: string[]) => {
-    if(!client.user) return;
+export const run = (client: Client<true>, message: Message<true> | ChatInputCommandInteraction<'cached'>, args: string[]) => {
     const command = commands.get(args[0]?.toLowerCase()) || commands.get(aliases.get(args[0]?.toLowerCase()) ?? '');
     if(!command && args[0]) return reply(message, { content: '查无指令' });
     reply(message, { embeds: !args[0] ? overallHelpCommand(client.user) : specificHelpCommand(client.user, command as cmd) });

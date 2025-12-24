@@ -4,8 +4,7 @@ import type { configCommandType } from "..";
 import { memberGet, reply } from '../modules/functions';
 import { allRecord } from "../modules/recordBuffer";
 
-export const run = async(client: Client, message: Message | ChatInputCommandInteraction) => {
-    if(!client.user) return;
+export const run = async(client: Client<true>, message: Message<true> | ChatInputCommandInteraction<'cached'>) => {
     if(allRecord.size === 0) return reply(message, { content: '机器人并未开始录音' });
     const fields: APIEmbedField[] = Array.from(allRecord, ([ userId, { beginTime, writeStream, listenStream, isSpeaking, lastSilence } ]) => {
         const fileSize = writeStream.bytesWritten / (1024 ** 2);
