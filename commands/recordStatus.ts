@@ -14,7 +14,7 @@ export const run = async(client: Client<true>, message: Message<true> | ChatInpu
             ['目前文件大小', `${fileSize.toFixed(2)}MB`],
             ['正在暂停中', listenStream.isPaused() ? '是' : '否'],
             ['正在说话中', isSpeaking === undefined ? '未知' : (isSpeaking ? '是' : '否')],
-            ['最后一次不说话', lastSilence === undefined ? '未知' : (lastSilence ? time(Math.floor(lastSilence / 1000), TimestampStyles.RelativeTime) : '自录音起尚未停止说话')]
+            ['机器人最后一次未接受数据', lastSilence ? time(Math.floor(lastSilence / 1000), TimestampStyles.RelativeTime) : '未知']
         ]);
         return { name: memberGet(message, userId)?.user.username as string, value: Array.from(data, ([key, value]) => `${bold(key)}:${value}`).join('\n') };
     });
