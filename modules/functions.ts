@@ -9,7 +9,7 @@ import {
     type GuildBasedChannel,
     type MessageReplyOptions,
     MessageMentions,
-    type InteractionEditReplyOptions
+    type InteractionReplyOptions
 } from 'discord.js';
 import config from '../config';
 import type { commandArgsType, configCommandType } from '..';
@@ -71,8 +71,8 @@ const optionToArray = (interaction: ChatInputCommandInteraction, options: config
     return result;
 };
 
-const reply = (message: Message | ChatInputCommandInteraction, reply: string | MessageReplyOptions | InteractionEditReplyOptions): Promise<Message<boolean>> => {
-    return message instanceof Message ? message.reply(reply as MessageReplyOptions) : message.editReply(reply as InteractionEditReplyOptions);
+const reply = (message: Message | ChatInputCommandInteraction, reply: string | MessageReplyOptions | InteractionReplyOptions): Promise<Message<boolean>> => {
+    return message instanceof Message ? message.reply(reply as MessageReplyOptions) : message.followUp(reply as InteractionReplyOptions);
 };
 
 const channelGet = (message: Message<true> | ChatInputCommandInteraction<'cached'>, channel: string = ''): GuildBasedChannel | undefined => {
