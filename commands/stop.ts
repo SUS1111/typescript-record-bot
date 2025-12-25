@@ -12,7 +12,7 @@ export const run = async(client: Client<true>, message: Message<true> | ChatInpu
     if(allRecord.size === 0) return reply(message, { content: '机器人并未开始录音' });
     if(member && !allRecord.has(member.id)) return reply(message, { content: '机器人并未对于该用户录音' });
     const stopRecordId: string[] = member ? [member.id] : Array.from(allRecord.keys());
-    args[0]?.toString().toLowerCase() === 'false' ? exportRecord(stopRecordId) : await exportRecordAsZip(stopRecordId);
+    args[0]?.toString().toLowerCase() === 'true' ? await exportRecordAsZip(stopRecordId) : exportRecord(stopRecordId);
     stopRecordId.forEach(id => {
         allRecord.get(id)?.listenStream.push(null);
         allRecord.delete(id);
