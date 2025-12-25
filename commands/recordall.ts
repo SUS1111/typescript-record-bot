@@ -18,7 +18,7 @@ export const run = (client: Client<true>, message: Message<true> | ChatInputComm
         if(allRecord.has(memberId)) return;
         const fileName: string = `${moment().tz(timeZone).format(outputTimeFormat)}-${memberId}.pcm`;
         const filePath = path.join(audioOutputPath, fileName);
-        addRecord(memberId, filePath, connection.receiver, Date.now(), new OpusEncoder(sampleRate, channelCount));
+        addRecord(memberId, filePath, connection.receiver, Date.now(), new OpusEncoder(sampleRate, channelCount), true);
     });
     return reply(message, { content: '已開始錄音' });
 };
@@ -26,7 +26,7 @@ export const run = (client: Client<true>, message: Message<true> | ChatInputComm
 export const conf: configCommandType = {
     name: 'recordall',
     permLevel: 'User',
-    aliases: [],
+    aliases: ['recordchannel'],
     category: 'voice',
     args: new Map(),
     description: '對語音頻道錄音'
