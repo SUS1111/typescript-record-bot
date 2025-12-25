@@ -50,14 +50,14 @@ const stopSpeaking = (userId: string) => {
     userRecording.isSpeaking = false;
 };
 
-export const addRecord = (id: string, filePath: string, receiver: VoiceReceiver, beginTime: number, encoder: OpusEncoder): void => {
-    const listenStream = receiver.subscribe(id);
+export const addRecord = (userId: string, filePath: string, receiver: VoiceReceiver, beginTime: number, encoder: OpusEncoder): void => {
+    const listenStream = receiver.subscribe(userId);
     const writeStream = createWriteStream(filePath);
-    allRecord.set(id, { filePath, receiver, beginTime, listenStream, writeStream, encoder });
+    allRecord.set(userId, { filePath, receiver, beginTime, listenStream, writeStream, encoder });
     const speakingMap = receiver.speaking;
-    if(speakingMap.users.has(id)) listenStream.on('data', writeRecordData(writeStream, encoder));
-    speakingMap.on('start', startSpeaking);
-    speakingMap.on('end', stopSpeaking);
+    if(speakingMap.users.has(userId)) listenStream.on('data', writeRecordData(writeStream, encoder));
+    if(!speakingMap.listenerCount('start')) speakingMap.on('start', startSpeaking);
+    if(!speakingMap.listenerCount('end')) speakingMap.on('end', stopSpeaking);
 };
 
 export const exportRecordAsZip = (keys: string[]): Promise<void> => {
