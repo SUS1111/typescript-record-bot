@@ -79,7 +79,8 @@ export default config;
 `.env`
 
 ```.env
-token=你的token
+token=機器人的token
+ownerId=你的ID
 ```
 
 ## 注意事項
