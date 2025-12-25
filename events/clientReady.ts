@@ -17,5 +17,5 @@ export default (client: Client<true>) => {
         args.forEach((argValue: commandArgsType, argName: string) => addOption(slashCommand, { ...argValue, name: argName }));
         return slashCommand;
     });
-    rest.put(Routes.applicationCommands(clientId), { body: slashCommands }).then(() => logger.ready('斜线指令已准备就绪'));
+    rest.put(Routes.applicationCommands(clientId), { body: slashCommands }).then(() => logger.ready('斜綫指令已準備就緒'));
 }

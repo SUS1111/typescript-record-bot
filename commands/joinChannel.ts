@@ -10,11 +10,11 @@ export const run = (client: Client<true>, message: Message<true> | ChatInputComm
     if(!channel) return reply(message, { content: '找不到頻道' });
     if(channel.type !== ChannelType.GuildVoice && channel.type !== ChannelType.GuildStageVoice) return reply(message, { content: '機器人只能加入語音頻道' });
     if(getVoiceConnection(message.guild.id, config.settings.clientId) && memberGet(message, client.user.id)?.voice.channel === message.member?.voice.channel) {
-        return reply(message, { content: '机器人已经在指定的频道了' });
+        return reply(message, { content: '機器人已經在指定的頻道了' });
     }
     if(allRecord.size !== 0) {
         const forceJoin = args[1].toLowerCase() === 'true';
-        if(!forceJoin) return reply(message, { content: '机器人还在录音' });
+        if(!forceJoin) return reply(message, { content: '機器人還在錄音' });
         const stopRecordId = Array.from(allRecord.keys());
         exportRecord(stopRecordId);
         stopRecordId.forEach(id => {
@@ -31,7 +31,7 @@ export const run = (client: Client<true>, message: Message<true> | ChatInputComm
     });
     return entersState(connection, VoiceConnectionStatus.Ready, 5_000)
         .then(() => reply(message, { content: '成功加入頻道' }))
-        .catch(() => reply(message, { content: '机器人无法在指定时间内加入频道' }));
+        .catch(() => reply(message, { content: '機器人無法在指定的時間内加入頻道' }));
 };
 
 export const conf: configCommandType = {
@@ -40,7 +40,7 @@ export const conf: configCommandType = {
     aliases: ['joinchannel', 'joinvoicechannel'],
     args: new Map([
         ['頻道', { required: false, description: '想要讓機器人加入的頻道', type: 'channel' }],
-        ['强制加入', { required: false, description: '即使在录音当中也让机器人强制切换频道', type: 'boolean' }]
+        ['强制加入', { required: false, description: '即使在錄音當中也讓機器人加入頻道', type: 'boolean' }]
     ]),
     category: 'voice',
     description: '讓機器人加入語音頻道'

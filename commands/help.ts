@@ -58,7 +58,7 @@ const specificHelpCommand = (bot: ClientUser, command: cmd) => {
 
 export const run = (client: Client<true>, message: Message<true> | ChatInputCommandInteraction<'cached'>, args: string[]) => {
     const command = commands.get(args[0]?.toLowerCase()) || commands.get(aliases.get(args[0]?.toLowerCase()) ?? '');
-    if(!command && args[0]) return reply(message, { content: '查无指令' });
+    if(!command && args[0]) return reply(message, { content: '查無指令' });
     reply(message, { embeds: !args[0] ? overallHelpCommand(client.user) : specificHelpCommand(client.user, command as cmd) });
 };
 

@@ -5,21 +5,21 @@ import { memberGet, reply } from '../modules/functions';
 import { allRecord } from "../modules/recordBuffer";
 
 export const run = async(client: Client<true>, message: Message<true> | ChatInputCommandInteraction<'cached'>) => {
-    if(allRecord.size === 0) return reply(message, { content: '机器人并未开始录音' });
+    if(allRecord.size === 0) return reply(message, { content: '機器人尚未開始錄音' });
     const fields: APIEmbedField[] = Array.from(allRecord, ([ userId, { beginTime, writeStream, listenStream, isSpeaking, lastSilence } ]) => {
         const fileSize = writeStream.bytesWritten / (1024 ** 2);
         const data = new Map([
-            ['开始时间', time(Math.floor(beginTime / 1000), TimestampStyles.FullDateShortTime)],
-            ['录音时长', time(Math.floor(beginTime / 1000), TimestampStyles.RelativeTime)],
+            ['開始時間', time(Math.floor(beginTime / 1000), TimestampStyles.FullDateShortTime)],
+            ['錄音時長', time(Math.floor(beginTime / 1000), TimestampStyles.RelativeTime)],
             ['目前文件大小', `${fileSize.toFixed(2)}MB`],
-            ['正在暂停中', listenStream.isPaused() ? '是' : '否'],
-            ['正在说话中', isSpeaking === undefined ? '未知' : (isSpeaking ? '是' : '否')],
-            ['机器人最后一次未接受数据', lastSilence ? time(Math.floor(lastSilence / 1000), TimestampStyles.RelativeTime) : '未知']
+            ['正在暫停中', listenStream.isPaused() ? '是' : '否'],
+            ['正在説話中', isSpeaking === undefined ? '未知' : (isSpeaking ? '是' : '否')],
+            ['機器人最後一次未接受數據包', lastSilence ? time(Math.floor(lastSilence / 1000), TimestampStyles.RelativeTime) : '未知']
         ]);
         return { name: memberGet(message, userId)?.user.username as string, value: Array.from(data, ([key, value]) => `${bold(key)}:${value}`).join('\n') };
     });
     const embed = new EmbedBuilder()
-        .setTitle('录音状况')
+        .setTitle('錄音狀況')
         .addFields(fields)
         .setColor(0xFFFF00)
         .setTimestamp()
@@ -33,5 +33,5 @@ export const conf: configCommandType = {
     aliases: ['status'],
     category: 'voice',
     args: new Map(),
-    description: '输出录音状态'
+    description: '輸出錄音狀況'
 }

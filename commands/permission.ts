@@ -8,7 +8,7 @@ export const run = (client: Client<true>, message: Message<true> | ChatInputComm
     const { permLevels } = config;
     if(!member) return;
     const permlevelGet: number = permlevel(member);
-    return reply(message, { content: `${member.user.username}的权限是: ${permlevelGet} (${permLevels.find((l: permLevel) => l.level === permlevelGet)?.name})`});
+    return reply(message, { content: `${member.user.username}的權限是: ${permlevelGet} (${permLevels.find((l: permLevel) => l.level === permlevelGet)?.name})`});
 };
 
 export const conf: configCommandType = {
@@ -17,7 +17,7 @@ export const conf: configCommandType = {
     aliases: ['perm'],
     category: 'system',
     args: new Map([
-        ['用户', { required: false, description: '想要查看权限的用户', type: 'user' }]
+        ['用户', { required: false, description: '想要查看權限的用戶', type: 'user' }]
     ]),
-    description: '回傳機器人延遲'
+    description: '查看用戶的權限'
 };

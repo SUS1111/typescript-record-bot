@@ -9,15 +9,15 @@ export const run = async(client: Client<true>, message: Message<true> | ChatInpu
     const member: GuildMember | undefined = memberGet(message, args[1]);
     const connection: VoiceConnection | undefined = getVoiceConnection(message.guildId, config.settings.clientId);
     if(!connection) return reply(message, { content: '機器人尚未加入語音頻道' });
-    if(allRecord.size === 0) return reply(message, { content: '机器人并未开始录音' });
-    if(member && !allRecord.has(member.id)) return reply(message, { content: '机器人并未对于该用户录音' });
+    if(allRecord.size === 0) return reply(message, { content: '機器人尚未開始錄音' });
+    if(member && !allRecord.has(member.id)) return reply(message, { content: '機器人尚未對該用戶錄音' });
     const stopRecordId: string[] = member ? [member.id] : Array.from(allRecord.keys());
     args[0]?.toString().toLowerCase() === 'true' ? await exportRecordAsZip(stopRecordId) : exportRecord(stopRecordId);
     stopRecordId.forEach(id => {
         allRecord.get(id)?.listenStream.push(null);
         allRecord.delete(id);
     });
-    reply(message, { content: '機器人已停止錄音并导出文件' });
+    reply(message, { content: '機器人已停止錄音且匯出文件' });
 };
 
 export const conf: configCommandType = {

@@ -3,7 +3,7 @@ import { reply } from "../modules/functions";
 import type { configCommandType } from "..";
 
 export const run = (client: Client<true>, message: Message<true> | ChatInputCommandInteraction<'cached'>) => {
-    reply(message, { content: `機器人延遲: \`${Date.now() - message.createdTimestamp}\` ms\nApi延遲: \`${client.ws.ping}\` ms` });
+    reply(message, { content: `機器人延遲: \`${Date.now() - message.createdTimestamp}\` ms\nAPI延遲: \`${client.ws.ping}\` ms` });
 }
 
 export const conf: configCommandType = {
