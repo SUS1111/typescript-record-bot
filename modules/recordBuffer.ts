@@ -16,10 +16,10 @@ import path from 'path';
 import config from '../config';
 import logger from './logger';
 import type { AudioReceiveStream, VoiceReceiver } from '@discordjs/voice';
-import { OpusEncoder } from '@discordjs/opus';
+import type { OpusEncoder } from '@discordjs/opus';
 
-const { audioOutputPath, outputTimeFormat, timeZone } = config.settings;
-export const magicNumber = 192; // Size of 16 bit 48000Hz stereo audio PCM file in 1 ms
+const { audioOutputPath, outputTimeFormat, timeZone, sampleRate, channelCount } = config.settings;
+export const magicNumber = (sampleRate * 2 * channelCount) / 1000; // Size of 16-bit PCM file in 1 ms
 export const allRecord: Map<string, recordObject> = new Map();
 
 const extractRecord = (key: string): [string, WriteStream, number, boolean] => {
@@ -27,9 +27,7 @@ const extractRecord = (key: string): [string, WriteStream, number, boolean] => {
     return [filePath, writeStream, allRecord.get(key)?.lastSilence ?? Date.now(), isSpeaking ?? false];
 };
 
-const writeRecordData = (writeStram: WriteStream, encoder: OpusEncoder) => (chunk: Buffer) => {
-    return writeStram.write(encoder.decode(chunk));
-};
+const writeRecordData = (writeStram: WriteStream, encoder: OpusEncoder) => (chunk: Buffer) => writeStram.write(encoder.decode(chunk));
 
 const startSpeaking = (userId: string) => {
     const userRecording = allRecord.get(userId);

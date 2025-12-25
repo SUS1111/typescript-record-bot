@@ -9,7 +9,7 @@ import moment from "moment-timezone";
 import { OpusEncoder } from "@discordjs/opus";
 
 export const run = (client: Client<true>, message: Message<true> | ChatInputCommandInteraction<'cached'>) => {
-    const { outputTimeFormat, audioOutputPath, timeZone } = config.settings;
+    const { outputTimeFormat, audioOutputPath, timeZone, sampleRate, channelCount } = config.settings;
     const connection: VoiceConnection | undefined = getVoiceConnection(message.guild.id, config.settings.clientId);
     const voiceChannel: VoiceBasedChannel | undefined | null = message.member?.voice.channel;
     if(!connection || !voiceChannel) return reply(message, { content: '機器人尚未加入語音頻道' });
@@ -18,7 +18,7 @@ export const run = (client: Client<true>, message: Message<true> | ChatInputComm
         if(allRecord.has(memberId)) return;
         const fileName: string = `${moment().tz(timeZone).format(outputTimeFormat)}-${memberId}.pcm`;
         const filePath = path.join(audioOutputPath, fileName);
-        addRecord(memberId, filePath, connection.receiver, Date.now(), new OpusEncoder(48000, 2));
+        addRecord(memberId, filePath, connection.receiver, Date.now(), new OpusEncoder(sampleRate, channelCount));
     });
     return reply(message, { content: '已開始錄音' });
 };

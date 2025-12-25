@@ -20,7 +20,9 @@ interface config {
         audioOutputPath: string,
         outputTimeFormat: string,
         autoLoadCommand: boolean,
-        timeZone: string
+        timeZone: string,
+        sampleRate: 8_000 | 12_000 | 16_000 | 24_000 | 48_000
+        channelCount: 1 | 2
     };
     permLevels: { level: number, name: string, check: (member: any) => boolean }[];
     commandPaths: string[];
@@ -36,7 +38,9 @@ const config: config = {
         autoLoadCommand: true,
         audioOutputPath: '../foo/bar/', // 文件夾名稱即可
         outputTimeFormat: 'YYYY-MM-DD_HH-mm-ss', // 文件默认输出的时间格式
-        timeZone: '你所在的時區'
+        timeZone: '你所在的時區',
+        sampleRate: 48_000,
+        channelCount: 1
     },
     permLevels: [
         {
@@ -90,4 +94,6 @@ token=你的token
 reply(message, { your: 'content' });
 ```
 * 想要部署在replit或其他地方請自己想辦法
-* 导出的录音文件为16比特双声道48000Hz采样频率小端序的原始pcm文件 可用Audacity打开或是用ffmpeg转换成想要的文件格式
+* 导出的录音文件为16比特小端序的原始pcm文件 可用Audacity打开或是用ffmpeg转换成想要的文件格式
+* 录音文件的采样频率可从8000Hz, 12000Hz, 16000Hz, 24000Hz和48000Hz中选择一个，并且可选择单声道或是双声道
+* 由于Discord似乎限制了声道数量，因此推荐选择单声道即可

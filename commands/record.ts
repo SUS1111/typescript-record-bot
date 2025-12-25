@@ -10,7 +10,7 @@ import { existsSync, lstatSync } from "fs";
 import { OpusEncoder } from "@discordjs/opus";
 
 export const run = (client: Client<true>, message: Message<true> | ChatInputCommandInteraction<'cached'>, args: string[]) => {
-    const { outputTimeFormat, audioOutputPath, timeZone } = config.settings;
+    const { outputTimeFormat, audioOutputPath, timeZone, sampleRate, channelCount } = config.settings;
 
     const member: GuildMember | undefined = memberGet(message, args[0]);
     if(!member) return reply(message, { content: '請指定一個用戶' });
@@ -28,7 +28,7 @@ export const run = (client: Client<true>, message: Message<true> | ChatInputComm
     if(voiceChannel !== memberGet(message, config.settings.clientId)?.voice.channel) return reply(message, { content: '该用户并未与机器人处于同一频道' });
     if(allRecord.has(member.id)) return reply(message, { content: '机器人早就对该用户录音了' });
 
-    addRecord(member.id, filePath, connection.receiver, Date.now(), new OpusEncoder(48000, 2));
+    addRecord(member.id, filePath, connection.receiver, Date.now(), new OpusEncoder(sampleRate, channelCount));
     return reply(message, { content: '正在錄音' });
 };
 

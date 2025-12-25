@@ -6,7 +6,9 @@ interface config {
         audioOutputPath: string,
         outputTimeFormat: string,
         autoLoadCommand: boolean,
-        timeZone: string
+        timeZone: string,
+        sampleRate: 8_000 | 12_000 | 16_000 | 24_000 | 48_000
+        channelCount: 1 | 2
     };
     permLevels: { level: number, name: string, check: (member: any) => boolean }[];
     commandPaths: string[];
@@ -22,7 +24,9 @@ const config: config = {
         autoLoadCommand: true,
         audioOutputPath: '../../音樂/', // 文件夾名稱即可
         outputTimeFormat: 'YYYY-MM-DD_HH-mm-ss', // 文件默认输出的时间格式
-        timeZone: 'Asia/Kuala_Lumpur'
+        timeZone: 'Asia/Kuala_Lumpur',
+        sampleRate: 48_000,
+        channelCount: 1
     },
     permLevels: [
         {
