@@ -15,10 +15,10 @@ export const run = async (client: Client, message: Message<true> | ChatInputComm
         const evaled: any = eval(code);
         const cleaned: string = await clean(client, evaled);
         logger.eval(`${cleaned}`);
-        reply(message, { content: codeBlock('js', cleaned) });
+        return reply(message, { content: codeBlock('js', cleaned) });
     } catch (err: any) {
         logger.error(`${err}`);
-        reply(message, { content: codeBlock('js', err) });
+        return reply(message, { content: codeBlock('js', err) });
     }
 };
 

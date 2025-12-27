@@ -20,10 +20,12 @@ export default async(client: Client<true>, interaction: BaseInteraction) => {
             if (permlevelGet < container.levelCache[cmd.conf.permLevel]) {
                 return interaction.followUp({ content: `你沒有權限使用!\n你的權限等級為 ${permlevelGet} (${permLevelName})\n你需要權限等級 ${container.levelCache[cmd.conf.permLevel]} (${cmd.conf.permLevel})` });
             }
+            // 記錄日誌
+            logger.cmd(`${permLevelName} ${interaction.user.tag} 开始執行了 ${cmd.conf.name}`);
             // 執行指令
             const result: any = await cmd.run(client, interaction, optionToArray(interaction, cmd.conf.args));
             // 記錄日誌
-            logger.cmd(`${permLevelName} ${interaction.user.tag} 執行了 ${cmd.conf.name}`);
+            logger.cmd(`${permLevelName} ${interaction.user.tag} 成功執行了 ${cmd.conf.name}`);
             // 回傳結果(雖然沒必要)
             return result;
         } catch (err: any) {

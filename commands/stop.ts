@@ -17,7 +17,7 @@ export const run = async(client: Client<true>, message: Message<true> | ChatInpu
         allRecord.get(id)?.listenStream.push(null);
         allRecord.delete(id);
     });
-    reply(message, { content: '機器人已停止錄音且匯出文件' });
+    return reply(message, { content: '機器人已停止錄音且匯出文件' });
 };
 
 export const conf: configCommandType = {

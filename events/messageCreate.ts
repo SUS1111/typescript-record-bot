@@ -2,14 +2,14 @@ import logger from '../modules/logger';
 import config from '../config';
 import { permlevel } from '../modules/functions';
 import { container, type permLevel, type cmd } from '..';
-import { type Client, type Message, ChannelType } from 'discord.js';
+import { type Client, type Message, inlineCode } from 'discord.js';
 
 const { prefix } = config.settings;
 
 export default async (client: Client<true>, message: Message) => {
-    if (message.channel.type === ChannelType.GroupDM || message.channel.type === ChannelType.DM || message.author.bot) return; // 確認訊息在伺服器內發送，且不為機器人
-    if (message.content.match(new RegExp(`^<@!?${client?.user?.id}>( |)$`))) {
-        return message.reply(`嗨! 機器人的前綴是 \`${prefix}\``); // 如果有人提及機器人，就回覆前綴
+    if (!message.inGuild() || message.author.bot) return; // 確認訊息在伺服器內發送，且不為機器人
+    if (message.content.match(new RegExp(`^<@!?${client.user.id}>( |)$`))) {
+        return message.reply(`嗨! 機器人的前綴是 ${inlineCode(prefix)}`); // 如果有人提及機器人，就回覆前綴
     }
 
     if (message.content.toLowerCase().startsWith(prefix)) {
@@ -31,10 +31,12 @@ export default async (client: Client<true>, message: Message) => {
             if (permlevelGet < container.levelCache[cmd.conf.permLevel]) {
                 return message.channel.send(`你沒有權限使用!\n你的權限等級為 ${permlevelGet} (${permLevelName})\n你需要權限等級 ${container.levelCache[cmd.conf.permLevel]} (${cmd.conf.permLevel})`);
             }
+            // 記錄日誌
+            logger.cmd(`${permLevelName} ${message.author.tag} 开始執行了 ${cmd.conf.name}`);
             // 執行指令
             const result: any = await cmd.run(client, message, args);
             // 記錄日誌
-            logger.cmd(`${permLevelName} ${message.author.tag} 執行了 ${cmd.conf.name}`);
+            logger.cmd(`${permLevelName} ${message.author.tag} 成功執行了 ${cmd.conf.name}`);
             // 回傳結果(雖然沒必要)
             return result;
         } catch (err: any) {

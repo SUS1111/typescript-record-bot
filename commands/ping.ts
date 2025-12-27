@@ -1,9 +1,12 @@
 import type { Client, Message, ChatInputCommandInteraction } from "discord.js";
+import { inlineCode } from "discord.js";
 import { reply } from "../modules/functions";
 import type { configCommandType } from "..";
 
 export const run = (client: Client<true>, message: Message<true> | ChatInputCommandInteraction<'cached'>) => {
-    reply(message, { content: `機器人延遲: \`${Date.now() - message.createdTimestamp}\` ms\nAPI延遲: \`${client.ws.ping}\` ms` });
+    const botPing = Date.now() - message.createdTimestamp;
+    const apiPing = client.ws.ping;
+    return reply(message, { content: `機器人延遲: ${inlineCode(botPing.toString())} ms\nAPI延遲: ${inlineCode(apiPing.toString())} ms` });
 }
 
 export const conf: configCommandType = {

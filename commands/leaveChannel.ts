@@ -18,7 +18,7 @@ export const run = (client: Client<true>, message: Message<true> | ChatInputComm
             allRecord.delete(id);
         });
     }
-    reply(message, { content: connection.disconnect() ? '成功離開頻道': '離開頻道失敗' });
+    return reply(message, { content: connection.disconnect() ? '成功離開頻道': '離開頻道失敗' });
 };
 
 export const conf: configCommandType = {

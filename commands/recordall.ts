@@ -9,8 +9,8 @@ import moment from "moment-timezone";
 import { OpusEncoder } from "@discordjs/opus";
 
 export const run = (client: Client<true>, message: Message<true> | ChatInputCommandInteraction<'cached'>) => {
-    const { outputTimeFormat, audioOutputPath, timeZone, sampleRate, channelCount } = config.settings;
-    const connection: VoiceConnection | undefined = getVoiceConnection(message.guild.id, config.settings.clientId);
+    const { outputTimeFormat, audioOutputPath, timeZone, sampleRate, channelCount, clientId } = config.settings;
+    const connection: VoiceConnection | undefined = getVoiceConnection(message.guild.id, clientId);
     const voiceChannel: VoiceBasedChannel | undefined | null = message.member?.voice.channel;
     if(!connection || !voiceChannel) return reply(message, { content: '機器人尚未加入語音頻道' });
     voiceChannel.members.forEach(member => {

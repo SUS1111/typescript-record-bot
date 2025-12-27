@@ -11,12 +11,12 @@ export const run = async(client: Client<true>, message: Message<true> | ChatInpu
         const data = new Map([
             ['開始時間', time(Math.floor(beginTime / 1000), TimestampStyles.FullDateShortTime)],
             ['錄音時長', time(Math.floor(beginTime / 1000), TimestampStyles.RelativeTime)],
-            ['目前文件大小', `${fileSize.toFixed(2)}MB`],
+            ['目前文件大小', `${fileSize.toFixed(2)} MB`],
             ['正在暫停中', listenStream.isPaused() ? '是' : '否'],
             ['正在説話中', isSpeaking === undefined ? '未知' : (isSpeaking ? '是' : '否')],
             ['機器人最後一次未接受數據包', lastSilence ? time(Math.floor(lastSilence / 1000), TimestampStyles.RelativeTime) : '未知']
         ]);
-        return { name: memberGet(message, userId)?.user.username as string, value: Array.from(data, ([key, value]) => `${bold(key)}:${value}`).join('\n') };
+        return { name: memberGet(message, userId)?.user.username as string, value: Array.from(data, ([key, value]) => `${bold(key)}: ${value}`).join('\n') };
     });
     const embed = new EmbedBuilder()
         .setTitle('錄音狀況')

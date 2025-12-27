@@ -8,7 +8,7 @@ const { activity, clientId } = config.settings;
 export default (client: Client<true>) => {
     logger.ready(`${client.user.username}, 成員數: ${client.guilds.cache.map((g: Guild) => g.memberCount).reduce((a: number, b: number) => a + b, 0)} ，伺服器數: ${client.guilds.cache.size}`);
     if(activity) client.user.setActivity(activity, { type: ActivityType.Playing });
-    const rest: REST = new REST().setToken(process.env.token as string);
+    const rest: REST = new REST().setToken(process.env.token!);
     const cmdConf: configCommandType[] = container.commands.map((code: cmd) => code.conf);
     const slashCommands: SlashCommandBuilder[] = cmdConf.map(({ name, description, args }): SlashCommandBuilder => {
         const slashCommand: SlashCommandBuilder = new SlashCommandBuilder()
