@@ -20,7 +20,7 @@ import { OpusEncoder } from '@discordjs/opus';
 const { audioOutputPath, outputTimeFormat, timeZone, sampleRate, channelCount } = config.settings;
 let wantListenChannel: boolean;
 let clientReceiver: VoiceReceiver;
-export const magicNumber = (sampleRate * 2 * channelCount) / 1000; // Size of 16-bit PCM file in 1 ms
+export const chunkPerMs = (sampleRate * 2 * channelCount) / 1000; // Size of 16-bit PCM file in 1 ms
 export const allRecord: Map<string, recordObject> = new Map();
 
 const extractRecord = (key: string): [string, WriteStream, number, boolean] => {
@@ -44,7 +44,7 @@ const startSpeaking = (userId: string) => {
     const { listenStream, writeStream, lastSilence, beginTime, encoder } = userRecording!;
     listenStream.removeAllListeners('data');
     const silenceTime = Date.now() - (lastSilence ?? beginTime);
-    writeStream.write(Buffer.alloc(silenceTime * magicNumber));
+    writeStream.write(Buffer.alloc(silenceTime * chunkPerMs));
     listenStream.on('data', writeRecordData(writeStream, encoder));
     userRecording!.isSpeaking = true;
 };
@@ -73,7 +73,7 @@ export const exportRecordAsZip = (keys: string[]): Promise<void> => {
     const output: WriteStream = createWriteStream(path.join(audioOutputPath, `record-${moment().tz(timeZone).format(outputTimeFormat)}.zip`));
     const archive = Archiver('zip', { zlib: { level: 9 }});
     keys.map(extractRecord).forEach(([filePath, writeStream, lastSilence, isSpeaking]) => {
-        if (!isSpeaking) writeStream.write(Buffer.alloc((Date.now() - lastSilence) * magicNumber));
+        if (!isSpeaking) writeStream.write(Buffer.alloc((Date.now() - lastSilence) * chunkPerMs));
         writeStream.end();
         wantListenChannel = false;
         archive.file(writeStream.path.toString(), { name: path.basename(filePath) });
@@ -84,7 +84,7 @@ export const exportRecordAsZip = (keys: string[]): Promise<void> => {
 };
 
 export const exportRecord = (keys: string[]): void => keys.map(extractRecord).forEach(([filePath, writeStream, lastSilence, isSpeaking]) => {
-    if (!isSpeaking) writeStream.write(Buffer.alloc((Date.now() - lastSilence) * magicNumber));
+    if (!isSpeaking) writeStream.write(Buffer.alloc((Date.now() - lastSilence) * chunkPerMs));
     writeStream.end();
     wantListenChannel = false;
     logger.log(`RECORD ${path.basename(filePath)}已成功导出`);

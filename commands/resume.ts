@@ -1,6 +1,6 @@
 import type { Client, Message, ChatInputCommandInteraction } from "discord.js";
 import { memberGet, reply } from "../modules/functions";
-import { allRecord, magicNumber } from "../modules/recordBuffer";
+import { allRecord, chunkPerMs } from "../modules/recordBuffer";
 import { getVoiceConnection } from "@discordjs/voice";
 import config from "../config";
 import type { configCommandType } from "..";
@@ -20,7 +20,7 @@ export const run = (client: Client<true>, message: Message<true> | ChatInputComm
         const userRecording = allRecord.get(id)!;
         if(!userRecording.lastSilence) return;
         const silenceTime = Date.now() - userRecording.lastSilence;
-        userRecording.writeStream.write(Buffer.alloc(silenceTime * magicNumber));
+        userRecording.writeStream.write(Buffer.alloc(silenceTime * chunkPerMs));
         userRecording.listenStream.resume();
         userRecording.lastSilence = Date.now();
     });
