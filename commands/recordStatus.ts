@@ -16,7 +16,7 @@ export const run = async(client: Client<true>, message: Message<true> | ChatInpu
             ['正在説話中', isSpeaking === undefined ? '未知' : (isSpeaking ? '是' : '否')],
             ['機器人最後一次未接受數據包', lastSilence ? time(Math.floor(lastSilence / 1000), TimestampStyles.RelativeTime) : '未知']
         ]);
-        return { name: memberGet(message, userId)?.user.username as string, value: Array.from(data, ([key, value]) => `${bold(key)}: ${value}`).join('\n') };
+        return { name: memberGet(message, userId)?.user.username!, value: Array.from(data, ([key, value]) => `${bold(key)}: ${value}`).join('\n') };
     });
     const embed = new EmbedBuilder()
         .setTitle('錄音狀況')
@@ -33,5 +33,5 @@ export const conf: configCommandType = {
     aliases: ['status'],
     category: 'voice',
     args: new Map(),
-    description: '輸出錄音狀況'
+    description: '匯出錄音狀況'
 }

@@ -72,7 +72,7 @@ const optionToArray = (interaction: ChatInputCommandInteraction, options: config
 };
 
 const reply = (message: Message | ChatInputCommandInteraction, reply: string | MessageReplyOptions | InteractionReplyOptions): Promise<Message<boolean>> => {
-    return message instanceof Message ? message.reply(reply as MessageReplyOptions) : message.followUp(reply as InteractionReplyOptions);
+    return message instanceof Message ? message.reply(reply as MessageReplyOptions | string) : message.followUp(reply as InteractionReplyOptions | string);
 };
 
 const channelGet = (message: Message<true> | ChatInputCommandInteraction<'cached'>, channel: string = ''): GuildBasedChannel | undefined => {
