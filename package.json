@@ -14,10 +14,10 @@
     "@snazzah/davey": "^0.1.9",
     "archiver": "^7.0.1",
     "discord.js": "^14.25.1",
-    "libsodium-wrappers": "^0.7.15",
+    "libsodium-wrappers": "^0.7.16",
     "moment-timezone": "^0.6.0",
     "ts-node": "^10.9.2",
-    "typescript": "^5.7.3"
+    "typescript": "^5.9.3"
   },
   "devDependencies": {
     "@types/archiver": "^7.0.0"
