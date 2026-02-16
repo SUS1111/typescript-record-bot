@@ -4,8 +4,8 @@
 
 ## Requirements
 
-* Node.js v22.14.0+
-* NPM v10.9.2+
+* Node.js v22.22.0
+* NPM v11.7.0+
 
 ## Config
 
@@ -59,7 +59,7 @@ const config: config = {
             check: member => member.id === process.env.ownerId
         }
     ],
-    commandPaths: ['./commands/ping', './commands/eval', './commands/joinChannel', './commands/leaveChannel', './commands/record', './commands/stop', './commands/permission'], // 可繼續接下去 以,分割 若autoLoadCommand爲true可以只留個空陣列
+    commandPaths: ['./commands/ping'], // 可繼續接下去 以,分割 若autoLoadCommand爲true可以只留個空陣列
     eventPaths: new Map([
         // ['name', 'path']
         ['clientReady', './events/clientReady'],
