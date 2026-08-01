@@ -9,7 +9,7 @@ interface recordObject {
 }
 
 import { type WriteStream, createWriteStream } from 'fs';
-import Archiver from 'archiver';
+import { ZipArchive } from 'archiver';
 import moment from 'moment-timezone';
 import path from 'path';
 import config from '../config';
@@ -71,7 +71,7 @@ export const addRecord = (userId: string, filePath: string, receiver: VoiceRecei
 
 export const exportRecordAsZip = (keys: string[]): Promise<void> => {
     const output: WriteStream = createWriteStream(path.join(audioOutputPath, `record-${moment().tz(timeZone).format(outputTimeFormat)}.zip`));
-    const archive = Archiver('zip', { zlib: { level: 9 }});
+    const archive = new ZipArchive({ zlib: { level: 9 }});
     keys.map(extractRecord).forEach(([filePath, writeStream, lastSilence, isSpeaking]) => {
         if (!isSpeaking) writeStream.write(Buffer.alloc((Date.now() - lastSilence) * chunkPerMs));
         writeStream.end();
