@@ -1,14 +1,13 @@
-import type { Client, Message, ChatInputCommandInteraction } from "discord.js";
 import { codeBlock } from 'discord.js';
 import logger from '../modules/logger';
 import { clean, reply } from '../modules/functions';
-import type { configCommandType } from "..";
+import type { cmd } from "..";
 
 /*
 Eval 指令非常危險，這將可以輸出你的Token，甚至是獲取、刪除整台電腦的檔案! 請務必只讓自己有操作權，尤其是用自己的伺服器架設的時候
 */
 
-export const run = async (client: Client, message: Message<true> | ChatInputCommandInteraction<'cached'>, args: string[]) => {
+export const run: cmd['run'] = async (client, message, args) => {
     const code: string = args.join(' ');
     try {
         // eslint-disable-next-line no-eval
@@ -22,7 +21,7 @@ export const run = async (client: Client, message: Message<true> | ChatInputComm
     }
 };
 
-export const conf: configCommandType = {
+export const conf: cmd['conf'] = {
     aliases: [],
     permLevel: 'Owner',
     description: '執行任何 javascript 程式碼',

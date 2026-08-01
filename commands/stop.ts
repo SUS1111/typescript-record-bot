@@ -1,13 +1,12 @@
-import type { Client, Message, ChatInputCommandInteraction, GuildMember } from "discord.js";
-import { type VoiceConnection, getVoiceConnection } from "@discordjs/voice";
+import { getVoiceConnection } from "@discordjs/voice";
 import { memberGet, reply } from '../modules/functions';
 import { exportRecordAsZip, exportRecord, allRecord } from "../modules/recordBuffer";
-import type { configCommandType } from "..";
+import type { cmd } from "..";
 import config from "../config";
 
-export const run = async(client: Client<true>, message: Message<true> | ChatInputCommandInteraction<'cached'>, args: string[]) => {
-    const member: GuildMember | undefined = memberGet(message, args[1]);
-    const connection: VoiceConnection | undefined = getVoiceConnection(message.guildId, config.settings.clientId);
+export const run: cmd['run'] = async(client, message, args) => {
+    const member = memberGet(message, args[1]);
+    const connection = getVoiceConnection(message.guildId, config.settings.clientId);
     if(!connection) return reply(message, { content: '機器人尚未加入語音頻道' });
     if(allRecord.size === 0) return reply(message, { content: '機器人尚未開始錄音' });
     if(member && !allRecord.has(member.id)) return reply(message, { content: '機器人尚未對該用戶錄音' });
@@ -20,7 +19,7 @@ export const run = async(client: Client<true>, message: Message<true> | ChatInpu
     return reply(message, { content: '機器人已停止錄音且匯出文件' });
 };
 
-export const conf: configCommandType = {
+export const conf: cmd['conf'] = {
     name: 'stop',
     permLevel: 'Owner',
     aliases: [],

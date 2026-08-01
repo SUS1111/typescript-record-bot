@@ -1,11 +1,10 @@
-import type { Client, Message, ChatInputCommandInteraction } from "discord.js";
 import { memberGet, reply } from "../modules/functions";
 import { allRecord, chunkPerMs } from "../modules/recordBuffer";
 import { getVoiceConnection } from "@discordjs/voice";
 import config from "../config";
-import type { configCommandType } from "..";
+import type { cmd } from "..";
 
-export const run = (client: Client<true>, message: Message<true> | ChatInputCommandInteraction<'cached'>, args: string[]) => {
+export const run: cmd['run'] = (client, message, args) => {
     if(allRecord.size === 0) return reply(message, { content: '機器人尚未開始錄音' });
     const member = memberGet(message, args[0]);
     const connection = getVoiceConnection(message.guildId, config.settings.clientId);
@@ -27,7 +26,7 @@ export const run = (client: Client<true>, message: Message<true> | ChatInputComm
     return reply(message, { content: '已繼續對該用戶的錄音' });
 }
 
-export const conf: configCommandType = {
+export const conf: cmd['conf'] = {
     name: 'resume',
     permLevel: 'Owner',
     aliases: [],

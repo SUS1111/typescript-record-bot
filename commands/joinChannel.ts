@@ -1,12 +1,12 @@
-import { type Client, type Message, type ChatInputCommandInteraction, type GuildBasedChannel, ChannelType } from "discord.js";
+import { ChannelType } from "discord.js";
 import { entersState, getVoiceConnection, joinVoiceChannel, VoiceConnectionStatus } from "@discordjs/voice";
 import { channelGet, memberGet, reply } from "../modules/functions";
-import type { configCommandType } from '..';
+import type { cmd } from '..';
 import config from "../config";
 import { allRecord, exportRecord } from "../modules/recordBuffer";
 
-export const run = (client: Client<true>, message: Message<true> | ChatInputCommandInteraction<'cached'>, args: string[]) => {
-    const channel: GuildBasedChannel | undefined | null = channelGet(message, args[0]) || message.member?.voice.channel;
+export const run: cmd['run'] = (client, message, args) => {
+    const channel = channelGet(message, args[0]) || message.member?.voice.channel;
     if(!channel) return reply(message, { content: '找不到頻道' });
     if(channel.type !== ChannelType.GuildVoice && channel.type !== ChannelType.GuildStageVoice) return reply(message, { content: '機器人只能加入語音頻道' });
     if(getVoiceConnection(message.guild.id, config.settings.clientId) && memberGet(message, client.user.id)!.voice.channel === channel) {
@@ -34,7 +34,7 @@ export const run = (client: Client<true>, message: Message<true> | ChatInputComm
         .catch(() => reply(message, { content: '機器人無法在指定的時間内加入頻道' }));
 };
 
-export const conf: configCommandType = {
+export const conf: cmd['conf'] = {
     name: 'join',
     permLevel: 'User',
     aliases: ['joinchannel', 'joinvoicechannel'],

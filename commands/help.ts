@@ -1,9 +1,9 @@
 type commandArgumentAsArray = [string, { required: boolean, description: string, type: slashCommandOptionTypes }];
 
-import { type Client, type Message, type ChatInputCommandInteraction, EmbedBuilder, type APIEmbedField, type ClientUser, inlineCode } from 'discord.js';
+import { EmbedBuilder, type APIEmbedField, type ClientUser, inlineCode } from 'discord.js';
 import config from '../config';
 import { reply } from '../modules/functions';
-import { type configCommandType, type cmd, container, type slashCommandOptionTypes } from "..";
+import { type cmd, container, type slashCommandOptionTypes } from "..";
 
 const { commands, aliases } = container;
 const { categoryList } = config;
@@ -56,13 +56,13 @@ const specificHelpCommand = (bot: ClientUser, command: cmd) => {
     return [mainEmbed, argsEmbed];
 }
 
-export const run = (client: Client<true>, message: Message<true> | ChatInputCommandInteraction<'cached'>, args: string[]) => {
+export const run: cmd['run'] = (client, message, args) => {
     const command = commands.get(args[0]?.toLowerCase()) || commands.get(aliases.get(args[0]?.toLowerCase()) ?? '');
     if(!command && args[0]) return reply(message, { content: '查無指令' });
     return reply(message, { embeds: !command ? overallHelpCommand(client.user) : specificHelpCommand(client.user, command) });
 };
 
-export const conf: configCommandType = {
+export const conf: cmd['conf'] = {
     name: 'help',
     permLevel: 'User',
     aliases: ['h'],

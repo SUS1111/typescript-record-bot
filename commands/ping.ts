@@ -1,15 +1,14 @@
-import type { Client, Message, ChatInputCommandInteraction } from "discord.js";
 import { inlineCode } from "discord.js";
 import { reply } from "../modules/functions";
-import type { configCommandType } from "..";
+import type { cmd } from "..";
 
-export const run = (client: Client<true>, message: Message<true> | ChatInputCommandInteraction<'cached'>) => {
+export const run: cmd['run'] = (client, message) => {
     const botPing = Date.now() - message.createdTimestamp;
     const apiPing = client.ws.ping;
     return reply(message, { content: `機器人延遲: ${inlineCode(botPing.toString())} ms\nAPI延遲: ${inlineCode(apiPing.toString())} ms` });
 }
 
-export const conf: configCommandType = {
+export const conf: cmd['conf'] = {
     name: 'ping',
     permLevel: 'User',
     aliases: [],

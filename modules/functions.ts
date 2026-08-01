@@ -12,7 +12,7 @@ import {
     type InteractionReplyOptions
 } from 'discord.js';
 import config from '../config';
-import type { commandArgsType, configCommandType } from '..';
+import type { cmd, ExtractMapValue } from '..';
 
 const permlevel = (member: GuildMember | APIInteractionGuildMember | null): number => {
     let permlvl: number = 0;
@@ -29,7 +29,7 @@ const permlevel = (member: GuildMember | APIInteractionGuildMember | null): numb
 
 const memberGet = (message: Message<true> | ChatInputCommandInteraction<'cached'>, member: string = ''): GuildMember | undefined => {
     const userPatern: RegExp = new RegExp(MessageMentions.UsersPattern, 'g');
-    const memberMatched = [...member.matchAll(userPatern)].at(0)?.at(1)?? member;
+    const memberMatched = [...member.matchAll(userPatern)].at(0)?.at(1) ?? member;
     return message.guild.members.cache.get(memberMatched);
 };
 
@@ -47,12 +47,11 @@ const clean = async (client: Client, text: string): Promise<string> => {
     return value;
 };
 
-const addOption = (slashCmd: SlashCommandBuilder, option: commandArgsType & { name: string }): SlashCommandOptionsOnlyBuilder => {
+const addOption = (slashCmd: SlashCommandBuilder, option: ExtractMapValue<cmd['conf']['args']> & { name: cmd['conf']['name'] }): SlashCommandOptionsOnlyBuilder => {
     // return Symbol(`add${type.charAt(0).toUpperCase() + type.slice(1)}Option`);
     const { name, description, required, type } = option;
     const addSlashCommandOption = (slashCommandOption: any) => slashCommandOption.setName(name).setDescription(description).setRequired(required);
     const slashCommandOption = {
-        attachment: (): SlashCommandOptionsOnlyBuilder => slashCmd.addAttachmentOption(addSlashCommandOption),
         boolean: (): SlashCommandOptionsOnlyBuilder => slashCmd.addBooleanOption(addSlashCommandOption),
         channel: (): SlashCommandOptionsOnlyBuilder => slashCmd.addChannelOption(addSlashCommandOption),
         integer: (): SlashCommandOptionsOnlyBuilder => slashCmd.addIntegerOption(addSlashCommandOption),
@@ -65,7 +64,7 @@ const addOption = (slashCmd: SlashCommandBuilder, option: commandArgsType & { na
     return slashCommandOption[type]();
 };
 
-const optionToArray = (interaction: ChatInputCommandInteraction, options: configCommandType['args']): string[] => {
+const optionToArray = (interaction: ChatInputCommandInteraction, options: cmd['conf']['args']): string[] => {
     const optionName: string[] = [...options.keys()];
     const result = optionName.map(name => interaction.options.get(name)?.value?.toString() || '');
     return result;

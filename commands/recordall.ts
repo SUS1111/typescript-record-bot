@@ -1,17 +1,16 @@
-import type { Client, Message, ChatInputCommandInteraction, VoiceBasedChannel } from "discord.js";
-import { type VoiceConnection, getVoiceConnection } from "@discordjs/voice";
+import { getVoiceConnection } from "@discordjs/voice";
 import path from 'path';
 import config from '../config';
 import { reply } from "../modules/functions";
 import { addRecord, allRecord } from "../modules/recordBuffer";
-import type { configCommandType } from "..";
+import type { cmd } from "..";
 import moment from "moment-timezone";
 import { OpusEncoder } from "@discordjs/opus";
 
-export const run = (client: Client<true>, message: Message<true> | ChatInputCommandInteraction<'cached'>) => {
+export const run: cmd['run'] = (client, message) => {
     const { outputTimeFormat, audioOutputPath, timeZone, sampleRate, channelCount, clientId } = config.settings;
-    const connection: VoiceConnection | undefined = getVoiceConnection(message.guild.id, clientId);
-    const voiceChannel: VoiceBasedChannel | undefined | null = message.member?.voice.channel;
+    const connection = getVoiceConnection(message.guild.id, clientId);
+    const voiceChannel = message.member?.voice.channel;
     if(!connection || !voiceChannel) return reply(message, { content: '機器人尚未加入語音頻道' });
     voiceChannel.members.forEach(member => {
         const memberId = member.id;
@@ -23,7 +22,7 @@ export const run = (client: Client<true>, message: Message<true> | ChatInputComm
     return reply(message, { content: '已開始錄音' });
 };
 
-export const conf: configCommandType = {
+export const conf: cmd['conf'] = {
     name: 'recordall',
     permLevel: 'User',
     aliases: ['recordchannel'],

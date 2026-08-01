@@ -1,8 +1,17 @@
-export interface cmd { run: (client: Client<true>, message: Message<true> | ChatInputCommandInteraction<'cached'>, args: string[]) => any, conf: { name: string; permLevel: string; aliases: string[], category: string, description: string, args: Map<string, { required: boolean, description: string, type: slashCommandOptionTypes }> }};
-export type slashCommandOptionTypes = 'attachment' | 'boolean' | 'channel' | 'integer' | 'mentionable' | 'number' | 'role' | 'string' | 'user';
-export interface commandArgsType { required: boolean, description: string, type: slashCommandOptionTypes };
-export interface configCommandType { name: string; permLevel: string; aliases: string[], category: string, description: string, args: Map<string, commandArgsType> };
-export interface permLevel { level: number, name: string, check: (member: GuildMember | APIInteractionGuildMember) => boolean };
+export interface cmd {
+    run: (client: Client<true>, message: Message<true> | ChatInputCommandInteraction<'cached'>, args: string[]) => any,
+    conf: {
+        name: string;
+        permLevel: string;
+        aliases: string[];
+        category: string;
+        description: string;
+        args: Map<string, { required: boolean, description: string, type: slashCommandOptionTypes }>
+    }
+};
+export type slashCommandOptionTypes = 'boolean' | 'channel' | 'integer' | 'mentionable' | 'number' | 'role' | 'string' | 'user';
+export interface permLevel { level: number; name: string; check: (member: GuildMember | APIInteractionGuildMember) => boolean };
+export type ExtractMapValue<T> = T extends Map<any, infer V> ? V : never;
 
 import { Client, Partials, Collection, type Message, type ChatInputCommandInteraction, GatewayIntentBits, type GuildMember, type APIInteractionGuildMember } from 'discord.js';
 import config from './config';

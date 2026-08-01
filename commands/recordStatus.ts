@@ -1,10 +1,10 @@
-import type { ChatInputCommandInteraction, Client, Message, APIEmbedField } from "discord.js";
+import type { APIEmbedField } from "discord.js";
 import { EmbedBuilder, bold, TimestampStyles, time } from "discord.js";
-import type { configCommandType } from "..";
+import type { cmd } from "..";
 import { memberGet, reply } from '../modules/functions';
 import { allRecord } from "../modules/recordBuffer";
 
-export const run = async(client: Client<true>, message: Message<true> | ChatInputCommandInteraction<'cached'>) => {
+export const run: cmd['run'] = async(client, message) => {
     if(allRecord.size === 0) return reply(message, { content: '機器人尚未開始錄音' });
     const fields: APIEmbedField[] = Array.from(allRecord, ([ userId, { beginTime, writeStream, listenStream, isSpeaking, lastSilence } ]) => {
         const fileSize = writeStream.bytesWritten / (1024 ** 2);
@@ -27,7 +27,7 @@ export const run = async(client: Client<true>, message: Message<true> | ChatInpu
     return reply(message, { embeds: [embed] });
 }
 
-export const conf: configCommandType = {
+export const conf: cmd['conf'] = {
     name: 'recordstatus',
     permLevel: 'Owner',
     aliases: ['status'],

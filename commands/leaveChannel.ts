@@ -1,12 +1,11 @@
-import type { Client, Message, ChatInputCommandInteraction } from "discord.js";
-import { type VoiceConnection, getVoiceConnection } from '@discordjs/voice';
+import { getVoiceConnection } from '@discordjs/voice';
 import { reply } from "../modules/functions";
-import type { configCommandType } from "..";
+import type { cmd } from "..";
 import { allRecord, exportRecord } from "../modules/recordBuffer";
 import config from "../config";
 
-export const run = (client: Client<true>, message: Message<true> | ChatInputCommandInteraction<'cached'>, args: string[]) => {
-    const connection: VoiceConnection | undefined = getVoiceConnection(message.guildId, config.settings.clientId);
+export const run: cmd['run'] = (client, message, args) => {
+    const connection = getVoiceConnection(message.guildId, config.settings.clientId);
     if(!connection) return reply(message, { content: '機器人根本沒有加入語音頻道' });
     if(allRecord.size !== 0) {
         const forceLeave = args[0].toLowerCase() === 'true';
@@ -21,7 +20,7 @@ export const run = (client: Client<true>, message: Message<true> | ChatInputComm
     return reply(message, { content: connection.disconnect() ? '成功離開頻道': '離開頻道失敗' });
 };
 
-export const conf: configCommandType = {
+export const conf: cmd['conf'] = {
     name: 'leave',
     permLevel: 'User',
     aliases: ['leavechannel', 'leavevoicechannel'],

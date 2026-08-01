@@ -1,17 +1,16 @@
-import type { Client, Message, ChatInputCommandInteraction, GuildMember } from "discord.js";
 import { memberGet, permlevel, reply } from "../modules/functions";
-import type { configCommandType, permLevel } from "..";
+import type { cmd, permLevel } from "..";
 import config from "../config";
 
-export const run = (client: Client<true>, message: Message<true> | ChatInputCommandInteraction<'cached'>, args: any[]) => {
-    const member: GuildMember | undefined | null = memberGet(message, args[0]) || message.member;
+export const run: cmd['run'] = (client, message, args) => {
+    const member = memberGet(message, args[0]) || message.member;
     const { permLevels } = config;
     if(!member) return;
     const permlevelGet: number = permlevel(member);
     return reply(message, { content: `${member.user.username}的權限是: ${permlevelGet} (${permLevels.find((l: permLevel) => l.level === permlevelGet)?.name})`});
 };
 
-export const conf: configCommandType = {
+export const conf: cmd['conf'] = {
     name: 'permission',
     permLevel: 'User',
     aliases: ['perm'],
