@@ -1,19 +1,19 @@
 export interface cmd {
-    run: (client: Client<true>, message: Message<true> | ChatInputCommandInteraction<'cached'>, args: string[]) => any,
+    run: (client: Client<true>, message: Message<true> | ChatInputCommandInteraction<'cached'>, args: string[]) => any;
     conf: {
         name: string;
         permLevel: string;
         aliases: string[];
-        category: string;
+        category: ExtractMapKeys<config['categoryList']>;
         description: string;
         args: Map<string, { required: boolean, description: string, type: slashCommandOptionTypes }>
     }
 };
 export type slashCommandOptionTypes = 'boolean' | 'channel' | 'integer' | 'mentionable' | 'number' | 'role' | 'string' | 'user';
-export interface permLevel { level: number; name: string; check: (member: GuildMember | APIInteractionGuildMember) => boolean };
+export type ExtractMapKeys<T> = T extends Map<infer K, any> ? K : never;
 export type ExtractMapValue<T> = T extends Map<any, infer V> ? V : never;
 
-import { Client, Partials, Collection, type Message, type ChatInputCommandInteraction, GatewayIntentBits, type GuildMember, type APIInteractionGuildMember } from 'discord.js';
+import { Client, Partials, Collection, type Message, type ChatInputCommandInteraction, GatewayIntentBits } from 'discord.js';
 import config from './config';
 import logger from './modules/logger';
 import { validFileName } from './modules/functions';

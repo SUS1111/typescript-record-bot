@@ -1,9 +1,9 @@
-type commandArgumentAsArray = [string, { required: boolean, description: string, type: slashCommandOptionTypes }];
+type commandArgumentAsArray = [ExtractMapKeys<cmd['conf']['args']>, ExtractMapValue<cmd['conf']['args']>];
 
 import { EmbedBuilder, type APIEmbedField, type ClientUser, inlineCode } from 'discord.js';
 import config from '../config';
 import { reply } from '../modules/functions';
-import { type cmd, container, type slashCommandOptionTypes } from "..";
+import { type cmd, container, type ExtractMapValue, type ExtractMapKeys } from "..";
 
 const { commands, aliases } = container;
 const { categoryList } = config;
@@ -19,7 +19,7 @@ const typeList: Map<string, string> = new Map([
     ['user', '用戶']
 ]);
 
-const overallHelpCommand = (bot: ClientUser) => {
+const overallHelpCommand = (bot: ClientUser): [EmbedBuilder] => {
     const fields: APIEmbedField[] = Array.from(categoryList, ([ name, value ]: string[]): APIEmbedField => {
         const filter: (cmd: cmd) => boolean = cmd => cmd.conf.category === name;
         const mapFunc: (value: cmd) => string = value => inlineCode(value.conf.name);
@@ -34,20 +34,20 @@ const overallHelpCommand = (bot: ClientUser) => {
     return [embed];
 };
 
-const specificHelpCommand = (bot: ClientUser, command: cmd) => {
+const specificHelpCommand = (bot: ClientUser, command: cmd): [EmbedBuilder, EmbedBuilder] => {
     const { aliases, args: commandArgs, permLevel, description } = command.conf;
     const mapFunc = ([name, { required, description, type }]: commandArgumentAsArray): APIEmbedField => {
         return { name, value: `必填參數: ${required ? '是' : '否'}\n說明: ${description}\n類型: ${typeList.get(type)}` };
     };
     const argsFields: APIEmbedField[] = Array.from(commandArgs, mapFunc);
-    const mainEmbed: EmbedBuilder = new EmbedBuilder()
+    const mainEmbed = new EmbedBuilder()
         .setTitle(command.conf.name)
         .setDescription(description)
         .addFields({ name: '別名', value: aliases.join(', ') || '無' }, { name: '權限', value: permLevel })
         .setColor(0xFFFF00)
         .setTimestamp()
         .setFooter({ text: bot.username, iconURL: bot.displayAvatarURL() });
-    const argsEmbed: EmbedBuilder = new EmbedBuilder()
+    const argsEmbed = new EmbedBuilder()
         .setTitle(`${command.conf.name}的參數`)
         .setColor(0xFFFF00)
         .setTimestamp()

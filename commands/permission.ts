@@ -1,5 +1,5 @@
 import { memberGet, permlevel, reply } from "../modules/functions";
-import type { cmd, permLevel } from "..";
+import type { cmd } from "..";
 import config from "../config";
 
 export const run: cmd['run'] = (client, message, args) => {
@@ -7,7 +7,7 @@ export const run: cmd['run'] = (client, message, args) => {
     const { permLevels } = config;
     if(!member) return;
     const permlevelGet: number = permlevel(member);
-    return reply(message, { content: `${member.user.username}的權限是: ${permlevelGet} (${permLevels.find((l: permLevel) => l.level === permlevelGet)?.name})`});
+    return reply(message, { content: `${member.user.username}的權限是: ${permlevelGet} (${permLevels.find((l: config['permLevels'][0]) => l.level === permlevelGet)?.name})`});
 };
 
 export const conf: cmd['conf'] = {

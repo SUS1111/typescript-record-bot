@@ -1,7 +1,7 @@
 import logger from '../modules/logger';
 import config from '../config';
 import { permlevel } from '../modules/functions';
-import { container, type permLevel, type cmd } from '..';
+import { container, type cmd } from '..';
 import { type Client, type Message, inlineCode } from 'discord.js';
 
 const { prefix } = config.settings;
@@ -26,7 +26,7 @@ export default async (client: Client<true>, message: Message) => {
             // 如果找不到，就不執行
             if (!cmd) return;
             // 獲得成員的權限名稱
-            const permLevelName = config.permLevels.find((l: permLevel) => l.level === permlevelGet)!.name;
+            const permLevelName = config.permLevels.find((l: config['permLevels'][0]) => l.level === permlevelGet)!.name;
             // 比較權限等級，如果使用者的權限等級小於指令的權限等級，就不執行
             if (permlevelGet < container.levelCache[cmd.conf.permLevel]) {
                 return message.channel.send(`你沒有權限使用!\n你的權限等級為 ${permlevelGet} (${permLevelName})\n你需要權限等級 ${container.levelCache[cmd.conf.permLevel]} (${cmd.conf.permLevel})`);
