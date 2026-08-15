@@ -11,8 +11,9 @@ export const run: cmd['run'] = (client, message, args) => {
     if(!connection) return reply(message, { content: '機器人尚未加入語音頻道' });
     if(args[0]) {
         if(!member) return reply(message, { content: '該成員並不存在' });
-        if(!allRecord.has(member.id)) return reply(message, { content: '機器人尚未對該成員錄音' });
-        if(allRecord.get(member.id)?.listenStream.isPaused()) return reply(message, { content: '機器人已經暫停了對該成員的錄音' });
+        const memberRecord = allRecord.get(member.id);
+        if(!memberRecord) return reply(message, { content: '機器人尚未對該成員錄音' });
+        if(memberRecord.listenStream.isPaused()) return reply(message, { content: '機器人已經暫停了對該成員的錄音' });
     }
     const pauseRecordId = member ? [member.id] : Array.from(allRecord.keys());
     pauseRecordId.forEach(id => {

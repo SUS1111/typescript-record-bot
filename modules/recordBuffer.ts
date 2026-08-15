@@ -1,4 +1,4 @@
-interface recordObject {
+export interface recordObject {
     filePath: string,
     listenStream: AudioReceiveStream,
     beginTime: number,

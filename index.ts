@@ -13,7 +13,7 @@ export type slashCommandOptionTypes = 'boolean' | 'channel' | 'integer' | 'menti
 export type ExtractMapKeys<T> = T extends Map<infer K, any> ? K : never;
 export type ExtractMapValue<T> = T extends Map<any, infer V> ? V : never;
 
-import { Client, Partials, Collection, type Message, type ChatInputCommandInteraction, GatewayIntentBits } from 'discord.js';
+import { Client, Partials, Collection, type Message, type ChatInputCommandInteraction } from 'discord.js';
 import config from './config';
 import logger from './modules/logger';
 import { validFileName } from './modules/functions';
@@ -27,8 +27,8 @@ if(!process.env.token) throw new Error('請在.env文件提供令牌!');
 if(!lstatSync(settings.audioOutputPath).isDirectory()) throw new Error('並不存在該文件夾');
 if(!validFileName(settings.outputTimeFormat)) throw new Error('这种文件名是无效的');
 
-const intents: GatewayIntentBits[] = [GatewayIntentBits.AutoModerationConfiguration, GatewayIntentBits.AutoModerationExecution, GatewayIntentBits.DirectMessagePolls, GatewayIntentBits.DirectMessageReactions, GatewayIntentBits.DirectMessageTyping, GatewayIntentBits.DirectMessages, GatewayIntentBits.GuildExpressions, GatewayIntentBits.GuildIntegrations, GatewayIntentBits.GuildInvites, GatewayIntentBits.GuildMembers, GatewayIntentBits.GuildMessagePolls, GatewayIntentBits.GuildMessageReactions, GatewayIntentBits.GuildMessageTyping, GatewayIntentBits.GuildMessages, GatewayIntentBits.GuildModeration, GatewayIntentBits.GuildPresences, GatewayIntentBits.Guilds, GatewayIntentBits.GuildScheduledEvents, GatewayIntentBits.GuildVoiceStates, GatewayIntentBits.GuildWebhooks, GatewayIntentBits.MessageContent]; // all intents
-const partials: Partials[] = [Partials.Channel, Partials.User, Partials.GuildMember, Partials.Message, Partials.Reaction, Partials.GuildScheduledEvent, Partials.ThreadMember];
+const intents = 53608447; // all intents
+const partials = [Partials.Channel, Partials.User, Partials.GuildMember, Partials.Message, Partials.Reaction, Partials.GuildScheduledEvent, Partials.ThreadMember];
 const client: Client = new Client({ intents, partials });
 
 const commands: Collection<string, cmd> = new Collection();

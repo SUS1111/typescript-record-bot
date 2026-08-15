@@ -1,22 +1,26 @@
-import type { APIEmbedField } from "discord.js";
-import { EmbedBuilder, bold, TimestampStyles, time } from "discord.js";
+import { EmbedBuilder, bold, TimestampStyles, time, type APIEmbedField } from "discord.js";
 import type { cmd } from "..";
 import { memberGet, reply } from '../modules/functions';
-import { allRecord } from "../modules/recordBuffer";
+import { allRecord, type recordObject } from "../modules/recordBuffer";
+
+const generateRecordingData = ({ beginTime, writeStream, listenStream, isSpeaking, lastSilence }: recordObject) => {
+    const fileSize = writeStream.bytesWritten / (1024 ** 2);
+    const beginTimeInSecond = Math.floor(beginTime / 1000);
+    return new Map([
+        ['開始時間', time(beginTimeInSecond, TimestampStyles.FullDateShortTime)],
+        ['錄音時長', time(beginTimeInSecond, TimestampStyles.RelativeTime)],
+        ['目前文件大小', `${fileSize.toFixed(2)} MB`],
+        ['正在暫停中', listenStream.isPaused() ? '是' : '否'],
+        ['正在説話中', isSpeaking === undefined ? '未知' : (isSpeaking ? '是' : '否')],
+        ['機器人最後一次未接受數據包', lastSilence ? time(Math.floor(lastSilence / 1000), TimestampStyles.RelativeTime) : '未知']
+    ]);
+};
 
 export const run: cmd['run'] = async(client, message) => {
     if(allRecord.size === 0) return reply(message, { content: '機器人尚未開始錄音' });
-    const fields: APIEmbedField[] = Array.from(allRecord, ([ userId, { beginTime, writeStream, listenStream, isSpeaking, lastSilence } ]) => {
-        const fileSize = writeStream.bytesWritten / (1024 ** 2);
-        const data = new Map([
-            ['開始時間', time(Math.floor(beginTime / 1000), TimestampStyles.FullDateShortTime)],
-            ['錄音時長', time(Math.floor(beginTime / 1000), TimestampStyles.RelativeTime)],
-            ['目前文件大小', `${fileSize.toFixed(2)} MB`],
-            ['正在暫停中', listenStream.isPaused() ? '是' : '否'],
-            ['正在説話中', isSpeaking === undefined ? '未知' : (isSpeaking ? '是' : '否')],
-            ['機器人最後一次未接受數據包', lastSilence ? time(Math.floor(lastSilence / 1000), TimestampStyles.RelativeTime) : '未知']
-        ]);
-        return { name: memberGet(message, userId)?.user.username!, value: Array.from(data, ([key, value]) => `${bold(key)}: ${value}`).join('\n') };
+    const fields: APIEmbedField[] = Array.from(allRecord, ([ userId, recordingStatus ]) => {
+        const recordingData = generateRecordingData(recordingStatus);
+        return { name: memberGet(message, userId)!.user.username, value: Array.from(recordingData, ([key, value]) => `${bold(key)}: ${value}`).join('\n') };
     });
     const embed = new EmbedBuilder()
         .setTitle('錄音狀況')
