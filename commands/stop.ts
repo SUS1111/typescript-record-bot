@@ -1,22 +1,29 @@
 import { getVoiceConnection } from "@discordjs/voice";
-import { memberGet, reply } from '../modules/functions';
-import { exportRecordAsZip, exportRecord, allRecord } from "../modules/recordBuffer";
+import { memberGet, reply, validFileName } from '../modules/functions';
+import { recordings, stopAllRecording, clearAllRecording } from "../modules/recordings";
 import type { cmd } from "..";
-import config from "../config";
 
 export const run: cmd['run'] = async(client, message, args) => {
-    const member = memberGet(message, args[1]);
-    const connection = getVoiceConnection(message.guildId, config.settings.clientId);
+    const connection = getVoiceConnection(message.guildId, client.user.id);
     if(!connection) return reply(message, { content: '機器人尚未加入語音頻道' });
-    if(allRecord.size === 0) return reply(message, { content: '機器人尚未開始錄音' });
-    if(member && !allRecord.has(member.id)) return reply(message, { content: '機器人尚未對該用戶錄音' });
-    const stopRecordId: string[] = member ? [member.id] : Array.from(allRecord.keys());
-    args[0]?.toString().toLowerCase() === 'true' ? await exportRecordAsZip(stopRecordId) : exportRecord(stopRecordId);
-    stopRecordId.forEach(id => {
-        allRecord.get(id)?.listenStream.push(null);
-        allRecord.delete(id);
-    });
-    return reply(message, { content: '機器人已停止錄音且匯出文件' });
+
+    const member = memberGet(message, args[0]);
+    const userRecording = recordings.get(member?.id ?? '');
+    if(member && !userRecording) return reply(message, { content: '機器人尚未對該用戶錄音' });
+
+    const fileName = args[2];
+    if(fileName && !validFileName(fileName)) return reply(message, { content: '这是个无效的文件名字' });
+
+    if(!member) {
+        stopAllRecording(connection.receiver);
+    } else {
+        const wantExportAsZip = args[1].toLowerCase() === 'true';
+        wantExportAsZip ? await userRecording?.stopRecord().exportRecordAsZip(fileName) : userRecording?.stopRecord().exportRecord(fileName);
+    }
+
+    if(Array.from(recordings.values(), recording => recording.writeStream.writableEnded).every(value => value)) clearAllRecording();
+
+    return reply(message, { content: '機器人已停止錄音且匯出文件(倘若无文件表示无人被录音)' });
 };
 
 export const conf: cmd['conf'] = {
@@ -25,8 +32,9 @@ export const conf: cmd['conf'] = {
     aliases: [],
     category: 'voice',
     args: new Map([
-        ['是否壓縮成zip檔案', { required: false, description: '是寫true 否寫false', type: 'boolean' }],
         ['用戶', { required: false, description: '想要停止錄音的用戶 不填則則是停止所有錄音', type: 'user' }],
+        ['是否壓縮成zip檔案', { required: false, description: '是寫true 否寫false', type: 'boolean' }],
+        ['文件名字', { required: false, description: '录音文件的名字 不填则使用默认名字', type: 'string' }]
     ]),
     description: '停止對成員進行錄音'
 };

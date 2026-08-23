@@ -1,30 +1,31 @@
 import { memberGet, reply } from "../modules/functions";
-import { allRecord, chunkPerMs } from "../modules/recordBuffer";
+import { recordings, type UserRecord } from "../modules/recordings";
 import { getVoiceConnection } from "@discordjs/voice";
-import config from "../config";
 import type { cmd } from "..";
+import logger from "../modules/logger";
+
+const resumeRecordFunction = (userRecording: UserRecord) => {
+    try {
+        userRecording.resumeRecord();
+        return null;
+    } catch (e: unknown) {
+        logger.error(e);
+        if(e instanceof Error) return e.message;
+    }
+}
 
 export const run: cmd['run'] = (client, message, args) => {
-    if(allRecord.size === 0) return reply(message, { content: '機器人尚未開始錄音' });
-    const member = memberGet(message, args[0]);
-    const connection = getVoiceConnection(message.guildId, config.settings.clientId);
+    if(recordings.size === 0) return reply(message, { content: '機器人尚未開始錄音' });
+
+    const connection = getVoiceConnection(message.guildId, client.user.id);
     if(!connection) return reply(message, { content: '機器人尚未加入語音頻道' });
-    if(args[0]) {
-        if(!member) return reply(message, { content: '該成員並不存在' });
-        const memberRecord = allRecord.get(member.id);
-        if(!memberRecord) return reply(message, { content: '機器人尚未對該成員錄音' });
-        if(!memberRecord.listenStream.isPaused()) return reply(message, { content: '機器人已經在錄音該用戶了' });
-    }
-    const resumeRecordId = member ? [member.id] : Array.from(allRecord.keys());
-    resumeRecordId.forEach(id => {
-        const userRecording = allRecord.get(id)!;
-        if(!userRecording.lastSilence) return;
-        const silenceTime = Date.now() - userRecording.lastSilence;
-        userRecording.writeStream.write(Buffer.alloc(silenceTime * chunkPerMs));
-        userRecording.listenStream.resume();
-        userRecording.lastSilence = Date.now();
-    });
-    return reply(message, { content: '已繼續對該用戶的錄音' });
+
+    const member = memberGet(message, args[0]);
+    const userRecording = recordings.get(member?.id ?? '');
+    if(member && !userRecording) return reply(message, { content: '机器人并未对该用户录音' });
+
+    const result = Array.from(userRecording ? [userRecording] : recordings.values(), resumeRecordFunction);
+    return result.every(value => value === null) ? reply(message, { content: '已暫停錄音' }) : reply(message, { content: result.filter(value => value !== null)[0] });
 }
 
 export const conf: cmd['conf'] = {

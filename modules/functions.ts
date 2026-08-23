@@ -20,6 +20,10 @@ import {
 } from 'discord.js';
 import config from '../config';
 import type { cmd, ExtractMapKeys, ExtractMapValue, slashCommandOptionTypes } from '..';
+import { ZipArchive } from 'archiver';
+import { createWriteStream } from 'fs';
+import path from 'path';
+import logger from './logger';
 
 type slashCommandBuilderOptions = SlashCommandBooleanOption | SlashCommandChannelOption | SlashCommandIntegerOption | SlashCommandMentionableOption | SlashCommandNumberOption | SlashCommandRoleOption | SlashCommandStringOption | SlashCommandUserOption; // All options except attachment
 
@@ -93,3 +97,12 @@ export const channelGet = (message: Message<true> | ChatInputCommandInteraction<
 };
 
 export const validFileName = (filename: string): boolean => filename !== '.' && filename !== '..' && !/[<>:"/\\|?*\u0000-\u001F]/g.test(filename) && !/^(con|prn|aux|nul|com\d|lpt\d)$/i.test(filename) && filename.length < 255;
+
+export const fileArchive = (zipFilePath: string, ...filePaths: string[]): Promise<void> => {
+    const output = createWriteStream(zipFilePath);
+    const archive = new ZipArchive({ zlib: { level: 9 }});
+    filePaths.forEach(filePath => archive.file(filePath, { name: path.basename(filePath) }));
+    archive.pipe(output);
+    archive.finalize();
+    return new Promise(resolve => output.on('close' , () => resolve(logger.log('RECORD 文件已导出并压缩完成'))));
+};

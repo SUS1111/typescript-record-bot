@@ -42,20 +42,22 @@ for (let i = 0; i < permLevels.length; i++) {
 
 export const container = { commands, aliases, levelCache };
 
-(settings.autoLoadCommand ? readdirSync('./commands') : commandPaths).forEach(async (file: string) => {
+const loadCommand = () => (settings.autoLoadCommand ? readdirSync('./commands') : commandPaths).forEach(async file => {
     try {
-        if(!file.startsWith('./commands/')) file = `./commands/${file}`;
-        const code: cmd = await import(file);
-        const cmdName: string = code.conf.name;
-        container.commands.set(cmdName, code);
-        code.conf.aliases.forEach((alias: string) => container.aliases.set(alias, cmdName));
-        logger.log(`CMD ${cmdName} 已被載入 ✅`);
+        let cleanFile = file;
+        if(!file.startsWith('./commands/')) cleanFile = `./commands/${file}`;
+        const code: cmd = await import(cleanFile);
+        container.commands.set(code.conf.name, code);
+        code.conf.aliases.forEach((alias: string) => container.aliases.set(alias, code.conf.name));
+        logger.log(`CMD ${code.conf.name} 已被載入 ✅`);
     } catch (e: unknown) {
        logger.error(e);
     }
 });
 
-eventPaths.forEach(async (path: string, name: string) => {
+loadCommand();
+
+eventPaths.forEach(async (path, name) => {
     try {
         const { default: code } = await import(path);
         client.on(name, code.bind(null, client));
