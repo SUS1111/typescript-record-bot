@@ -3,8 +3,8 @@ import { reply } from "../modules/functions";
 import type { cmd } from "..";
 import { recordings, stopAllRecording } from "../modules/recordings";
 
-export const run: cmd['run'] = (client, message, args) => {
-    const connection = getVoiceConnection(message.guildId, client.user.id);
+export const run: cmd['run'] = (message, args) => {
+    const connection = getVoiceConnection(message.guildId);
     if(!connection) return reply(message, { content: '機器人根本沒有加入語音頻道' });
     
     const forceLeave = args[0]?.toLowerCase() === 'true';

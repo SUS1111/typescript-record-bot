@@ -1,5 +1,4 @@
 import {
-    type Client,
     type GuildMember,
     Message,
     type SlashCommandBuilder,
@@ -24,6 +23,7 @@ import { ZipArchive } from 'archiver';
 import { createWriteStream } from 'fs';
 import path from 'path';
 import logger from './logger';
+import { inspect } from 'util';
 
 type slashCommandBuilderOptions = SlashCommandBooleanOption | SlashCommandChannelOption | SlashCommandIntegerOption | SlashCommandMentionableOption | SlashCommandNumberOption | SlashCommandRoleOption | SlashCommandStringOption | SlashCommandUserOption; // All options except attachment
 
@@ -47,18 +47,9 @@ export const memberGet = (message: Message<true> | ChatInputCommandInteraction<'
     return message.guild.members.cache.get(memberMatched);
 };
 
-export const clean = async (client: Client, text: string): Promise<string> => {
-    let value: string = text;
-    if (value && value.constructor.name === 'Promise') { value = await value; }
-    if (typeof value !== 'string') { value = require('util').inspect(value, { depth: 1 }); }
-
-    value = value
-        .replace(/`/g, `\`${String.fromCharCode(8203)}`)
-        .replace(/@/g, `@${String.fromCharCode(8203)}`);
-
-    value = typeof client.token === 'string' ?  value.replace(new RegExp(client.token, 'g'), '[REDACTED]') : value;
-
-    return value;
+export const clean = async (object: unknown): Promise<string> => {
+    const value = inspect(object instanceof Promise ? await object : object, { depth: 1 });
+    return process.env.token ? value.replace(new RegExp(process.env.token, 'g'), '[REDACTED]') : value;
 };
 
 export const addOption = (slashCmd: SlashCommandBuilder, option: ExtractMapValue<cmd['conf']['args']> & { name: ExtractMapKeys<cmd['conf']['args']> }): SlashCommandOptionsOnlyBuilder => {
@@ -86,7 +77,7 @@ export const optionToArray = (interaction: ChatInputCommandInteraction, options:
     return result;
 };
 
-export const reply = (message: Message | ChatInputCommandInteraction, reply: string | MessageReplyOptions | InteractionReplyOptions): Promise<Message<boolean>> => {
+export const reply = (message: Message | ChatInputCommandInteraction, reply: string | MessageReplyOptions | InteractionReplyOptions): Promise<Message> => {
     return message instanceof Message ? message.reply(reply as MessageReplyOptions | string) : message.followUp(reply as InteractionReplyOptions | string);
 };
 

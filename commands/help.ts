@@ -5,7 +5,7 @@ import config from '../config';
 import { reply } from '../modules/functions';
 import { type cmd, container, type ExtractMapValue, type ExtractMapKeys } from "..";
 
-const { commands, aliases } = container;
+const { commands, aliases, client } = container;
 const { categoryList } = config;
 const typeList: Map<string, string> = new Map([
     ['attachment', '文件'],
@@ -56,7 +56,7 @@ const specificHelpCommand = (bot: ClientUser, command: cmd): [EmbedBuilder, Embe
     return [mainEmbed, argsEmbed];
 }
 
-export const run: cmd['run'] = (client, message, args) => {
+export const run: cmd['run'] = (message, args) => {
     const command = commands.get(args[0]?.toLowerCase()) || commands.get(aliases.get(args[0]?.toLowerCase()) ?? '');
     if(!command && args[0]) return reply(message, { content: '查無指令' });
     return reply(message, { embeds: !command ? overallHelpCommand(client.user) : specificHelpCommand(client.user, command) });

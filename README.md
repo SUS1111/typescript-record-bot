@@ -24,11 +24,13 @@ interface config {
         sampleRate: 8_000 | 12_000 | 16_000 | 24_000 | 48_000
         channelCount: 1 | 2
     };
-    permLevels: { level: number, name: string, check: (member: any) => boolean }[];
+    permLevels: { level: number, name: string, check: (member: GuildMember) => boolean }[];
     commandPaths: string[];
     eventPaths: Map<string, string>;
     categoryList: Map<string, string>;
 }
+
+import type { GuildMember } from 'discord.js';
 
 const config: config = {
     settings: {

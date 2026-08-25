@@ -3,14 +3,15 @@ import { entersState, getVoiceConnection, joinVoiceChannel, VoiceConnectionStatu
 import { channelGet, memberGet, reply } from "../modules/functions";
 import type { cmd } from '..';
 import { recordings, stopAllRecording } from "../modules/recordings";
+import config from "../config";
 
-export const run: cmd['run'] = async (client, message, args) => {
+export const run: cmd['run'] = async (message, args) => {
     const channel = channelGet(message, args[0]) || message.member?.voice.channel;
     if(!channel) return reply(message, { content: '找不到頻道' });
     if(channel.type !== ChannelType.GuildVoice && channel.type !== ChannelType.GuildStageVoice) return reply(message, { content: '機器人只能加入語音頻道' });
 
-    const originalConnection = getVoiceConnection(message.guild.id, client.user.id);
-    if(originalConnection && memberGet(message, client.user.id)?.voice.channel === channel) return reply(message, { content: '機器人已經在指定的頻道了' });
+    const originalConnection = getVoiceConnection(message.guild.id);
+    if(originalConnection && memberGet(message, config.settings.clientId)?.voice.channel === channel) return reply(message, { content: '機器人已經在指定的頻道了' });
 
     const forceJoin = args[1]?.toLowerCase() === 'true';
     if(recordings.size !== 0 && !forceJoin) return reply(message, { content: '機器人還在錄音' });
@@ -22,7 +23,6 @@ export const run: cmd['run'] = async (client, message, args) => {
         guildId: message.guild.id,
         selfDeaf: false,
         adapterCreator: channel.guild.voiceAdapterCreator,
-        group: client.user.id
     });
     return entersState(newConnection, VoiceConnectionStatus.Ready, 5_000)
         .then(() => reply(message, { content: '成功加入頻道' }))

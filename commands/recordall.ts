@@ -3,8 +3,8 @@ import { reply } from "../modules/functions";
 import { startChannelRecord } from "../modules/recordings";
 import type { cmd } from "..";
 
-export const run: cmd['run'] = (client, message) => {
-    const connection = getVoiceConnection(message.guild.id, client.user.id);
+export const run: cmd['run'] = message => {
+    const connection = getVoiceConnection(message.guild.id);
     if(!connection) return reply(message, { content: '機器人尚未加入語音頻道' });
 
     startChannelRecord(connection.receiver);

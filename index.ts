@@ -1,5 +1,5 @@
 export interface cmd {
-    run: (client: Client<true>, message: Message<true> | ChatInputCommandInteraction<'cached'>, args: string[]) => any;
+    run: (message: Message<true> | ChatInputCommandInteraction<'cached'>, args: string[]) => Promise<Message>;
     conf: {
         name: string;
         permLevel: string;
@@ -29,7 +29,7 @@ if(!validFileName(settings.outputTimeFormat)) throw new Error('这种文件名�
 
 const intents = 53608447; // all intents
 const partials = [Partials.Channel, Partials.User, Partials.GuildMember, Partials.Message, Partials.Reaction, Partials.GuildScheduledEvent, Partials.ThreadMember];
-const client: Client = new Client({ intents, partials });
+const client: Client<true> = new Client({ intents, partials });
 
 const commands: Collection<string, cmd> = new Collection();
 const aliases: Collection<string, string> = new Collection();
@@ -40,7 +40,7 @@ for (let i = 0; i < permLevels.length; i++) {
     levelCache[thisLevel.name] = thisLevel.level;
 }
 
-export const container = { commands, aliases, levelCache };
+export const container = { commands, aliases, levelCache, client };
 
 const loadCommand = () => (settings.autoLoadCommand ? readdirSync('./commands') : commandPaths).forEach(async file => {
     try {
@@ -60,7 +60,7 @@ loadCommand();
 eventPaths.forEach(async (path, name) => {
     try {
         const { default: code } = await import(path);
-        client.on(name, code.bind(null, client));
+        client.on(name, code);
         logger.log(`EVENT ${name} 已被載入 ✅`);
     } catch (e: unknown) {
         logger.error(e);

@@ -3,8 +3,8 @@ import { memberGet, reply, validFileName } from '../modules/functions';
 import { recordings, stopAllRecording, clearAllRecording } from "../modules/recordings";
 import type { cmd } from "..";
 
-export const run: cmd['run'] = async(client, message, args) => {
-    const connection = getVoiceConnection(message.guildId, client.user.id);
+export const run: cmd['run'] = async(message, args) => {
+    const connection = getVoiceConnection(message.guildId);
     if(!connection) return reply(message, { content: '機器人尚未加入語音頻道' });
 
     const member = memberGet(message, args[0]);

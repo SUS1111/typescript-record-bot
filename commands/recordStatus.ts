@@ -1,5 +1,5 @@
 import { EmbedBuilder, bold, TimestampStyles, time, type APIEmbedField } from "discord.js";
-import type { cmd } from "..";
+import { type cmd, container } from "..";
 import { memberGet, reply } from '../modules/functions';
 import { recordings, type UserRecord } from "../modules/recordings";
 
@@ -15,12 +15,13 @@ const generateRecordingData = ({ lastSilence, size: fileSize, isSpeaking, beginT
     ]);
 };
 
-export const run: cmd['run'] = async(client, message) => {
+export const run: cmd['run'] = async message => {
     if(recordings.size === 0) return reply(message, { content: '機器人尚未收到任何数据包' });
     const fields: APIEmbedField[] = Array.from(recordings, ([userId, userRecording]) => {
         const recordingData = generateRecordingData(userRecording);
         return { name: memberGet(message, userId)!.user.username, value: Array.from(recordingData, ([key, value]) => `${bold(key)}: ${value}`).join('\n') };
     });
+    const { client } = container;
     const embed = new EmbedBuilder()
         .setTitle('錄音狀況')
         .addFields(fields)

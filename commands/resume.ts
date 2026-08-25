@@ -14,10 +14,10 @@ const resumeRecordFunction = (userRecording: UserRecord) => {
     }
 }
 
-export const run: cmd['run'] = (client, message, args) => {
+export const run: cmd['run'] = (message, args) => {
     if(recordings.size === 0) return reply(message, { content: '機器人尚未開始錄音' });
 
-    const connection = getVoiceConnection(message.guildId, client.user.id);
+    const connection = getVoiceConnection(message.guildId);
     if(!connection) return reply(message, { content: '機器人尚未加入語音頻道' });
 
     const member = memberGet(message, args[0]);

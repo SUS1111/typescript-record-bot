@@ -20,7 +20,7 @@ const chunkPerMs = (sampleRate * 2 * channelCount) / 1000; // Size of 16-bit PCM
 const batchRecord = new EventEmitter<BatchRecordEvent>();
 export const recordings: Map<string, UserRecord> = new Map();
 
-const writeRecordData = (writeStram: WriteStream, encoder: OpusEncoder) => (chunk: Buffer) => writeStram.write(encoder.decode(chunk));
+const writeRecordData = (writeStream: WriteStream, encoder: OpusEncoder) => (chunk: Buffer) => writeStream.write(encoder.decode(chunk));
 export const startChannelRecord = (receiver: VoiceReceiver) => batchRecord.emit('start', receiver);
 export const stopAllRecording = (receiver: VoiceReceiver) => batchRecord.emit('stop', receiver);
 export const clearAllRecording = () => batchRecord.emit('clear');

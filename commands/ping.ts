@@ -1,10 +1,10 @@
 import { inlineCode } from "discord.js";
 import { reply } from "../modules/functions";
-import type { cmd } from "..";
+import { type cmd, container } from "..";
 
-export const run: cmd['run'] = (client, message) => {
+export const run: cmd['run'] = message => {
     const botPing = Date.now() - message.createdTimestamp;
-    const apiPing = client.ws.ping;
+    const apiPing = container.client.ws.ping;
     return reply(message, { content: `機器人延遲: ${inlineCode(botPing.toString())} ms\nAPI延遲: ${inlineCode(apiPing.toString())} ms` });
 }
 
