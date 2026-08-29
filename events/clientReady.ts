@@ -1,21 +1,21 @@
-import { type cmd, type ExtractMapValue, container } from '..';
+import { container } from '..';
 import config from '../config';
 import { addOption } from '../modules/functions';
 import logger from '../modules/logger';
-import { type Client, ActivityType, type Guild, Routes, SlashCommandBuilder, REST } from 'discord.js';
+import { type Client, ActivityType, Routes, SlashCommandBuilder, REST } from 'discord.js';
 const { activity, clientId } = config.settings;
 
-export default (client: Client<true>) => {
-    logger.ready(`${client.user.username}, 成員數: ${client.guilds.cache.map((g: Guild) => g.memberCount).reduce((a: number, b: number) => a + b, 0)} ，伺服器數: ${client.guilds.cache.size}`);
+export default async (client: Client<true>) => {
     if(activity) client.user.setActivity(activity, { type: ActivityType.Playing });
-    const rest: REST = new REST().setToken(client.token);
-    const cmdConf: cmd['conf'][] = container.commands.map((code: cmd) => code.conf);
-    const slashCommands: SlashCommandBuilder[] = cmdConf.map(({ name, description, args }): SlashCommandBuilder => {
-        const slashCommand: SlashCommandBuilder = new SlashCommandBuilder()
+    const rest = new REST().setToken(client.token);
+    const cmdConf = container.commands.map(code => code.conf);
+    const slashCommands = cmdConf.map(({ name, description, args }) => {
+        const slashCommand = new SlashCommandBuilder()
             .setName(name)
             .setDescription(description);
-        args.forEach((argValue: ExtractMapValue<cmd['conf']['args']>, argName: string) => addOption(slashCommand, { ...argValue, name: argName }));
+        args.forEach((value, name) => addOption(slashCommand, { ...value, name }));
         return slashCommand;
     });
-    rest.put(Routes.applicationCommands(clientId), { body: slashCommands }).then(() => logger.ready('斜綫指令已準備就緒'));
+    await rest.put(Routes.applicationCommands(clientId), { body: slashCommands });
+    logger.ready(`${client.user.username}, 成員數: ${client.guilds.cache.map(g => g.memberCount).reduce((a, b) => a + b, 0)} ，伺服器數: ${client.guilds.cache.size}`);
 }

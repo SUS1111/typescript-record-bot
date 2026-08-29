@@ -4,8 +4,9 @@
   "description": "Demo",
   "main": "index.ts",
   "scripts": {
-    "test": "npx tsx watch .",
-    "start": "npx tsx ."
+    "test": "npm run check && npx tsx watch .",
+    "start": "npx tsx .",
+    "check": "npx tsc --noEmit"
   },
   "author": "SUS1111",
   "license": "MIT",

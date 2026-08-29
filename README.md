@@ -66,7 +66,8 @@ const config: config = {
         // ['name', 'path']
         ['clientReady', './events/clientReady'],
         ['messageCreate', './events/messageCreate'],
-        ['interactionCreate', './events/interactionCreate']
+        ['interactionCreate', './events/interactionCreate'],
+        ['error', './events/error']
     ]),
     categoryList: new Map([
         ['system', '系統'],
@@ -90,7 +91,7 @@ ownerId=你的ID
 * 請自行創立.env文件並按照上面.env的段落填寫機器人的token和你的用户id
 * `config.ts` 可設定機器人前綴與其活動狀態、權限設定、所要執行的指令、監聽的事件、錄音文件的位置等
 * 下載程式碼之後請運行 `npm install`以安裝所需要的套件
-* 若要運行， 請在命令行輸入`ts-node .`
+* 若要運行， 請在命令行輸入`npm start`
 * 若要增加新的類別 除了在指令的conf物件增加 還記得要在config.ts的categoryList裏面增加並且附上其譯名
 * 最後對訊息的作者回傳的訊息請使用
 ```js

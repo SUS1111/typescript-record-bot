@@ -15,8 +15,7 @@ export const run: cmd['run'] = async (message, args) => {
 
     const forceJoin = args[1]?.toLowerCase() === 'true';
     if(recordings.size !== 0 && !forceJoin) return reply(message, { content: '機器人還在錄音' });
-
-    if (originalConnection) stopAllRecording(originalConnection?.receiver);
+    if (originalConnection) stopAllRecording(originalConnection.receiver);
 
     const newConnection = joinVoiceChannel({
         channelId: channel.id,

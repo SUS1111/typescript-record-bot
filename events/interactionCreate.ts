@@ -7,12 +7,12 @@ import logger from "../modules/logger";
 export default async(interaction: BaseInteraction) => {
     // 當在伺服器执行的指令則執行如下程式
     if(interaction.isChatInputCommand() && interaction.inCachedGuild()) {
+        await interaction.deferReply();
         try {
             // 得到使用者的權限等級
             const permlevelGet = permlevel(interaction.member);
             // 從指令名稱得到其export的函數
             const cmd = container.commands.get(interaction.commandName);
-            await interaction.deferReply();
             if(!cmd) return interaction.followUp({ content: '並沒有這個指令' });
             // 獲得成員的權限名稱
             const permLevelName = config.permLevels.find((l: config['permLevels'][0]) => l.level === permlevelGet)!.name;
