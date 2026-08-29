@@ -25,7 +25,7 @@ export const run: cmd['run'] = (message, args) => {
     if(member && !userRecording) return reply(message, { content: '机器人并未对该用户录音' });
 
     const result = Array.from(userRecording ? [userRecording] : recordings.values(), resumeRecordFunction);
-    return result.every(value => value === null) ? reply(message, { content: '已暫停錄音' }) : reply(message, { content: result.filter(value => value !== null)[0] });
+    return result.some(value => value === null) ? reply(message, { content: '已暫停錄音' }) : reply(message, { content: result.filter(value => value !== null)[0] });
 }
 
 export const conf: cmd['conf'] = {
