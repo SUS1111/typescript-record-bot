@@ -17,13 +17,13 @@ export const run: cmd['run'] = async(message, args) => {
     if(!member) {
         stopAllRecording(connection.receiver);
     } else {
-        const wantExportAsZip = args[1].toLowerCase() === 'true';
-        wantExportAsZip ? await userRecording?.stopRecord().exportRecordAsZip(fileName) : userRecording?.stopRecord().exportRecord(fileName);
+        const wantExportAsZip = args[1]?.toLowerCase() === 'true';
+        await userRecording?.stopRecord().then(result => wantExportAsZip ? result.exportRecordAsZip(fileName) : result.exportRecord(fileName));
     }
 
-    if(Array.from(recordings.values(), recording => recording.writeStream.writableEnded).every(value => value)) clearAllRecording();
+    if(Array.from(recordings.values(), recording => recording.writeStream.writableFinished).every(value => value)) clearAllRecording();
 
-    return reply(message, { content: '機器人已停止錄音且匯出文件(倘若无文件表示无人被录音)' });
+    return reply(message, { content: '機器人正在停止并匯出錄音(倘若无文件表示无人被录音)' });
 };
 
 export const conf: cmd['conf'] = {
@@ -36,5 +36,5 @@ export const conf: cmd['conf'] = {
         ['是否壓縮成zip檔案', { required: false, description: '是寫true 否寫false', type: 'boolean' }],
         ['文件名字', { required: false, description: '录音文件的名字 不填则使用默认名字', type: 'string' }]
     ]),
-    description: '停止對成員進行錄音'
+    description: '停止對成員進行錄音，切勿短时间内重复使用'
 };

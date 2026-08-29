@@ -29,8 +29,8 @@ type slashCommandBuilderOptions = SlashCommandBooleanOption | SlashCommandChanne
 
 export const permlevel = (member: GuildMember | null): number => {
     if(!member) return 0;
-    let permlvl: number = 0;
-    const permOrder: config['permLevels'] = config.permLevels.slice(0).sort((p, c) => (p.level < c.level ? 1 : -1));
+    let permlvl = 0;
+    const permOrder = config.permLevels.slice(0).sort((p, c) => (p.level < c.level ? 1 : -1));
     while (permOrder.length) {
         const currentLevel = permOrder.shift();
         if (currentLevel?.check(member)) {
@@ -94,6 +94,8 @@ export const fileArchive = (zipFilePath: string, ...filePaths: string[]): Promis
     const archive = new ZipArchive({ zlib: { level: 9 }});
     filePaths.forEach(filePath => archive.file(filePath, { name: path.basename(filePath) }));
     archive.pipe(output);
-    archive.finalize();
-    return new Promise(resolve => output.on('close' , () => resolve(logger.log('RECORD 文件已导出并压缩完成'))));
+    return new Promise(resolve => {
+        output.once('close' , () => resolve(logger.log('RECORD 文件已导出并压缩完成')));
+        archive.finalize();
+    });
 };
