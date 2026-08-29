@@ -44,8 +44,7 @@ export const container = { commands, aliases, levelCache, client };
 
 const loadCommand = () => (settings.autoLoadCommand ? readdirSync('./commands') : commandPaths).forEach(async file => {
     try {
-        let cleanFile = file;
-        if(!file.startsWith('./commands/')) cleanFile = `./commands/${file}`;
+        const cleanFile = !file.startsWith('./commands/') ? `./commands/${file}` : file;
         const code: cmd = await import(cleanFile);
         container.commands.set(code.conf.name, code);
         code.conf.aliases.forEach((alias: string) => container.aliases.set(alias, code.conf.name));

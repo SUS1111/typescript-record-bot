@@ -15,7 +15,7 @@ export default async(interaction: BaseInteraction) => {
             const cmd = container.commands.get(interaction.commandName);
             if(!cmd) return interaction.followUp({ content: '並沒有這個指令' });
             // 獲得成員的權限名稱
-            const permLevelName = config.permLevels.find((l: config['permLevels'][0]) => l.level === permlevelGet)!.name;
+            const permLevelName = config.permLevels.find(l => l.level === permlevelGet)!.name;
             // 比較權限等級，如果使用者的權限等級小於指令的權限等級，就不執行
             if (permlevelGet < container.levelCache[cmd.conf.permLevel]) {
                 return interaction.followUp({ content: `你沒有權限使用!\n你的權限等級為 ${permlevelGet} (${permLevelName})\n你需要權限等級 ${container.levelCache[cmd.conf.permLevel]} (${cmd.conf.permLevel})` });

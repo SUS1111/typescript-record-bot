@@ -18,7 +18,7 @@ interface config {
 
 import type { GuildMember } from 'discord.js'
 
-const config: config = {
+const config = {
     settings: {
         prefix: 's!',
         activity: '簡單試下機器人',
@@ -59,6 +59,6 @@ const config: config = {
         ['system', '系統'],
         ['voice', '語音']
     ])
-};
+} as const satisfies config;
 
 export default config;
