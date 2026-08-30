@@ -2,9 +2,9 @@ export interface cmd {
     run: (message: Message<true> | ChatInputCommandInteraction<'cached'>, args: string[]) => Promise<Message>;
     conf: {
         name: string;
-        permLevel: string;
+        permLevel: typeof permLevels[number]['name'];
         aliases: string[];
-        category: ExtractMapKeys<config['categoryList']>;
+        category: ExtractMapKeys<typeof config['categoryList']>;
         description: string;
         args: Map<string, { required: boolean, description: string, type: slashCommandOptionTypes }>
     }
@@ -31,14 +31,10 @@ const intents = 53608447; // all intents
 const partials = [Partials.Channel, Partials.User, Partials.GuildMember, Partials.Message, Partials.Reaction, Partials.GuildScheduledEvent, Partials.ThreadMember];
 const client: Client<true> = new Client({ intents, partials });
 
-const commands: Collection<string, cmd> = new Collection();
-const aliases: Collection<string, string> = new Collection();
+const commands = new Collection<string, cmd>();
+const aliases = new Collection<string, string>();
 
-const levelCache: { [key: string]: number } = {};
-for (let i = 0; i < permLevels.length; i++) {
-    const thisLevel = permLevels[i];
-    levelCache[thisLevel.name] = thisLevel.level;
-}
+const levelCache = Object.fromEntries(permLevels.map(level => [level.name, level.level])) as Record<typeof permLevels[number]['name'], typeof permLevels[number]['level']>;
 
 export const container = { commands, aliases, levelCache, client };
 

@@ -27,29 +27,20 @@ import { inspect } from 'util';
 
 type slashCommandBuilderOptions = SlashCommandBooleanOption | SlashCommandChannelOption | SlashCommandIntegerOption | SlashCommandMentionableOption | SlashCommandNumberOption | SlashCommandRoleOption | SlashCommandStringOption | SlashCommandUserOption; // All options except attachment
 
-export const permlevel = (member: GuildMember | null): number => {
-    if(!member) return 0;
-    let permlvl = 0;
-    const permOrder = config.permLevels.slice(0).sort((p, c) => (p.level < c.level ? 1 : -1));
-    while (permOrder.length) {
-        const currentLevel = permOrder.shift();
-        if (currentLevel?.check(member)) {
-            permlvl = currentLevel.level;
-            break;
-        }
-    }
-    return permlvl;
+export const permlevel = (member: GuildMember): typeof config['permLevels'][number]['level'] => {
+    const permOrder = config.permLevels.slice().sort((p, c) => c.level - p.level);
+    return permOrder.find(({ check }) => check(member))!.level;
 };
 
 export const memberGet = (message: Message<true> | ChatInputCommandInteraction<'cached'>, member: string = ''): GuildMember | undefined => {
-    const userPatern: RegExp = new RegExp(MessageMentions.UsersPattern, 'g');
+    const userPatern = new RegExp(MessageMentions.UsersPattern, 'g');
     const memberMatched = [...member.matchAll(userPatern)].at(0)?.at(1) ?? member;
     return message.guild.members.cache.get(memberMatched);
 };
 
 export const clean = async (object: unknown): Promise<string> => {
     const value = inspect(object instanceof Promise ? await object : object, { depth: 1 });
-    return process.env.token ? value.replace(new RegExp(process.env.token, 'g'), '[REDACTED]') : value;
+    return value.replace(new RegExp(process.env.token!, 'g'), '[REDACTED]');
 };
 
 export const addOption = (slashCmd: SlashCommandBuilder, option: ExtractMapValue<cmd['conf']['args']> & { name: ExtractMapKeys<cmd['conf']['args']> }): SlashCommandOptionsOnlyBuilder => {
@@ -71,10 +62,8 @@ export const addOption = (slashCmd: SlashCommandBuilder, option: ExtractMapValue
     return slashCommandOption.get(type)!(slashCmd);
 };
 
-export const optionToArray = (interaction: ChatInputCommandInteraction, options: cmd['conf']['args']): string[] => {
-    const optionName: string[] = [...options.keys()];
-    const result = optionName.map(name => interaction.options.get(name)?.value?.toString() || '');
-    return result;
+export const interactionOptionToArray = (interaction: ChatInputCommandInteraction, options: cmd['conf']['args']): string[] => {
+    return Array.from(options.keys(), name => interaction.options.get(name)?.value?.toString() || '');
 };
 
 export const reply = (message: Message | ChatInputCommandInteraction, reply: string | MessageReplyOptions | InteractionReplyOptions): Promise<Message> => {
@@ -82,7 +71,7 @@ export const reply = (message: Message | ChatInputCommandInteraction, reply: str
 };
 
 export const channelGet = (message: Message<true> | ChatInputCommandInteraction<'cached'>, channel: string = ''): GuildBasedChannel | undefined => {
-    const channelPatern: RegExp = new RegExp(MessageMentions.ChannelsPattern, 'g');
+    const channelPatern = new RegExp(MessageMentions.ChannelsPattern, 'g');
     const channelMatched = [...channel.matchAll(channelPatern)].at(0)?.at(1) ?? channel;
     return message.guild.channels.cache.get(channelMatched);
 };

@@ -1,10 +1,10 @@
 import { type BaseInteraction, codeBlock } from "discord.js";
-import { optionToArray, permlevel } from '../modules/functions';
+import { interactionOptionToArray, permlevel } from '../modules/functions';
 import { container } from '..';
 import config from "../config";
 import logger from "../modules/logger";
 
-export default async(interaction: BaseInteraction) => {
+export default async (interaction: BaseInteraction) => {
     // 當在伺服器执行的指令則執行如下程式
     if(interaction.isChatInputCommand() && interaction.inCachedGuild()) {
         await interaction.deferReply();
@@ -23,7 +23,7 @@ export default async(interaction: BaseInteraction) => {
             // 記錄日誌
             logger.cmd(`${permLevelName} ${interaction.user.username} 开始執行了 ${cmd.conf.name}`);
             // 執行指令
-            const result = await cmd.run(interaction, optionToArray(interaction, cmd.conf.args));
+            const result = await cmd.run(interaction, interactionOptionToArray(interaction, cmd.conf.args));
             // 記錄日誌
             logger.cmd(`${permLevelName} ${interaction.user.username} 成功執行了 ${cmd.conf.name}`);
             // 回傳結果(雖然沒必要)

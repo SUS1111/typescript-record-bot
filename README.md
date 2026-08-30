@@ -24,7 +24,7 @@ interface config {
         sampleRate: 8_000 | 12_000 | 16_000 | 24_000 | 48_000
         channelCount: 1 | 2
     };
-    permLevels: { level: number, name: string, check: (member: GuildMember) => boolean }[];
+    permLevels: [{ level: 0, name: string, check: () => true }, ...{ level: number, name: string, check: (member: GuildMember) => boolean }[]];
     commandPaths: string[];
     eventPaths: Map<string, string>;
     categoryList: Map<string, string>;
@@ -32,7 +32,7 @@ interface config {
 
 import type { GuildMember } from 'discord.js';
 
-const config: config = {
+export default {
     settings: {
         prefix: 's!',
         activity: '簡單試下機器人',
@@ -74,9 +74,7 @@ const config: config = {
         ['voice', '語音'],
         // ['economy'', '經濟']
     ])
-};
-
-export default config;
+} as const satisfies config;
 ```
 
 `.env`

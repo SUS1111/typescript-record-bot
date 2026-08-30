@@ -17,12 +17,12 @@ export default async (message: Message) => {
             // 得到 command 指令名稱 和 args 參數陣列
             const args = message.content.slice(prefix.length).trim().split(/ +/g);
             const command = args.shift()?.toLowerCase();
-            // 如果沒有command則不執行
-            if(!command) return;
+            // 如果沒有command或是成员中途退出伺服器則不執行
+            if(!command || !message.member) return;
             // 得到使用者的權限等級
             const permlevelGet = permlevel(message.member);
             // 從指令名稱得到其export的函數
-            const cmd = container.commands.get(command) || container.commands.get(container.aliases.get(command) ?? '');
+            const cmd = container.commands.get(command) ?? container.commands.get(container.aliases.get(command) ?? '');
             // 如果找不到，就不執行
             if (!cmd) return;
             // 獲得成員的權限名稱

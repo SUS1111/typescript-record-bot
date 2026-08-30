@@ -3,11 +3,11 @@ import type { cmd } from "..";
 import config from "../config";
 
 export const run: cmd['run'] = (message, args) => {
-    const member = memberGet(message, args[0]) || message.member;
+    const member = memberGet(message, args[0]) ?? message.member;
     const { permLevels } = config;
-    if(!member) return reply (message, { content: '该用户并不在此伺服器' });
-    const permlevelGet: number = permlevel(member);
-    return reply(message, { content: `${member.user.username}的權限是: ${permlevelGet} (${permLevels.find((l: config['permLevels'][0]) => l.level === permlevelGet)?.name})`});
+    if(!member) return reply(message, { content: '该用户并不在此伺服器' });
+    const permlevelGet = permlevel(member);
+    return reply(message, { content: `${member.user.username}的權限是: ${permlevelGet} (${permLevels.find(l => l.level === permlevelGet)!.name})`});
 };
 
 export const conf: cmd['conf'] = {
