@@ -36,7 +36,7 @@ export class UserRecord {
     public readonly listenStream: AudioReceiveStream;
     public readonly writeStream: WriteStream;
     private _isSpeaking?: boolean;
-    public readonly recordingFilePath: string;
+    public readonly tempRecordingFilePath: string;
     public readonly receiver: VoiceReceiver;
 
     private _startSpeaking = (userId: string) => {
@@ -74,11 +74,13 @@ export class UserRecord {
         this.encoder = encoder;
         this.listenStream = listenStream;
         this.writeStream = writeStream;
-        this.recordingFilePath = filePath;
+        this.tempRecordingFilePath = filePath;
 
         if(speakingMap.users.has(userId)) listenStream.on('data', this._writeRecordData);
         if(!speakingMap.listenerCount('start')) speakingMap.on('start', this._startSpeaking);
         if(!speakingMap.listenerCount('end')) speakingMap.on('end', this._stopSpeaking);
+
+        logger.log(`已开始对用户ID为${userId}的录音`);
 
         return this;
     }
@@ -148,9 +150,10 @@ export class UserRecord {
      */
     public exportRecord (fileName?: string): string {
         if(!this.writeStream.writableFinished) throw new Error('录音尚未停止');
-        if(!fileName) return this.recordingFilePath;
+        if(!fileName) return this.tempRecordingFilePath;
         const newFilePath = path.join(audioOutputPath, fileName);
-        renameSync(this.recordingFilePath, newFilePath);
+        renameSync(this.tempRecordingFilePath, newFilePath);
+        logger.log(`RECORD ${this.tempRecordingFilePath}已被重新命名成${fileName}!`);
         return newFilePath;
     }
 
@@ -162,8 +165,9 @@ export class UserRecord {
      */
     public async exportRecordAsZip (fileName?: string): Promise<string> {
         if(!this.writeStream.writableFinished) throw new Error('录音尚未停止');
-        const zipFilePath = path.join(audioOutputPath, fileName ?? this.recordingFilePath)
-        await fileArchive(zipFilePath, this.recordingFilePath);
+        const zipFilePath = path.join(audioOutputPath, path.basename(fileName ?? `${this.tempRecordingFilePath}.zip`));
+        logger.log(`RECORD 开始压缩${this.tempRecordingFilePath}至${zipFilePath}`);
+        await fileArchive(zipFilePath, this.tempRecordingFilePath);
         return zipFilePath;
     }
 }
@@ -174,6 +178,7 @@ batchRecord
         if(receiver.speaking.listenerCount('start', createNewRecord)) return;
         receiver.speaking.users.forEach((shabi, userId) => createNewRecord(userId));
         receiver.speaking.on('start', createNewRecord);
+        logger.log('RECORD 已开始对频道的录音');
     })
     .on('stop', async receiver => {
         if(!hasRecordings()) return;

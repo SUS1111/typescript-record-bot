@@ -79,12 +79,13 @@ export const channelGet = (message: Message<true> | ChatInputCommandInteraction<
 export const validFileName = (filename: string): boolean => filename !== '.' && filename !== '..' && !/[<>:"/\\|?*\u0000-\u001F]/g.test(filename) && !/^(con|prn|aux|nul|com\d|lpt\d)$/i.test(filename) && filename.length < 255;
 
 export const fileArchive = (zipFilePath: string, ...filePaths: string[]): Promise<void> => {
+    logger.log(`RECORD 已开始压缩${filePaths.join(' ,')}至${zipFilePath}`);
     const output = createWriteStream(zipFilePath);
     const archive = new ZipArchive({ zlib: { level: 9 }});
     filePaths.forEach(filePath => archive.file(filePath, { name: path.basename(filePath) }));
     archive.pipe(output);
     return new Promise(resolve => {
-        output.once('close' , () => resolve(logger.log('RECORD 文件已导出并压缩完成')));
+        output.once('close' , () => resolve(logger.log('RECORD 指定的文件已压缩完成')));
         archive.finalize();
     });
 };
