@@ -1,6 +1,6 @@
 import { getVoiceConnection } from "@discordjs/voice";
 import { memberGet, reply, validFileName } from '../modules/functions';
-import { recordings, stopAllRecording, clearAllRecording } from "../modules/recordings";
+import { stopAllRecording, clearAllRecording, getUserRecording, mappedRecordings } from "../modules/recordings";
 import type { cmd } from "..";
 
 export const run: cmd['run'] = async(message, args) => {
@@ -8,7 +8,7 @@ export const run: cmd['run'] = async(message, args) => {
     if(!connection) return reply(message, { content: '機器人尚未加入語音頻道' });
 
     const member = memberGet(message, args[0]);
-    const userRecording = recordings.get(member?.id ?? '');
+    const userRecording = getUserRecording(member?.id ?? '');
     if(member && !userRecording) return reply(message, { content: '機器人尚未對該用戶錄音' });
 
     const fileName = args[2];
@@ -21,7 +21,7 @@ export const run: cmd['run'] = async(message, args) => {
         await userRecording?.stopRecord().then(result => wantExportAsZip ? result.exportRecordAsZip(fileName) : result.exportRecord(fileName));
     }
 
-    if(Array.from(recordings.values(), recording => recording.writeStream.writableFinished).every(value => value)) clearAllRecording();
+    if(mappedRecordings(recording => recording.writeStream.writableFinished).every(value => value)) clearAllRecording();
 
     return reply(message, { content: '機器人正在停止并匯出錄音(倘若无文件表示无人被录音)' });
 };

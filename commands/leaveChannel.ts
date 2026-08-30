@@ -1,14 +1,14 @@
 import { getVoiceConnection } from '@discordjs/voice';
 import { reply } from "../modules/functions";
 import type { cmd } from "..";
-import { recordings, stopAllRecording } from "../modules/recordings";
+import { hasRecordings, stopAllRecording } from "../modules/recordings";
 
 export const run: cmd['run'] = (message, args) => {
     const connection = getVoiceConnection(message.guildId);
     if(!connection) return reply(message, { content: '機器人根本沒有加入語音頻道' });
 
     const forceLeave = args[0]?.toLowerCase() === 'true';
-    if(recordings.size !== 0 && !forceLeave) return reply(message, { content: '機器人還在錄音' });
+    if(hasRecordings() && !forceLeave) return reply(message, { content: '機器人還在錄音' });
 
     stopAllRecording(connection.receiver);
     return reply(message, { content: connection.disconnect() ? '成功離開頻道': '離開頻道失敗' });

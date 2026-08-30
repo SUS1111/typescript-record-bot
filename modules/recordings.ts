@@ -18,11 +18,15 @@ import { fileArchive } from './functions';
 const { audioOutputPath, outputTimeFormat, timeZone, sampleRate, channelCount } = config.settings;
 const chunkPerMs = (sampleRate * 2 * channelCount) / 1000; // Size of 16-bit PCM file in 1 ms
 const batchRecord = new EventEmitter<BatchRecordEvent>().setMaxListeners(3);
-export const recordings: Map<string, UserRecord> = new Map();
+const recordings = new Map<string, UserRecord>();
 
 export const startChannelRecord = (receiver: VoiceReceiver) => batchRecord.emit('start', receiver);
 export const stopAllRecording = (receiver: VoiceReceiver) => batchRecord.emit('stop', receiver);
 export const clearAllRecording = () => batchRecord.emit('clear');
+export const addUserRecording = (userId: string, receiver: VoiceReceiver) => recordings.set(userId, new UserRecord({ userId, receiver }));
+export const getUserRecording = (userId: string) => recordings.get(userId);
+export const hasRecordings = () => recordings.size !== 0;
+export const mappedRecordings = <Type>(mapFunc: (v: UserRecord, k: number) => Type) => Array.from(recordings.values(), mapFunc);
 
 export class UserRecord {
     public readonly userId: string;
@@ -166,17 +170,17 @@ export class UserRecord {
 
 batchRecord
     .on('start', receiver => {
-        const createNewRecord = (userId: string) => !recordings.has(userId) ? recordings.set(userId, new UserRecord({ userId, receiver })) : null;
+        const createNewRecord = (userId: string) => !recordings.has(userId) ? addUserRecording(userId, receiver) : null;
         if(receiver.speaking.listenerCount('start', createNewRecord)) return;
         receiver.speaking.users.forEach((shabi, userId) => createNewRecord(userId));
         receiver.speaking.on('start', createNewRecord);
     })
     .on('stop', async receiver => {
-        if(recordings.size === 0) return;
-        await Promise.all(Array.from(recordings.values(), recording => recording.stopRecord()));
+        if(!hasRecordings()) return;
+        await Promise.all(mappedRecordings(recording => recording.stopRecord()));
         receiver.speaking.removeAllListeners('start');
         const zipFilePath = path.join(audioOutputPath, `${moment().tz(timeZone).format(outputTimeFormat)}.zip`);
-        await fileArchive(zipFilePath, ...Array.from(recordings.values(), recording => recording.exportRecord()));
-        batchRecord.emit('clear');
+        await fileArchive(zipFilePath, ...mappedRecordings(recording => recording.exportRecord()));
+        clearAllRecording();
     })
     .on('clear', () => recordings.clear());
