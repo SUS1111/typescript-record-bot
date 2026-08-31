@@ -1,4 +1,4 @@
-import { memberGet, reply } from "../modules/functions";
+import { getMemberId, reply } from "../modules/functions";
 import { getUserRecording, hasRecordings, mappedRecordings, type UserRecord } from "../modules/recordings";
 import { getVoiceConnection } from "@discordjs/voice";
 import type { cmd } from "..";
@@ -20,12 +20,12 @@ export const run: cmd['run'] = (message, args) => {
     const connection = getVoiceConnection(message.guildId);
     if(!connection) return reply(message, { content: '機器人尚未加入語音頻道' });
 
-    const member = memberGet(message, args[0]);
-    const userRecording = getUserRecording(member?.id ?? '');
-    if(member && !userRecording) return reply(message, { content: '机器人并未对该用户录音' });
+    const memberId = getMemberId(args[0]);
+    const userRecording = getUserRecording(memberId ?? '');
+    if(memberId && !userRecording) return reply(message, { content: '机器人并未对该用户录音' });
 
     const result = userRecording ? [pauseRecordFunction(userRecording)] : mappedRecordings(pauseRecordFunction);
-    return result.some(value => value === null) ? reply(message, { content: '已暫停錄音' }) : reply(message, { content: result.filter(value => value !== null)[0] });
+    return result.some(value => value === null) ? reply(message, { content: '已暫停錄音' }) : reply(message, { content: result.filter(value => value !== null)[0] ?? '出现了些错误' });
 }
 
 export const conf: cmd['conf'] = {

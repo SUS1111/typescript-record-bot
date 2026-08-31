@@ -32,10 +32,14 @@ export const permlevel = (member: GuildMember): typeof config['permLevels'][numb
     return permOrder.find(({ check }) => check(member))!.level;
 };
 
-export const memberGet = (message: Message<true> | ChatInputCommandInteraction<'cached'>, member: string = ''): GuildMember | undefined => {
+export const getMemberId = (member = ''): string => {
     const userPatern = new RegExp(MessageMentions.UsersPattern, 'g');
     const memberMatched = [...member.matchAll(userPatern)].at(0)?.at(1) ?? member;
-    return message.guild.members.cache.get(memberMatched);
+    return memberMatched;
+};
+
+export const memberGet = (message: Message<true> | ChatInputCommandInteraction<'cached'>, member: string = ''): GuildMember | undefined => {
+    return message.guild.members.cache.get(getMemberId(member));
 };
 
 export const clean = async (object: unknown): Promise<string> => {
