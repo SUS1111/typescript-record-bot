@@ -11,7 +11,7 @@ export const run: cmd['run'] = async(message, args) => {
     const userRecording = getUserRecording(memberId ?? '');
     if(memberId && !userRecording) return reply(message, { content: '機器人尚未對該用戶錄音' });
 
-    const fileName = args[2] || undefined;
+    const fileName = args[2];
     if(fileName && !validFileName(fileName)) return reply(message, { content: '这是个无效的文件名字' });
 
     const wantExportAsZip = args[1]?.toLowerCase() === 'true';

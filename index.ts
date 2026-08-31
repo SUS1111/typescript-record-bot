@@ -1,5 +1,5 @@
 export interface cmd {
-    run: (message: Message<true> | ChatInputCommandInteraction<'cached'>, args: string[]) => Promise<Message>;
+    run: (message: Message<true> | ChatInputCommandInteraction<'cached'>, args: (string | undefined)[]) => Promise<Message>;
     conf: {
         name: string;
         permLevel: typeof permLevels[number]['name'];
@@ -43,7 +43,7 @@ const loadCommand = () => (settings.autoLoadCommand ? readdirSync('./commands') 
         const cleanFile = !file.startsWith('./commands/') ? `./commands/${file}` : file;
         const code: cmd = await import(cleanFile);
         container.commands.set(code.conf.name, code);
-        code.conf.aliases.forEach((alias: string) => container.aliases.set(alias, code.conf.name));
+        code.conf.aliases.forEach(alias => container.aliases.set(alias, code.conf.name));
         logger.log(`CMD ${code.conf.name} 已被載入 ✅`);
     } catch (e: unknown) {
        logger.error(e);

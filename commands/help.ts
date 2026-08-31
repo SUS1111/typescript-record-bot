@@ -57,9 +57,10 @@ const specificHelpCommand = (bot: ClientUser, command: cmd): [EmbedBuilder, Embe
 }
 
 export const run: cmd['run'] = (message, args) => {
-    const command = commands.get(args[0]?.toLowerCase()) || commands.get(aliases.get(args[0]?.toLowerCase()) ?? '');
-    if(!command && args[0]) return reply(message, { content: '查無指令' });
-    return reply(message, { embeds: !command ? overallHelpCommand(client.user) : specificHelpCommand(client.user, command) });
+    if(!args[0]) return reply(message, { embeds: overallHelpCommand(client.user) });
+    const command = commands.get(aliases.get(args[0].toLowerCase()) ?? args[0].toLowerCase());
+    if(!command) return reply(message, { content: '查無指令' });
+    return reply(message, { embeds: specificHelpCommand(client.user, command) });
 };
 
 export const conf: cmd['conf'] = {
