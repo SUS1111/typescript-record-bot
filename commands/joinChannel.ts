@@ -2,7 +2,7 @@ import { ChannelType } from "discord.js";
 import { entersState, getVoiceConnection, joinVoiceChannel, VoiceConnectionStatus } from "@discordjs/voice";
 import { channelGet, memberGet, reply } from "../modules/functions";
 import type { cmd } from '..';
-import { hasRecordings, stopAllRecording } from "../modules/recordings";
+import { clearAllRecording, exportAllRecording, hasRecordings, stopAllRecording } from "../modules/recordings";
 import config from "../config";
 
 export const run: cmd['run'] = async (message, args) => {
@@ -15,7 +15,7 @@ export const run: cmd['run'] = async (message, args) => {
 
     const forceJoin = args[1]?.toLowerCase() === 'true';
     if(hasRecordings() && !forceJoin) return reply(message, { content: '機器人還在錄音' });
-    if (originalConnection) stopAllRecording(originalConnection.receiver);
+    if (originalConnection) await stopAllRecording(originalConnection.receiver).then(() => exportAllRecording(true)).then(clearAllRecording);
 
     const newConnection = joinVoiceChannel({
         channelId: channel.id,

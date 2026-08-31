@@ -1,6 +1,9 @@
 interface BatchRecordEvent {
     start: [receiver: VoiceReceiver];
     stop: [receiver: VoiceReceiver];
+    finishStop: [success: boolean];
+    export: [exportAsZip: boolean, fileName: string];
+    finishExport: [success: boolean];
     clear: []
 }
 type UserRecordOptions = { userId: string, receiver: VoiceReceiver };
@@ -13,18 +16,28 @@ import logger from './logger';
 import type { AudioReceiveStream, VoiceReceiver } from '@discordjs/voice';
 import { OpusEncoder } from '@discordjs/opus';
 import { EventEmitter } from'events';
-import { fileArchive } from './functions';
+import { fileArchive, validFileName } from './functions';
 
 const { audioOutputPath, outputTimeFormat, timeZone, sampleRate, channelCount } = config.settings;
 const chunkPerMs = (sampleRate * 2 * channelCount) / 1000; // Size of 16-bit PCM file in 1 ms
-const batchRecord = new EventEmitter<BatchRecordEvent>().setMaxListeners(3);
+const batchRecord = new EventEmitter<BatchRecordEvent>().setMaxListeners(6);
 const recordings = new Map<string, UserRecord>();
 
 export const startChannelRecord = (receiver: VoiceReceiver) => batchRecord.emit('start', receiver);
-export const stopAllRecording = (receiver: VoiceReceiver) => batchRecord.emit('stop', receiver);
+export const stopAllRecording = (receiver: VoiceReceiver) => {
+    return new Promise<void>(resolve => {
+        batchRecord.once('finishStop', success => resolve(logger.log(`RECORD ${success ? '已停止对所有用户的录音' : '机器人并未开始录音'}`))).emit('stop', receiver);
+    });
+};
+export const exportAllRecording = (exportAsZip: boolean, fileName =`${moment().tz(timeZone).format(outputTimeFormat)}.zip`) => {
+    return new Promise<void>(resolve => {
+        batchRecord.once('finishExport', success => resolve(!success ? logger.log('RECORD 机器人并未压缩文件') : void(0))).emit('export', exportAsZip, fileName);
+    });
+};
 export const clearAllRecording = () => batchRecord.emit('clear');
 export const addUserRecording = (userId: string, receiver: VoiceReceiver) => recordings.set(userId, new UserRecord({ userId, receiver }));
 export const getUserRecording = (userId: string) => recordings.get(userId);
+export const deleteUserRecording = (userId: string) => recordings.delete(userId);
 export const hasRecordings = () => recordings.size !== 0;
 export const mappedRecordings = <Type>(mapFunc: (v: UserRecord, k: number) => Type) => Array.from(recordings.values(), mapFunc);
 
@@ -144,14 +157,15 @@ export class UserRecord {
 
     /**
      * Rename the recording file.
-     * Make sure that the user recording has been stopped or an error will be thrown.
+     * Make sure that the user recording has been stopped and the file name is valid or an error will be thrown.
      * @param {string} [fileName] This method will not take any effect if `fileName` is not given.
-     * @returns {string} Return the file path that renamed if `fileName` is provided or the original file path.
+     * @returns {string} Return the file path that renamed if `fileName` is provided or the original file path if `fileName` is not given.
      */
     public exportRecord (fileName?: string): string {
         if(!this.writeStream.writableFinished) throw new Error('录音尚未停止');
         if(!fileName) return this.tempRecordingFilePath;
-        const newFilePath = path.join(audioOutputPath, fileName);
+        if(!validFileName(path.basename(fileName))) throw new TypeError('文件名不合法');
+        const newFilePath = path.join(audioOutputPath, path.basename(fileName));
         renameSync(this.tempRecordingFilePath, newFilePath);
         logger.log(`RECORD ${this.tempRecordingFilePath}已被重新命名成${fileName}!`);
         return newFilePath;
@@ -160,12 +174,14 @@ export class UserRecord {
     /**
      * Compress the recording file.
      * Make sure that the user recording has been stopped or an error will be thrown.
-     * @param {string} [fileName] The basename of the archive file will be the same as the recording file if `fileName` is not given.
+     * @param {string} [fileName] The basename of the archive file will be the same as the recording file if `fileName` is not given or invalid.
      * @returns {Promise<string>} Return the archive file path.
      */
-    public async exportRecordAsZip (fileName?: string): Promise<string> {
+    public async exportRecordAsZip (fileName: string = `${this.tempRecordingFilePath}.zip`): Promise<string> {
         if(!this.writeStream.writableFinished) throw new Error('录音尚未停止');
-        const zipFilePath = path.join(audioOutputPath, path.basename(fileName ?? `${this.tempRecordingFilePath}.zip`));
+        const safeFileName = validFileName(fileName) ? path.basename(fileName) : `${this.tempRecordingFilePath}.zip`;
+        if(fileName !== safeFileName) logger.warn(`原本文件名${fileName}并不合法，已被替换成${safeFileName}`);
+        const zipFilePath = path.join(audioOutputPath, safeFileName);
         logger.log(`RECORD 开始压缩${this.tempRecordingFilePath}至${zipFilePath}`);
         await fileArchive(zipFilePath, this.tempRecordingFilePath);
         return zipFilePath;
@@ -176,16 +192,20 @@ batchRecord
     .on('start', receiver => {
         const createNewRecord = (userId: string) => !recordings.has(userId) ? addUserRecording(userId, receiver) : null;
         if(receiver.speaking.listenerCount('start', createNewRecord)) return;
-        receiver.speaking.users.forEach((shabi, userId) => createNewRecord(userId));
+        receiver.speaking.users.forEach((_startspeakingTime, userId) => createNewRecord(userId));
         receiver.speaking.on('start', createNewRecord);
         logger.log('RECORD 已开始对频道的录音');
     })
     .on('stop', async receiver => {
-        if(!hasRecordings()) return;
+        if(!hasRecordings()) return batchRecord.emit('finishStop', false);
         await Promise.all(mappedRecordings(recording => recording.stopRecord()));
         receiver.speaking.removeAllListeners('start');
-        const zipFilePath = path.join(audioOutputPath, `${moment().tz(timeZone).format(outputTimeFormat)}.zip`);
+        return batchRecord.emit('finishStop', true);
+    })
+    .on('export', async (exportAsZip, fileName) => {
+        if(!exportAsZip) return batchRecord.emit('finishExport', false);
+        const zipFilePath = path.join(audioOutputPath, path.basename(fileName));
         await fileArchive(zipFilePath, ...mappedRecordings(recording => recording.exportRecord()));
-        clearAllRecording();
+        return batchRecord.emit('finishExport', true);
     })
     .on('clear', () => recordings.clear());
