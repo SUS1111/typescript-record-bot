@@ -13,9 +13,11 @@ export const run: cmd['run'] = async (message, args) => {
     const originalConnection = getVoiceConnection(message.guild.id);
     if(originalConnection && memberGet(message, config.settings.clientId)?.voice.channel === channel) return reply(message, { content: '機器人已經在指定的頻道了' });
 
-    const forceJoin = args[1]?.toLowerCase() === 'true';
-    if(hasRecordings() && !forceJoin) return reply(message, { content: '機器人還在錄音' });
-    if (originalConnection) await stopAllRecording(originalConnection.receiver).then(() => exportAllRecording(true)).then(clearAllRecording);
+    if(hasRecordings()) {
+        const forceJoin = args[1]?.toLowerCase() === 'true';
+        if(!forceJoin) return reply(message, { content: '機器人還在錄音' });
+        if (originalConnection) await stopAllRecording(originalConnection.receiver).then(() => exportAllRecording(true)).then(clearAllRecording);
+    }
 
     const newConnection = joinVoiceChannel({
         channelId: channel.id,

@@ -7,10 +7,12 @@ export const run: cmd['run'] = async(message, args) => {
     const connection = getVoiceConnection(message.guildId);
     if(!connection) return reply(message, { content: '機器人根本沒有加入語音頻道' });
 
-    const forceLeave = args[0]?.toLowerCase() === 'true';
-    if(hasRecordings() && !forceLeave) return reply(message, { content: '機器人還在錄音' });
+    if(hasRecordings()) {
+        const forceLeave = args[0]?.toLowerCase() === 'true';
+        if(!forceLeave) return reply(message, { content: '機器人還在錄音' });
+        await stopAllRecording(connection.receiver).then(() => exportAllRecording(true)).then(clearAllRecording);
+    }
 
-    await stopAllRecording(connection.receiver).then(() => exportAllRecording(true)).then(clearAllRecording);
     return reply(message, { content: connection.disconnect() ? '成功離開頻道': '離開頻道失敗' });
 };
 

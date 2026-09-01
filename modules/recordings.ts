@@ -203,7 +203,7 @@ batchRecord
         return batchRecord.emit('finishStop', true);
     })
     .on('export', async (exportAsZip, fileName) => {
-        if(!exportAsZip) return batchRecord.emit('finishExport', false);
+        if(!exportAsZip || !hasRecordings()) return batchRecord.emit('finishExport', false);
         const zipFilePath = path.join(audioOutputPath, path.basename(fileName));
         await fileArchive(zipFilePath, ...mappedRecordings(recording => recording.exportRecord()));
         return batchRecord.emit('finishExport', true);
