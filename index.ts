@@ -36,7 +36,7 @@ const aliases = new Collection<string, string>();
 
 const levelCache = Object.fromEntries(permLevels.map(level => [level.name, level.level])) as Record<typeof permLevels[number]['name'], typeof permLevels[number]['level']>;
 
-export const container = { commands, aliases, levelCache, client };
+export const container = { commands, aliases, levelCache };
 
 const loadCommand = () => (settings.autoLoadCommand ? readdirSync('./commands') : commandPaths).forEach(async file => {
     try {

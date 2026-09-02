@@ -54,17 +54,17 @@ export class UserRecord {
     public readonly beginTimestamp: number;
 
     private _startSpeaking = async (userId: string) => {
-        const { listenStream, _writeSilenceData, _writeRecordData, _lastTimeAcceptData, beginTime, isPausing } = this;
+        const { listenStream, _writeSilenceData, _writeRecordData, _getExactTime, _lastTimeAcceptData, beginTime, isPausing } = this;
         if (userId !== this.userId || isPausing) return;
         listenStream.removeAllListeners('data');
-        const silenceTime = parseInt(performance.now().toString(), 10) - (_lastTimeAcceptData ?? beginTime);
+        const silenceTime = _getExactTime() - (_lastTimeAcceptData ?? beginTime);
         await _writeSilenceData(silenceTime);
         listenStream.on('data', _writeRecordData);
     }
 
     private _stopSpeaking = (userId: string) => {
         if (userId !== this.userId || this.isPausing) return;
-        this._lastTimeAcceptData = parseInt(performance.now().toString(), 10);
+        this._lastTimeAcceptData = this._getExactTime();
         this.listenStream.removeAllListeners('data');
     }
 
@@ -75,6 +75,8 @@ export class UserRecord {
     private _writeSilenceData = async (durationInMs: number) => {
         if(!this.writeStream.write(Buffer.alloc(durationInMs * chunkPerMs))) await once(this.writeStream, 'drain');
     }
+
+    private _getExactTime = () => parseInt(performance.now().toString(), 10);
 
     constructor ({ userId, receiver }: UserRecordOptions) {
         const listenStream = receiver.subscribe(userId).setMaxListeners(1);
@@ -91,7 +93,7 @@ export class UserRecord {
         this.writeStream = writeStream;
         this.tempRecordingFilePath = filePath;
         this._isPausing = false;
-        this.beginTime = parseInt(performance.now().toString(), 10);
+        this.beginTime = this._getExactTime();
 
         if(this.isSpeaking) listenStream.on('data', this._writeRecordData);
         if(!speakingMap.listenerCount('start', this._startSpeaking)) speakingMap.on('start', this._startSpeaking);
@@ -119,7 +121,7 @@ export class UserRecord {
     public pauseRecord(): this {
         if(this.isPausing) throw new Error('录音早已暂停');
         this.listenStream.removeAllListeners('data');
-        this._lastTimeAcceptData = Math.min(parseInt(performance.now().toString(), 10), this._lastTimeAcceptData ?? Number.MAX_SAFE_INTEGER);
+        this._lastTimeAcceptData = Math.min(this._getExactTime(), this._lastTimeAcceptData ?? Number.MAX_SAFE_INTEGER);
         this._isPausing = true;
         logger.log(`RECORD 已暂停对用户ID为${this.userId}的录音`);
         return this;
@@ -131,9 +133,9 @@ export class UserRecord {
      */
     public async resumeRecord (): Promise<this> {
         if (!this.isPausing) throw new Error('录音尚未暂停');
-        const silenceTime = parseInt(performance.now().toString(), 10) - this._lastTimeAcceptData!;
+        const silenceTime = this._getExactTime() - this._lastTimeAcceptData!;
         await this._writeSilenceData(silenceTime);
-        this._lastTimeAcceptData = parseInt(performance.now().toString(), 10);
+        this._lastTimeAcceptData = this._getExactTime();
         this.listenStream.on('data', this._writeRecordData);
         this._isPausing = false;
         logger.log(`RECORD 已继续对用户ID为${this.userId}的录音`);
@@ -145,10 +147,10 @@ export class UserRecord {
      * @returns {Promise<this>}
      */
     public async stopRecord (): Promise<this> {
-        const { writeStream, listenStream, isPausing, isSpeaking, receiver, _lastTimeAcceptData, _writeSilenceData, _startSpeaking, _stopSpeaking } = this;
+        const { writeStream, listenStream, isPausing, isSpeaking, receiver, _lastTimeAcceptData, _writeSilenceData, _startSpeaking, _stopSpeaking, _getExactTime } = this;
         if(writeStream.writableFinished) return this;
         listenStream.push(null);
-        if ((!isSpeaking || isPausing) && _lastTimeAcceptData) await _writeSilenceData(parseInt(performance.now().toString(), 10) - _lastTimeAcceptData);
+        if ((!isSpeaking || isPausing) && _lastTimeAcceptData) await _writeSilenceData(_getExactTime() - _lastTimeAcceptData);
         writeStream.end();
         await once(writeStream, 'finish');
         listenStream.destroy().removeAllListeners('data');

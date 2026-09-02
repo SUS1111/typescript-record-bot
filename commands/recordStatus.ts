@@ -1,5 +1,5 @@
 import { EmbedBuilder, bold, TimestampStyles, time, type APIEmbedField } from "discord.js";
-import { type cmd, container } from "..";
+import type { cmd } from "..";
 import { memberGet, reply } from '../modules/functions';
 import { hasRecordings, mappedRecordings, type UserRecord } from "../modules/recordings";
 
@@ -20,7 +20,7 @@ export const run: cmd['run'] = async message => {
         const recordingData = Array.from(generateRecordingData(userRecording), ([key, value]) => `${bold(key)}: ${value}`).join('\n');
         return { name: memberGet(message, userRecording.userId)!.user.username, value: recordingData };
     });
-    const { client } = container;
+    const { client } = message.guild;
     const embed = new EmbedBuilder()
         .setTitle('錄音狀況')
         .addFields(fields)

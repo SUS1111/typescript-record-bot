@@ -3,12 +3,11 @@ type commandArgumentAsArray = [ExtractMapKeys<cmd['conf']['args']>, ExtractMapVa
 import { EmbedBuilder, type APIEmbedField, type ClientUser, inlineCode } from 'discord.js';
 import config from '../config';
 import { reply } from '../modules/functions';
-import { type cmd, container, type ExtractMapValue, type ExtractMapKeys } from "..";
+import { type cmd, container, type ExtractMapValue, type ExtractMapKeys, type slashCommandOptionTypes } from "..";
 
-const { commands, aliases, client } = container;
+const { commands, aliases } = container;
 const { categoryList } = config;
-const typeList: Map<string, string> = new Map([
-    ['attachment', '文件'],
+const typeList: Map<slashCommandOptionTypes, string> = new Map([
     ['boolean', '布林值(true或false)'],
     ['channel', '頻道'],
     ['integer', '整數'],
@@ -57,6 +56,7 @@ const specificHelpCommand = (bot: ClientUser, command: cmd): [EmbedBuilder, Embe
 }
 
 export const run: cmd['run'] = (message, args) => {
+    const { client } = message.guild;
     if(!args[0]) return reply(message, { embeds: overallHelpCommand(client.user) });
     const command = commands.get(aliases.get(args[0].toLowerCase()) ?? args[0].toLowerCase());
     if(!command) return reply(message, { content: '查無指令' });
