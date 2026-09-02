@@ -15,7 +15,7 @@ import config from '../config';
 import logger from './logger';
 import type { AudioReceiveStream, VoiceReceiver } from '@discordjs/voice';
 import { OpusEncoder } from '@discordjs/opus';
-import { EventEmitter } from'events';
+import { EventEmitter, once } from 'events';
 import { fileArchive, validFileName } from './functions';
 
 const { audioOutputPath, outputTimeFormat, timeZone, sampleRate, channelCount } = config.settings;
@@ -45,69 +45,67 @@ export class UserRecord {
     public readonly userId: string;
     public readonly beginTime: number;
     public readonly encoder: OpusEncoder;
-    private _lastSilence?: number;
+    private _lastTimeAcceptData?: number;
     public readonly listenStream: AudioReceiveStream;
     public readonly writeStream: WriteStream;
-    private _isSpeaking?: boolean;
+    private _isPausing: boolean;
     public readonly tempRecordingFilePath: string;
     public readonly receiver: VoiceReceiver;
+    public readonly beginTimestamp: number;
 
-    private _startSpeaking = (userId: string) => {
-        if (userId !== this.userId) return;
-        const { listenStream, _writeSilenceData, _lastSilence, beginTime } = this;
+    private _startSpeaking = async (userId: string) => {
+        const { listenStream, _writeSilenceData, _writeRecordData, _lastTimeAcceptData, beginTime, isPausing } = this;
+        if (userId !== this.userId || isPausing) return;
         listenStream.removeAllListeners('data');
-        const silenceTime = Date.now() - (_lastSilence ?? beginTime);
-        _writeSilenceData(silenceTime);
-        listenStream.on('data', this._writeRecordData);
-        this._isSpeaking = true;
+        const silenceTime = parseInt(performance.now().toString(), 10) - (_lastTimeAcceptData ?? beginTime);
+        await _writeSilenceData(silenceTime);
+        listenStream.on('data', _writeRecordData);
     }
 
     private _stopSpeaking = (userId: string) => {
-        if (userId !== this.userId) return;
-        this._lastSilence = Date.now();
+        if (userId !== this.userId || this.isPausing) return;
+        this._lastTimeAcceptData = parseInt(performance.now().toString(), 10);
         this.listenStream.removeAllListeners('data');
-        this._isSpeaking = false;
     }
 
-    private _writeRecordData = (chunk: Buffer) => this.writeStream.write(this.encoder.decode(chunk));
+    private _writeRecordData = async (chunk: Buffer) => {
+        if(!this.writeStream.write(this.encoder.decode(chunk))) await once(this.writeStream, 'drain');
+    }
 
-    private _writeSilenceData = (durationInMs: number) => this.writeStream.write(Buffer.alloc(durationInMs * chunkPerMs));
+    private _writeSilenceData = async (durationInMs: number) => {
+        if(!this.writeStream.write(Buffer.alloc(durationInMs * chunkPerMs))) await once(this.writeStream, 'drain');
+    }
 
     constructor ({ userId, receiver }: UserRecordOptions) {
-        const listenStream = receiver.subscribe(userId);
+        const listenStream = receiver.subscribe(userId).setMaxListeners(1);
         const filePath = path.join(audioOutputPath, `${moment().tz(timeZone).format(outputTimeFormat)}-${userId}.pcm`);
         const writeStream = createWriteStream(filePath);
         const encoder = new OpusEncoder(sampleRate, channelCount);
         const speakingMap = receiver.speaking;
 
-        const beginTime = Date.now();
         this.userId = userId;
-        this.beginTime = beginTime;
+        this.beginTimestamp = Date.now();
         this.receiver = receiver;
         this.encoder = encoder;
         this.listenStream = listenStream;
         this.writeStream = writeStream;
         this.tempRecordingFilePath = filePath;
+        this._isPausing = false;
+        this.beginTime = parseInt(performance.now().toString(), 10);
 
-        if(speakingMap.users.has(userId)) listenStream.on('data', this._writeRecordData);
-        if(!speakingMap.listenerCount('start')) speakingMap.on('start', this._startSpeaking);
-        if(!speakingMap.listenerCount('end')) speakingMap.on('end', this._stopSpeaking);
+        if(this.isSpeaking) listenStream.on('data', this._writeRecordData);
+        if(!speakingMap.listenerCount('start', this._startSpeaking)) speakingMap.on('start', this._startSpeaking);
+        if(!speakingMap.listenerCount('end', this._stopSpeaking)) speakingMap.on('end', this._stopSpeaking);
 
         logger.log(`已开始对用户ID为${userId}的录音`);
-
-        return this;
-    }
-
-    public get lastSilence() {
-        return this._lastSilence;
     }
 
     public get isSpeaking() {
-        return this._isSpeaking;
+        return this.receiver.speaking.users.has(this.userId);
     }
 
     public get isPausing() {
-        return this.listenStream.isPaused();
+        return this._isPausing;
     }
 
     public get size() {
@@ -119,22 +117,25 @@ export class UserRecord {
      * @returns {this}
      */
     public pauseRecord(): this {
-        if(this.listenStream.isPaused()) throw new Error('录音早已暂停');
-        this.listenStream.pause();
-        this._lastSilence = Math.min(Date.now(), this._lastSilence ?? Number.MAX_SAFE_INTEGER);
+        if(this.isPausing) throw new Error('录音早已暂停');
+        this.listenStream.removeAllListeners('data');
+        this._lastTimeAcceptData = Math.min(parseInt(performance.now().toString(), 10), this._lastTimeAcceptData ?? Number.MAX_SAFE_INTEGER);
+        this._isPausing = true;
         logger.log(`RECORD 已暂停对用户ID为${this.userId}的录音`);
         return this;
     }
 
     /**
      * Resume recording a user. Make sure that the user has already paused or an error will be thrown.
-     * @returns {this}
+     * @returns {Promise<this>}
      */
-    public resumeRecord (): this {
-        if (!this.listenStream.isPaused()) throw new Error('录音尚未暂停');
-        const silenceTime = Date.now() - this._lastSilence!;
-        this._writeSilenceData(silenceTime);
-        this.listenStream.resume();
+    public async resumeRecord (): Promise<this> {
+        if (!this.isPausing) throw new Error('录音尚未暂停');
+        const silenceTime = parseInt(performance.now().toString(), 10) - this._lastTimeAcceptData!;
+        await this._writeSilenceData(silenceTime);
+        this._lastTimeAcceptData = parseInt(performance.now().toString(), 10);
+        this.listenStream.on('data', this._writeRecordData);
+        this._isPausing = false;
         logger.log(`RECORD 已继续对用户ID为${this.userId}的录音`);
         return this;
     }
@@ -144,15 +145,16 @@ export class UserRecord {
      * @returns {Promise<this>}
      */
     public async stopRecord (): Promise<this> {
-        if(this.writeStream.writableFinished) return this;
-        this.listenStream.push(null);
-        this.listenStream.destroy();
-        this.listenStream.off('data', this._writeRecordData);
-        this.receiver.speaking.off('start', this._startSpeaking).off('stop', this._stopSpeaking);
-        if (!this._isSpeaking && this._lastSilence) this._writeSilenceData(Date.now() - this._lastSilence);
-        this.writeStream.end();
+        const { writeStream, listenStream, isPausing, isSpeaking, receiver, _lastTimeAcceptData, _writeSilenceData, _startSpeaking, _stopSpeaking } = this;
+        if(writeStream.writableFinished) return this;
+        listenStream.push(null);
+        if ((!isSpeaking || isPausing) && _lastTimeAcceptData) await _writeSilenceData(parseInt(performance.now().toString(), 10) - _lastTimeAcceptData);
+        writeStream.end();
+        await once(writeStream, 'finish');
+        listenStream.destroy().removeAllListeners('data');
+        receiver.speaking.off('start', _startSpeaking).off('end', _stopSpeaking);
         logger.log(`RECORD 已停止对用户ID为${this.userId}的录音`);
-        return new Promise<this>(resolve => this.writeStream.once('finish', () => resolve(this)));
+        return this;
     }
 
     /**
@@ -190,9 +192,9 @@ export class UserRecord {
 
 batchRecord
     .on('start', receiver => {
-        const createNewRecord = (userId: string) => !recordings.has(userId) ? addUserRecording(userId, receiver) : null;
+        const createNewRecord = (userId: string) => !getUserRecording(userId) ? addUserRecording(userId, receiver) : null;
         if(receiver.speaking.listenerCount('start', createNewRecord)) return;
-        receiver.speaking.users.forEach((_startspeakingTime, userId) => createNewRecord(userId));
+        receiver.speaking.users.forEach((_startSpeakingTime, userId) => createNewRecord(userId));
         receiver.speaking.on('start', createNewRecord);
         logger.log('RECORD 已开始对频道的录音');
     })

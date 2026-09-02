@@ -3,15 +3,14 @@ import { type cmd, container } from "..";
 import { memberGet, reply } from '../modules/functions';
 import { hasRecordings, mappedRecordings, type UserRecord } from "../modules/recordings";
 
-const generateRecordingData = ({ lastSilence, size: fileSize, isSpeaking, beginTime, isPausing }: UserRecord) => {
-    const beginTimeInSecond = Math.floor(beginTime / 1000);
+const generateRecordingData = ({ size: fileSize, isSpeaking, beginTimestamp, isPausing }: UserRecord) => {
+    const beginTimeInSecond = Math.floor(beginTimestamp / 1000);
     return new Map([
         ['開始時間', time(beginTimeInSecond, TimestampStyles.FullDateShortTime)],
         ['錄音時長', time(beginTimeInSecond, TimestampStyles.RelativeTime)],
         ['目前文件大小', `${(fileSize / (1024 ** 2)).toFixed(2)} MB`],
         ['正在暫停中', isPausing ? '是' : '否'],
-        ['正在説話中', isSpeaking === undefined ? '未知' : (isSpeaking ? '是' : '否')],
-        ['機器人最後一次未接受數據包', lastSilence ? time(Math.floor(lastSilence / 1000), TimestampStyles.RelativeTime) : '未知']
+        ['正在説話中', isSpeaking ? '是' : '否']
     ]);
 };
 

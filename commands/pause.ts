@@ -25,7 +25,7 @@ export const run: cmd['run'] = (message, args) => {
     if(memberId && !userRecording) return reply(message, { content: '机器人并未对该用户录音' });
 
     const result = userRecording ? [pauseRecordFunction(userRecording)] : mappedRecordings(pauseRecordFunction);
-    return result.some(value => value === null) ? reply(message, { content: '已暫停錄音' }) : reply(message, { content: result.filter(value => value !== null)[0] ?? '出现了些错误' });
+    return reply(message, { content: result.some(value => value === null) ? '已暫停錄音' : (result.filter(value => value !== null)[0] ?? '出现了些错误') });
 }
 
 export const conf: cmd['conf'] = {
