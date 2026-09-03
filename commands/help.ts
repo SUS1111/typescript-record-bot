@@ -59,8 +59,7 @@ export const run: cmd['run'] = (message, args) => {
     const { client } = message.guild;
     if(!args[0]) return reply(message, { embeds: overallHelpCommand(client.user) });
     const command = commands.get(aliases.get(args[0].toLowerCase()) ?? args[0].toLowerCase());
-    if(!command) return reply(message, { content: '查無指令' });
-    return reply(message, { embeds: specificHelpCommand(client.user, command) });
+    return reply(message, !command ? { content: '查無指令'} : { embeds: specificHelpCommand(client.user, command) });
 };
 
 export const conf: cmd['conf'] = {

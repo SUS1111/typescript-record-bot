@@ -4,11 +4,11 @@ import { permlevel } from '../modules/functions';
 import { container } from '..';
 import { type Message, inlineCode, codeBlock } from 'discord.js';
 
-const { prefix, clientId } = config.settings;
+const { prefix } = config.settings;
 
 export default async (message: Message) => {
     if (!message.inGuild() || message.author.bot) return; // 確認訊息在伺服器內發送，且不為機器人
-    if (message.content.match(new RegExp(`^<@!?${clientId}>( |)$`))) {
+    if (message.content.match(new RegExp(`^<@!?${message.guild.client.user.id}>( |)$`))) {
         return message.reply(`嗨! 機器人的前綴是 ${inlineCode(prefix)}`); // 如果有人提及機器人，就回覆前綴
     }
 

@@ -53,7 +53,7 @@ export class UserRecord {
     public readonly receiver: VoiceReceiver;
     public readonly beginTimestamp: number;
 
-    private _startSpeaking = async (userId: string) => {
+    private readonly _startSpeaking = async (userId: string) => {
         const { listenStream, _writeSilenceData, _writeRecordData, _getExactTime, _lastTimeAcceptData, beginTime, isPausing } = this;
         if (userId !== this.userId || isPausing) return;
         listenStream.removeAllListeners('data');
@@ -62,21 +62,21 @@ export class UserRecord {
         listenStream.on('data', _writeRecordData);
     }
 
-    private _stopSpeaking = (userId: string) => {
+    private readonly _stopSpeaking = (userId: string) => {
         if (userId !== this.userId || this.isPausing) return;
         this._lastTimeAcceptData = this._getExactTime();
         this.listenStream.removeAllListeners('data');
     }
 
-    private _writeRecordData = async (chunk: Buffer) => {
+    private readonly _writeRecordData = async (chunk: Buffer) => {
         if(!this.writeStream.write(this.encoder.decode(chunk))) await once(this.writeStream, 'drain');
     }
 
-    private _writeSilenceData = async (durationInMs: number) => {
+    private readonly _writeSilenceData = async (durationInMs: number) => {
         if(!this.writeStream.write(Buffer.alloc(durationInMs * chunkPerMs))) await once(this.writeStream, 'drain');
     }
 
-    private _getExactTime = () => parseInt(performance.now().toString(), 10);
+    private readonly _getExactTime = () => parseInt(performance.now().toString(), 10);
 
     constructor ({ userId, receiver }: UserRecordOptions) {
         const listenStream = receiver.subscribe(userId).setMaxListeners(1);

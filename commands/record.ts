@@ -2,7 +2,6 @@ import { getVoiceConnection } from "@discordjs/voice";
 import { memberGet, reply } from "../modules/functions";
 import { addUserRecording, getUserRecording } from "../modules/recordings";
 import type { cmd } from '..';
-import config from "../config";
 
 export const run: cmd['run'] = (message, args) => {
     const targetMember = memberGet(message, args[0]);
@@ -12,7 +11,8 @@ export const run: cmd['run'] = (message, args) => {
     if(!connection) return reply(message, { content: '機器人尚未加入語音頻道' });
 
     const voiceChannel = targetMember.voice.channel;
-    if(voiceChannel !== memberGet(message, config.settings.clientId)?.voice.channel) return reply(message, { content: '該用戶並未與機器人處於同一頻道' });
+    const { id: clientId } = message.guild.client.user;
+    if(voiceChannel !== memberGet(message, clientId)?.voice.channel) return reply(message, { content: '該用戶並未與機器人處於同一頻道' });
     if(getUserRecording(targetMember.id)) return reply(message, { content: '機器人早對該用戶錄音了' });
 
     addUserRecording(targetMember.id, connection.receiver);

@@ -3,7 +3,7 @@ import config from '../config';
 import { addOption } from '../modules/functions';
 import logger from '../modules/logger';
 import { type Client, ActivityType, Routes, SlashCommandBuilder, REST } from 'discord.js';
-const { activity, clientId } = config.settings;
+const { activity } = config.settings;
 
 export default async (client: Client<true>) => {
     logger.ready(`${client.user.username}, 成員數: ${client.guilds.cache.map(g => g.memberCount).reduce((a, b) => a + b, 0)} ，伺服器數: ${client.guilds.cache.size}`);
@@ -17,6 +17,6 @@ export default async (client: Client<true>) => {
         args.forEach((value, name) => addOption(slashCommand, { ...value, name }));
         return slashCommand;
     });
-    await rest.put(Routes.applicationCommands(clientId), { body: slashCommands });
+    await rest.put(Routes.applicationCommands(client.user.id), { body: slashCommands });
     logger.ready('斜线指令已准备就绪');
 }

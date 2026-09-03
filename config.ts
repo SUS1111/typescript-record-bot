@@ -2,7 +2,6 @@ interface config {
     settings: {
         prefix: string;
         activity?: string;
-        clientId: string;
         audioOutputPath: string;
         outputTimeFormat: string;
         autoLoadCommand: boolean;
@@ -22,7 +21,6 @@ export default {
     settings: {
         prefix: 's!',
         activity: '簡單試下機器人',
-        clientId: '1336590336906231819',
         autoLoadCommand: true,
         audioOutputPath: '../../音樂/', // 文件夾名稱即可
         outputTimeFormat: 'YYYY-MM-DD_HH-mm-ss', // 文件默认输出的时间格式
