@@ -70,7 +70,7 @@ export default {
     categoryList: new Map([
         ['system', '系統'],
         ['voice', '語音'],
-        // ['economy'', '經濟']
+        // ['economy', '經濟']
     ])
 } as const satisfies config;
 ```
