@@ -1,10 +1,10 @@
 import config from "../config";
-import moment from "moment-timezone";
+import { container } from "..";
 
 const types = ['log', 'warn', 'error', 'cmd', 'ready', 'eval'] as const;
 
 const run = (content: unknown, type: typeof types[number]) => {
-    const timestamp = `[${moment().tz(config.settings.timeZone).format('YYYY-MM-DD HH:mm:ss')}]:`;
+    const timestamp = `[${container.dayjs().tz(config.settings.timeZone).format('YYYY-MM-DD HH:mm:ss')}]:`;
 
     if (!types.includes(type)) throw new TypeError(`選項: ${types.join(', ')}`);
 

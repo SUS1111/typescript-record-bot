@@ -1,13 +1,14 @@
 import { EmbedBuilder, bold, TimestampStyles, time, type APIEmbedField } from "discord.js";
-import type { cmd } from "..";
+import { type cmd, container } from "..";
 import { memberGet, reply } from '../modules/functions';
 import { hasRecordings, mappedRecordings, type UserRecord } from "../modules/recordings";
 
 const generateRecordingData = ({ size: fileSize, isSpeaking, beginTimestamp, isPausing }: UserRecord) => {
+    const { dayjs } = container;
     const beginTimeInSecond = Math.floor(beginTimestamp / 1000);
     return new Map([
         ['開始時間', time(beginTimeInSecond, TimestampStyles.FullDateShortTime)],
-        ['錄音時長', time(beginTimeInSecond, TimestampStyles.RelativeTime)],
+        ['錄音時長', dayjs.duration(dayjs().diff(dayjs(beginTimestamp))).format('HH:mm:ss')],
         ['目前文件大小', `${(fileSize / (1024 ** 2)).toFixed(2)} MB`],
         ['正在暫停中', isPausing ? '是' : '否'],
         ['正在説話中', isSpeaking ? '是' : '否']

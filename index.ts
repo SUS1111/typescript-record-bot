@@ -18,14 +18,24 @@ import config from './config';
 import logger from './modules/logger';
 import { validFileName } from './modules/functions';
 import { lstatSync, readdirSync } from 'fs';
+import dayjs from 'dayjs';
+import customParseFormat from 'dayjs/plugin/customParseFormat';
+import dayjsTimeZone from 'dayjs/plugin/timezone';
+import utc from 'dayjs/plugin/utc';
+import duration from 'dayjs/plugin/duration';
 
 const { permLevels, commandPaths, eventPaths, settings } = config;
 
 process.loadEnvFile();
+dayjs.extend(utc);
+dayjs.extend(customParseFormat);
+dayjs.extend(dayjsTimeZone);
+dayjs.extend(duration);
 
 if(!process.env.token) throw new Error('請在.env文件提供令牌!');
 if(!lstatSync(settings.audioOutputPath).isDirectory()) throw new Error('並不存在該文件夾');
 if(!validFileName(settings.outputTimeFormat)) throw new Error('这种文件名是无效的');
+if(!Intl.supportedValuesOf('timeZone').some(timeZone => timeZone === settings.timeZone)) throw new TypeError('这个时区是无效的');
 
 const intents = 53608447; // all intents
 const partials = [Partials.Channel, Partials.User, Partials.GuildMember, Partials.Message, Partials.Reaction, Partials.GuildScheduledEvent, Partials.ThreadMember];
@@ -36,7 +46,7 @@ const aliases = new Collection<string, string>();
 
 const levelCache = Object.fromEntries(permLevels.map(level => [level.name, level.level])) as Record<typeof permLevels[number]['name'], typeof permLevels[number]['level']>;
 
-export const container = { commands, aliases, levelCache };
+export const container = { commands, aliases, levelCache, dayjs };
 
 const loadCommand = () => (settings.autoLoadCommand ? readdirSync('./commands') : commandPaths).forEach(async file => {
     try {

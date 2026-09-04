@@ -9,7 +9,7 @@ interface BatchRecordEvent {
 type UserRecordOptions = { userId: string, receiver: VoiceReceiver };
 
 import { type WriteStream, createWriteStream, renameSync } from 'fs';
-import moment from 'moment-timezone';
+import { container } from '..';
 import path from 'path';
 import config from '../config';
 import logger from './logger';
@@ -18,6 +18,7 @@ import { OpusEncoder } from '@discordjs/opus';
 import { EventEmitter, once } from 'events';
 import { fileArchive, validFileName } from './functions';
 
+const { dayjs } = container;
 const { audioOutputPath, outputTimeFormat, timeZone, sampleRate, channelCount } = config.settings;
 const chunkPerMs = (sampleRate * 2 * channelCount) / 1000; // Size of 16-bit PCM file in 1 ms
 const batchRecord = new EventEmitter<BatchRecordEvent>().setMaxListeners(6);
@@ -29,7 +30,7 @@ export const stopAllRecording = (receiver: VoiceReceiver) => {
         batchRecord.once('finishStop', success => resolve(logger.log(`RECORD ${success ? '已停止对所有用户的录音' : '机器人并未开始录音'}`))).emit('stop', receiver);
     });
 };
-export const exportAllRecording = (exportAsZip: boolean, fileName =`${moment().tz(timeZone).format(outputTimeFormat)}.zip`) => {
+export const exportAllRecording = (exportAsZip: boolean, fileName =`${dayjs().tz(timeZone).format(outputTimeFormat)}.zip`) => {
     return new Promise<void>(resolve => {
         batchRecord.once('finishExport', success => resolve(!success ? logger.log('RECORD 机器人并未压缩文件') : void(0))).emit('export', exportAsZip, fileName);
     });
@@ -80,7 +81,7 @@ export class UserRecord {
 
     constructor ({ userId, receiver }: UserRecordOptions) {
         const listenStream = receiver.subscribe(userId).setMaxListeners(1);
-        const filePath = path.join(audioOutputPath, `${moment().tz(timeZone).format(outputTimeFormat)}-${userId}.pcm`);
+        const filePath = path.join(audioOutputPath, `${dayjs().tz(timeZone).format(outputTimeFormat)}-${userId}.pcm`);
         const writeStream = createWriteStream(filePath);
         const encoder = new OpusEncoder(sampleRate, channelCount);
         const speakingMap = receiver.speaking;
