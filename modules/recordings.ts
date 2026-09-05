@@ -6,7 +6,7 @@ interface BatchRecordEvent {
     finishExport: [success: boolean];
     clear: []
 }
-type UserRecordOptions = { userId: string, receiver: VoiceReceiver };
+type UserRecordOptions = { userId: string, receiver: VoiceReceiver, beginTime?: number };
 
 import { type WriteStream, createWriteStream, renameSync } from 'fs';
 import { container } from '..';
@@ -36,7 +36,7 @@ export const exportAllRecording = (exportAsZip: boolean, fileName =`${dayjs().tz
     });
 };
 export const clearAllRecording = () => batchRecord.emit('clear');
-export const addUserRecording = (userId: string, receiver: VoiceReceiver) => recordings.set(userId, new UserRecord({ userId, receiver }));
+export const addUserRecording = (option: UserRecordOptions) => recordings.set(option.userId, new UserRecord(option));
 export const getUserRecording = (userId: string) => recordings.get(userId);
 export const deleteUserRecording = (userId: string) => recordings.delete(userId);
 export const hasRecordings = () => recordings.size !== 0;
@@ -52,15 +52,13 @@ export class UserRecord {
     private _isPausing: boolean;
     public readonly tempRecordingFilePath: string;
     public readonly receiver: VoiceReceiver;
-    public readonly beginTimestamp: number;
 
-    private readonly _startSpeaking = async (userId: string) => {
-        const { listenStream, _writeSilenceData, _writeRecordData, _getExactTime, _lastTimeAcceptData, beginTime, isPausing } = this;
+    private readonly _startSpeaking = (userId: string) => {
+        const { listenStream, beginTime, isPausing, _lastTimeAcceptData, _writeRecordData, _getExactTime, _generateSilenceChunk } = this;
         if (userId !== this.userId || isPausing) return;
         listenStream.removeAllListeners('data');
         const silenceTime = _getExactTime() - (_lastTimeAcceptData ?? beginTime);
-        await _writeSilenceData(silenceTime);
-        listenStream.on('data', _writeRecordData);
+        listenStream.on('data', _writeRecordData).push(_generateSilenceChunk(silenceTime));
     }
 
     private readonly _stopSpeaking = (userId: string) => {
@@ -70,16 +68,15 @@ export class UserRecord {
     }
 
     private readonly _writeRecordData = async (chunk: Buffer) => {
-        if(!this.writeStream.write(this.encoder.decode(chunk))) await once(this.writeStream, 'drain');
+        const safeForNextWrite = this.writeStream.write(chunk.equals(Buffer.alloc(chunk.length)) ? chunk : this.encoder.decode(chunk));
+        if(!safeForNextWrite && this.writeStream.listenerCount('drain') === 0) await once(this.writeStream, 'drain');
     }
 
-    private readonly _writeSilenceData = async (durationInMs: number) => {
-        if(!this.writeStream.write(Buffer.alloc(durationInMs * chunkPerMs))) await once(this.writeStream, 'drain');
-    }
+    private readonly _generateSilenceChunk = (durationInMs: number) => Buffer.alloc(durationInMs * chunkPerMs);
 
-    private readonly _getExactTime = () => parseInt(performance.now().toString(), 10);
+    private readonly _getExactTime = () => Math.floor(performance.now());
 
-    constructor ({ userId, receiver }: UserRecordOptions) {
+    constructor ({ userId, receiver, beginTime: specifiedBeginTime }: UserRecordOptions) {
         const listenStream = receiver.subscribe(userId).setMaxListeners(1);
         const filePath = path.join(audioOutputPath, `${dayjs().tz(timeZone).format(outputTimeFormat)}-${userId}.pcm`);
         const writeStream = createWriteStream(filePath);
@@ -87,16 +84,16 @@ export class UserRecord {
         const speakingMap = receiver.speaking;
 
         this.userId = userId;
-        this.beginTimestamp = Date.now();
         this.receiver = receiver;
         this.encoder = encoder;
         this.listenStream = listenStream;
         this.writeStream = writeStream;
         this.tempRecordingFilePath = filePath;
         this._isPausing = false;
-        this.beginTime = this._getExactTime();
+        this.beginTime = specifiedBeginTime ?? this._getExactTime();
 
-        if(this.isSpeaking) listenStream.on('data', this._writeRecordData);
+        if(specifiedBeginTime || this.isSpeaking) listenStream.on('data', this._writeRecordData);
+        if(specifiedBeginTime) listenStream.push(this._generateSilenceChunk(this._getExactTime() - specifiedBeginTime));
         if(!speakingMap.listenerCount('start', this._startSpeaking)) speakingMap.on('start', this._startSpeaking);
         if(!speakingMap.listenerCount('end', this._stopSpeaking)) speakingMap.on('end', this._stopSpeaking);
 
@@ -115,6 +112,10 @@ export class UserRecord {
         return this.writeStream.bytesWritten;
     }
 
+    public get beginTimestamp() {
+        return Math.floor(performance.timeOrigin) + this.beginTime;
+    }
+
     /**
      * Pause recording a user. Make sure that the user has not paused or an error will be thrown.
      * @returns {this}
@@ -130,14 +131,13 @@ export class UserRecord {
 
     /**
      * Resume recording a user. Make sure that the user has already paused or an error will be thrown.
-     * @returns {Promise<this>}
+     * @returns {this}
      */
-    public async resumeRecord (): Promise<this> {
+    public resumeRecord (): this {
         if (!this.isPausing) throw new Error('录音尚未暂停');
         const silenceTime = this._getExactTime() - this._lastTimeAcceptData!;
-        await this._writeSilenceData(silenceTime);
+        this.listenStream.on('data', this._writeRecordData).push(this._generateSilenceChunk(silenceTime));
         this._lastTimeAcceptData = this._getExactTime();
-        this.listenStream.on('data', this._writeRecordData);
         this._isPausing = false;
         logger.log(`RECORD 已继续对用户ID为${this.userId}的录音`);
         return this;
@@ -148,11 +148,11 @@ export class UserRecord {
      * @returns {Promise<this>}
      */
     public async stopRecord (): Promise<this> {
-        const { writeStream, listenStream, isPausing, isSpeaking, receiver, _lastTimeAcceptData, _writeSilenceData, _startSpeaking, _stopSpeaking, _getExactTime } = this;
+        const { writeStream, listenStream, isPausing, isSpeaking, receiver, _lastTimeAcceptData, _startSpeaking, _stopSpeaking, _generateSilenceChunk, _getExactTime } = this;
         if(writeStream.writableFinished) return this;
         listenStream.push(null);
-        if ((!isSpeaking || isPausing) && _lastTimeAcceptData) await _writeSilenceData(_getExactTime() - _lastTimeAcceptData);
-        writeStream.end();
+        const silenceChunk = _generateSilenceChunk((!isSpeaking || isPausing) ? (_getExactTime() - _lastTimeAcceptData!) : 0);
+        writeStream.end(silenceChunk);
         await once(writeStream, 'finish');
         listenStream.destroy().removeAllListeners('data');
         receiver.speaking.off('start', _startSpeaking).off('end', _stopSpeaking);
@@ -195,10 +195,11 @@ export class UserRecord {
 
 batchRecord
     .on('start', receiver => {
-        const createNewRecord = (userId: string) => !getUserRecording(userId) ? addUserRecording(userId, receiver) : null;
+        const createNewRecord = (startTime: number, userId: string) => !getUserRecording(userId) ? addUserRecording({ userId, receiver, beginTime: startTime }) : null;
         if(receiver.speaking.listenerCount('start', createNewRecord)) return;
-        receiver.speaking.users.forEach((_startSpeakingTime, userId) => createNewRecord(userId));
-        receiver.speaking.on('start', createNewRecord);
+        const startTime = Math.floor(performance.now());
+        receiver.speaking.users.forEach((_startSpeakingTime, userId) => createNewRecord(startTime, userId));
+        receiver.speaking.on('start', createNewRecord.bind(null, startTime));
         logger.log('RECORD 已开始对频道的录音');
     })
     .on('stop', async receiver => {

@@ -15,7 +15,7 @@ export const run: cmd['run'] = (message, args) => {
     if(voiceChannel !== memberGet(message, clientId)?.voice.channel) return reply(message, { content: '該用戶並未與機器人處於同一頻道' });
     if(getUserRecording(targetMember.id)) return reply(message, { content: '機器人早對該用戶錄音了' });
 
-    addUserRecording(targetMember.id, connection.receiver);
+    addUserRecording({ userId: targetMember.id, receiver: connection.receiver});
     return reply(message, { content: '正在錄音' });
 };
 
