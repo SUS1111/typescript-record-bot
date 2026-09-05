@@ -13,7 +13,7 @@ export type slashCommandOptionTypes = 'boolean' | 'channel' | 'integer' | 'menti
 export type ExtractMapKeys<T> = T extends Map<infer K, any> ? K : never;
 export type ExtractMapValue<T> = T extends Map<any, infer V> ? V : never;
 
-import { Client, Partials, Collection, type Message, type ChatInputCommandInteraction } from 'discord.js';
+import { Client, Collection, type Message, type ChatInputCommandInteraction } from 'discord.js';
 import config from './config';
 import logger from './modules/logger';
 import { validFileName } from './modules/functions';

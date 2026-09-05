@@ -79,7 +79,7 @@ export class UserRecord {
     constructor ({ userId, receiver, beginTime: specifiedBeginTime }: UserRecordOptions) {
         const listenStream = receiver.subscribe(userId).setMaxListeners(1);
         const filePath = path.join(audioOutputPath, `${dayjs().tz(timeZone).format(outputTimeFormat)}-${userId}.pcm`);
-        const writeStream = createWriteStream(filePath);
+        const writeStream = createWriteStream(filePath).setMaxListeners(1);
         const encoder = new OpusEncoder(sampleRate, channelCount);
         const speakingMap = receiver.speaking;
 
