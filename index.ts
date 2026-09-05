@@ -38,8 +38,7 @@ if(!validFileName(settings.outputTimeFormat)) throw new Error('这种文件名�
 if(!Intl.supportedValuesOf('timeZone').some(timeZone => timeZone === settings.timeZone)) throw new TypeError('这个时区是无效的');
 
 const intents = 53608447; // all intents
-const partials = [Partials.Channel, Partials.User, Partials.GuildMember, Partials.Message, Partials.Reaction, Partials.GuildScheduledEvent, Partials.ThreadMember];
-const client: Client<true> = new Client({ intents, partials });
+const client = new Client({ intents });
 
 const commands = new Collection<string, cmd>();
 const aliases = new Collection<string, string>();
