@@ -16,11 +16,10 @@ export const run: cmd['run'] = async (message, args) => {
         const cleaned = await clean(evaled).then(value => value.replace(/`/g, `\`${zeroWidthSpace}`).replace(/@/g, `@${zeroWidthSpace}`));
         logger.eval(`${cleaned}`);
         const jsBlock = codeBlock('js', cleaned);
-        if (jsBlock.length > 4096) return reply(message, { content: '物件过大，请查看控制台' });
-        return reply(message, { embeds: [new EmbedBuilder().setDescription(jsBlock).setColor(0xFFFF00)] });
-    } catch (err: any) {
-        logger.error(`${err}`);
-        return reply(message, { content: codeBlock('js', err) });
+        return reply(message, jsBlock.length > 4096 ? { content: '物件过大，请查看控制台' } : { embeds: [new EmbedBuilder({ description: jsBlock, color: 0xFFF000 })] });
+    } catch (err: unknown) {
+        logger.error(err);
+        return reply(message, { content: err instanceof Error ? codeBlock('js', err.message) : '发生了未知的错误' });
     }
 };
 

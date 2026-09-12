@@ -11,8 +11,8 @@ interface config {
     };
     permLevels: [{ level: 0, name: string, check: () => true }, ...{ level: number, name: string, check: (member: GuildMember) => boolean }[]];
     commandPaths: string[];
-    eventPaths: Map<string, string>;
-    categoryList: Map<string, string>;
+    eventPaths: ReadonlyMap<string, string>;
+    categoryList: ReadonlyMap<string, string>;
 }
 
 import type { GuildMember } from 'discord.js';

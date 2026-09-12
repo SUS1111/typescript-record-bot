@@ -1,17 +1,17 @@
 export interface cmd {
-    run: (message: Message<true> | ChatInputCommandInteraction<'cached'>, args: (string | undefined)[]) => Promise<Message>;
+    run: (message: Message<true> | ChatInputCommandInteraction<'cached'>, args: string[]) => Promise<Message>;
     conf: {
         name: string;
         permLevel: typeof permLevels[number]['name'];
         aliases: string[];
-        category: ExtractMapKeys<typeof config['categoryList']>;
+        category: ExtractReadonlyMapKeys<typeof config['categoryList']>;
         description: string;
-        args: Map<string, { required: boolean, description: string, type: slashCommandOptionTypes }>
+        args: ReadonlyMap<string, { required: boolean, description: string, type: slashCommandOptionTypes }>
     }
 };
 export type slashCommandOptionTypes = 'boolean' | 'channel' | 'integer' | 'mentionable' | 'number' | 'role' | 'string' | 'user';
-export type ExtractMapKeys<T> = T extends Map<infer K, any> ? K : never;
-export type ExtractMapValue<T> = T extends Map<any, infer V> ? V : never;
+export type ExtractReadonlyMapKeys<T> = T extends ReadonlyMap<infer K, any> ? K : never;
+export type ExtractReadonlyMapValues<T> = T extends ReadonlyMap<any, infer V> ? V : never;
 
 import { Client, Collection, type Message, type ChatInputCommandInteraction } from 'discord.js';
 import config from './config';

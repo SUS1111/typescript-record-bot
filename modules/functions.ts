@@ -18,7 +18,7 @@ import {
     type SlashCommandStringOption
 } from 'discord.js';
 import config from '../config';
-import type { cmd, ExtractMapKeys, ExtractMapValue, slashCommandOptionTypes } from '..';
+import type { cmd, ExtractReadonlyMapKeys, ExtractReadonlyMapValues, slashCommandOptionTypes } from '..';
 import { ZipArchive } from 'archiver';
 import { createWriteStream } from 'fs';
 import path from 'path';
@@ -47,13 +47,13 @@ export const clean = async (object: unknown): Promise<string> => {
     return value.replace(new RegExp(process.env.token!, 'g'), '[REDACTED]');
 };
 
-export const addOption = (slashCmd: SlashCommandBuilder, option: ExtractMapValue<cmd['conf']['args']> & { name: ExtractMapKeys<cmd['conf']['args']> }): SlashCommandOptionsOnlyBuilder => {
+export const addOption = (slashCmd: SlashCommandBuilder, option: ExtractReadonlyMapValues<cmd['conf']['args']> & { name: ExtractReadonlyMapKeys<cmd['conf']['args']> }): SlashCommandOptionsOnlyBuilder => {
     // return Symbol(`add${type.charAt(0).toUpperCase() + type.slice(1)}Option`);
     const { name, description, required, type } = option;
     const buildSlashCommandOption = <Type extends slashCommandBuilderOptions>(builder: Type): Type => {
         return builder.setName(name).setDescription(description).setRequired(required) as Type;
     };
-    const slashCommandOption: Map<slashCommandOptionTypes, (slashCommand: SlashCommandBuilder) => SlashCommandOptionsOnlyBuilder> = new Map([
+    const slashCommandOption = new Map<slashCommandOptionTypes, (slashCommand: SlashCommandBuilder) => SlashCommandOptionsOnlyBuilder>([
         ['boolean', (slashCommand) => slashCommand.addBooleanOption(buildSlashCommandOption)],
         ['channel', (slashCommand) => slashCommand.addChannelOption(buildSlashCommandOption)],
         ['integer', (slashCommand) => slashCommand.addIntegerOption(buildSlashCommandOption)],
