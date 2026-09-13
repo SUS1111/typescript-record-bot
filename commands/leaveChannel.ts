@@ -10,7 +10,8 @@ export const run: cmd['run'] = async(message, args) => {
     if(hasRecordings()) {
         const forceLeave = args[0]?.toLowerCase() === 'true';
         if(!forceLeave) return reply(message, { content: '機器人還在錄音' });
-        await stopAllRecording(connection.receiver).then(() => exportAllRecording(true)).then(clearAllRecording);
+        if(message.member?.id !== process.env.ownerId) return reply(message, { content: '你没有权限这么做!' });
+        await stopAllRecording(connection.receiver).then(() => exportAllRecording(false)).then(clearAllRecording);
     }
 
     return reply(message, { content: connection.disconnect() ? '成功離開頻道': '離開頻道失敗' });

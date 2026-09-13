@@ -80,7 +80,7 @@ export const channelGet = (message: Message<true> | ChatInputCommandInteraction<
     return message.guild.channels.cache.get(channelMatched);
 };
 
-export const validFileName = (filename: string): boolean => filename !== '.' && filename !== '..' && !/[<>:"/\\|?*\u0000-\u001F]/g.test(filename) && !/^(con|prn|aux|nul|com\d|lpt\d)$/i.test(filename) && filename.length < 255;
+export const validFileName = (filename: string): boolean => filename !== '' && filename !== '.' && filename !== '..' && !/[<>:"/\\|?*\u0000-\u001F]/g.test(filename) && !/^(con|prn|aux|nul|com\d|lpt\d)$/i.test(filename) && filename.length < 255;
 
 export const fileArchive = (zipFilePath: string, ...filePaths: string[]): Promise<void> => {
     logger.log(`RECORD 已开始压缩${filePaths.join(' ,')}至${zipFilePath}`);

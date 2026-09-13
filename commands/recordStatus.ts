@@ -1,4 +1,4 @@
-import { EmbedBuilder, bold, TimestampStyles, time, type APIEmbedField } from "discord.js";
+import { EmbedBuilder, bold, TimestampStyles, time, type APIEmbedField, type EmbedFooterData } from "discord.js";
 import { type cmd, container } from "..";
 import { memberGet, reply } from '../modules/functions';
 import { hasRecordings, mappedRecordings, type UserRecord } from "../modules/recordings";
@@ -22,13 +22,8 @@ export const run: cmd['run'] = async message => {
         return { name: memberGet(message, userRecording.userId)!.user.username, value: recordingData };
     });
     const { client } = message.guild;
-    const embed = new EmbedBuilder()
-        .setTitle('錄音狀況')
-        .addFields(fields)
-        .setColor(0xFFFF00)
-        .setTimestamp()
-        .setFooter({ text: client.user.username, iconURL: client.user.displayAvatarURL() });
-    return reply(message, { embeds: [embed] });
+    const footer: EmbedFooterData = { text: client.user.username, iconURL: client.user.displayAvatarURL() };
+    return reply(message, { embeds: [new EmbedBuilder({ title: '錄音狀況', fields, color: 0xFFF000, timestamp: Date.now(), footer })] });
 }
 
 export const conf: cmd['conf'] = {

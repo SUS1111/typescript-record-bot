@@ -7,7 +7,7 @@ import { type cmd, container, type ExtractReadonlyMapValues, type ExtractReadonl
 
 const { commands, aliases } = container;
 const { categoryList } = config;
-const typeList: ReadonlyMap<slashCommandOptionTypes, string> = new Map<slashCommandOptionTypes, string>([
+const typeList: ReadonlyMap<slashCommandOptionTypes, string> = new Map([
     ['boolean', '布林值(true或false)'],
     ['channel', '頻道'],
     ['integer', '整數'],
@@ -19,7 +19,7 @@ const typeList: ReadonlyMap<slashCommandOptionTypes, string> = new Map<slashComm
 ]);
 
 const overallHelpCommand = (bot: ClientUser): [EmbedBuilder] => {
-    const fields: APIEmbedField[] = Array.from(categoryList, ([ categoryId, categoryName ]: string[]): APIEmbedField => {
+    const fields = Array.from(categoryList, ([ categoryId, categoryName ]: string[]): APIEmbedField => {
         const flatMapFunc = (cmd: cmd) => cmd.conf.category === categoryId ? inlineCode(cmd.conf.name) : [];
         return { name: categoryName!, value: [...commands.values()].flatMap(flatMapFunc).join(', ') };
     });
@@ -32,7 +32,7 @@ const specificHelpCommand = (bot: ClientUser, command: cmd): [EmbedBuilder, Embe
     const mapFunc = ([name, { required, description, type }]: commandArgumentAsArray): APIEmbedField => {
         return { name, value: `必填參數: ${required ? '是' : '否'}\n說明: ${description}\n類型: ${typeList.get(type)}` };
     };
-    const argsFields: APIEmbedField[] = Array.from(commandArgs, mapFunc);
+    const argsFields = Array.from(commandArgs, mapFunc);
     const footer: EmbedFooterData = { text: bot.username, iconURL: bot.displayAvatarURL() };
     const mainEmbed = new EmbedBuilder({
         title: command.conf.name,

@@ -5,7 +5,7 @@ import type { cmd } from '..';
 import { clearAllRecording, exportAllRecording, hasRecordings, stopAllRecording } from "../modules/recordings";
 
 export const run: cmd['run'] = async (message, args) => {
-    const channel = channelGet(message, args[1]) || message.member?.voice.channel;
+    const channel = channelGet(message, args[0]) || message.member?.voice.channel;
     if(!channel) return reply(message, { content: '找不到頻道' });
     if(channel.type !== ChannelType.GuildVoice && channel.type !== ChannelType.GuildStageVoice) return reply(message, { content: '機器人只能加入語音頻道' });
 
@@ -14,9 +14,10 @@ export const run: cmd['run'] = async (message, args) => {
     if(originalConnection && memberGet(message, clientId)?.voice.channel === channel) return reply(message, { content: '機器人已經在指定的頻道了' });
 
     if(hasRecordings()) {
-        const forceJoin = args[0]?.toLowerCase() === 'true';
+        const forceJoin = args[1]?.toLowerCase() === 'true';
         if(!forceJoin) return reply(message, { content: '機器人還在錄音' });
-        if (originalConnection) await stopAllRecording(originalConnection.receiver).then(() => exportAllRecording(true)).then(clearAllRecording);
+        if(message.member?.id !== process.env.ownerId) return reply(message, { content: '你没有权限这么做!' });
+        if (originalConnection) await stopAllRecording(originalConnection.receiver).then(() => exportAllRecording(false)).then(clearAllRecording);
     }
 
     const newConnection = joinVoiceChannel({
@@ -35,8 +36,8 @@ export const conf: cmd['conf'] = {
     permLevel: 'User',
     aliases: ['joinchannel', 'joinvoicechannel'],
     args: new Map([
-        ['强制加入', { required: false, description: '即使在錄音當中也讓機器人加入頻道', type: 'boolean' }],
-        ['頻道', { required: false, description: '想要讓機器人加入的頻道', type: 'channel' }]
+        ['頻道', { required: false, description: '想要讓機器人加入的頻道', type: 'channel' }],
+        ['强制加入', { required: false, description: '即使在錄音當中也讓機器人加入頻道', type: 'boolean' }]
     ]),
     category: 'voice',
     description: '讓機器人加入語音頻道'
